@@ -1,4 +1,4 @@
-# forge
+# F.O.R.G.E.
 
 > **F**usion **O**f **R**eal **T**ime **G**enerative **E**ffects
 
