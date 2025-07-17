@@ -16,9 +16,9 @@ depcomp
 Makefile.in
 configure~
 config.status
-margen
+forge
 *.tar.gz
 configure
-src/margen*
+src/forge*
 *.pkg.tar.zst
 pkg

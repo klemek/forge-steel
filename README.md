@@ -6,6 +6,11 @@ TODO
 
 ## Install
 
+### Prerequisites
+
+* libglfw
+* libGL
+
 ### From release
 
 See [Releases](https://github.com/klemek/forge/releases)
@@ -73,4 +78,24 @@ git commit -am "update arch sha256"
 
 ## Roadmap
 
-TODO
+- [ ] Basics
+  - [x] Create GLSL Window
+  - [ ] Load fragment shader into GLSL
+  - [ ] Read fragment shader from file
+  - [ ] Minimal working fragment sample
+  - [ ] Hot-reload fragment shader
+  - [ ] Force fullscreen
+  - [ ] Select screen as argument
+- [ ] Midi
+  - [ ] Read Midi events
+  - [ ] Read midi mapping config file
+  - [ ] Write Midi events
+- [ ] MVP
+  - [ ] Add required libraries in target build
+  - [ ] Include fragments with special directive
+  - [ ] Source mixing
+  - [ ] Save midi state
+- [ ] Advanced
+  - [ ] Video input
+  - [ ] Feedback input
+  - [ ] Tap-tempo feature
