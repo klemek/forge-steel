@@ -20,7 +20,7 @@ void print_help(int status_code) {
 
 void invalid_arg(char *arg) {
   fprintf(stderr, "invalid argument: '%s'\n\n", arg);
-  print_help(1);
+  print_help(EXIT_FAILURE);
 }
 
 bool is_arg(char *arg, char *ref) { return strcoll(arg, ref) == 0; }
@@ -40,10 +40,10 @@ parameters parse_args(int argc, char **argv) {
     arg = argv[i];
     value = split_arg_value(arg);
     if (is_arg(arg, "--help")) {
-      print_help(0);
+      print_help(EXIT_SUCCESS);
     } else if (is_arg(arg, "-v") || is_arg(arg, "--version")) {
       puts(PACKAGE " " VERSION);
-      exit(0);
+      exit(EXIT_SUCCESS);
     } else {
       invalid_arg(arg);
     }

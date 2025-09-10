@@ -9,7 +9,10 @@ clean:
 
 build:
 	@mkdir -p build
-	gcc -Wall -Wextra src/*.c src/*.h -lglfw -lGL -lm -o build/$(TARGET)
+	gcc -Wall -Wextra src/*.c glad/src/*.c src/*.h -lglfw -lGL -lm -Iglad/include -ldl -o build/$(TARGET)
+
+run: build
+	./build/forge
 
 .PHONY: install
 install: build

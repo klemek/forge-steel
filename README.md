@@ -83,7 +83,8 @@ make -f Makefile.dev release-arch
 
 - [ ] Basics
   - [x] Create GLSL Window
-  - [ ] Load fragment shader into GLSL
+  - [x] Load static fragment shader into GLSL
+  - [ ] Add default uniforms
   - [ ] Read fragment shader from file
   - [ ] Minimal working fragment sample
   - [ ] Hot-reload fragment shader

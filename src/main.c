@@ -3,11 +3,12 @@
 #include "forge.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
   parameters params;
   params = parse_args(argc, argv);
   puts(PACKAGE " " VERSION);
   forge_run(params);
-  return 0;
+  return EXIT_SUCCESS;
 }
