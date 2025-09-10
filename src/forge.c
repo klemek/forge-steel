@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "linmath.h"
 
@@ -120,7 +119,6 @@ void forge_run(parameters params) {
 
     mat4x4 m, p, mvp;
     mat4x4_identity(m);
-    // mat4x4_rotate_Z(m, m, (float) glfwGetTime());
     mat4x4_ortho(p, 0, ratio, 0.0f, 1.0f, 1.0f, 0.0f);
     mat4x4_mul(mvp, p, m);
 
