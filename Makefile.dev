@@ -9,7 +9,7 @@ clean:
 
 build:
 	@mkdir -p build
-	gcc -Wall src/*.c src/*.h -lglfw -lGL -lm -o build/$(TARGET)
+	gcc -Wall -Wextra src/*.c src/*.h -lglfw -lGL -lm -o build/$(TARGET)
 
 .PHONY: install
 install: build

@@ -15,7 +15,7 @@ TODO
 
 See [Releases](https://github.com/klemek/forge/releases)
 
-```sh
+```shell
 tar xvzf forge-x.y.z.tar.gz
 cd forge-x.y.z
 ./configure
@@ -25,7 +25,7 @@ make install
 
 ### From repository (PKGBUILD)
 
-```sh
+```shell
 git clone https://github.com/klemek/forge
 cd forge
 forge -si
@@ -34,7 +34,7 @@ forge -si
 
 ### From repository (dev version)
 
-```sh
+```shell
 git clone https://github.com/klemek/forge
 cd forge
 aclocal
@@ -59,21 +59,24 @@ options:
 
 ## Release guide
 
-```bash
+```shell
+# get latest version
+git pull origin master
 # update configure.ac with new version
 $EDITOR configure.ac
 # make full build
 make -f Makefile.dev release
+# update PKGBUILD with new version and sha256 sum
+sha256sum forge-x.y.z.tar.gz
+$EDITOR PKGBUILD
 # push to repo
 git commit -am "forge vX.Y.Z"
 git tag vX.Y.Z
 git push origin master --tags
 # create release from tag on github
-# update PKGBUILD with new sha256 sum
-sha256sum forge-x.y.z.tar.gz
+# attach .tar.gz to the github release
 make -f Makefile.dev release-arch
-git commit -am "update arch sha256"
-# add .pkg.tar.zst on the release
+# attach .pkg.tar.zst to the github release
 ```
 
 ## Roadmap
