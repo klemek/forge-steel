@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: install libs
-        run: libglfw3-dev
+        run: apt install libglfw3-dev
       - name: gcc
         run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lm
 
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: install libs
-        run: libglfw3-dev
+        run: apt install libglfw3-dev
       - name: aclocal
         run: aclocal
       - name: autoconf
