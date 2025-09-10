@@ -6,5 +6,6 @@ AC_CHECK_HEADERS([stdlib.h])
 AC_CHECK_HEADERS([stdbool.h])
 AC_CHECK_HEADERS([string.h])
 AC_CHECK_HEADERS([time.h])
+AC_CHECK_HEADERS([GLFW/glfw3.h])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

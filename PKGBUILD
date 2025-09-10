@@ -3,6 +3,7 @@ pkgver=0.0.0
 pkgrel=1
 pkgdesc="Fusion Of Real Time Generative Effects"
 arch=('i686' 'pentium4' 'x86_64' 'arm' 'armv7h' 'armv6h' 'aarch64' 'riscv64')
+depends=('glfw>=1:3.0')
 url="https://github.com/klemek/forge"
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/klemek/forge/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
 sha256sums=('TODO')
