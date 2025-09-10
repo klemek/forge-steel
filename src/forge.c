@@ -33,11 +33,17 @@ static const char *vertex_shader_text =
 static const char *fragment_shader_text =
     "#version 330\n"
     "uniform float iTime;\n"
+    "uniform vec2 iResolution;\n"
     "in vec2 vUV;\n"
     "out vec4 fragColor;\n"
     "void main()\n"
     "{\n"
-    "    fragColor = vec4(vUV.x, vUV.y, abs(sin(iTime)), 1.0);\n"
+    "    vec2 uv0 = vUV.st;\n"
+    "    float ratio = iResolution.x / iResolution.y;\n"
+    "    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);\n"
+    "    vec3 color = vec3(vUV, 0.0);\n"
+    "    color *= 1 - step(abs(sin(iTime) * 0.5),length(uv1));\n"
+    "    fragColor = vec4(color, 1.0);\n"
     "}\n";
 
 void error_callback(int error, const char *description) {
@@ -100,6 +106,7 @@ void forge_run(parameters params) {
 
   const GLint mvp_location = glGetUniformLocation(program, "mvp");
   const GLint itime_location = glGetUniformLocation(program, "iTime");
+  const GLint ires_location = glGetUniformLocation(program, "iResolution");
   const GLint vpos_location = glGetAttribLocation(program, "vPos");
 
   GLuint vertex_array;
@@ -113,6 +120,7 @@ void forge_run(parameters params) {
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     const float ratio = width / (float)height;
+    vec2 resolution = {(float)width, (float)height};
 
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -125,6 +133,7 @@ void forge_run(parameters params) {
     glUseProgram(program);
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
     glUniform1f(itime_location, (const GLfloat)glfwGetTime());
+    glUniform2fv(ires_location, 1, (const GLfloat *)&resolution);
     glBindVertexArray(vertex_array);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
