@@ -12,9 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: install libs
-        run: sudo apt install -y libglfw3-dev
+        run: sudo apt install -y libglfw3-dev libgl
       - name: gcc
-        run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lm
+        run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lglfw -lGL -lm -Iinclude -ldl
 
   build-release:
     needs: lint
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: install libs
-        run: sudo apt install -y libglfw3-dev
+        run: sudo apt install -y libglfw3-dev libgl-dev
       - name: aclocal
         run: aclocal
       - name: autoconf
