@@ -22,8 +22,14 @@ install: build
 valgrind: build
 	valgrind --leak-check=full -s ./build/$(TARGET) $(TEST_ARGS)
 
-.PHONY: clean-release
-clean-release:
+.PHONY: release
+release: clean
+	aclocal
+	autoconf
+	automake --add-missing
+	./configure
+	make distcheck
+	cp $(TARGET)-*.tar.gz build
 	@rm -rf \
 		autom4te.cache \
 		aclocal.m4 \
@@ -33,20 +39,13 @@ clean-release:
 		depcomp \
 		$(TARGET) \
 		$(TARGET)-*.tar.gz \
+		$(TARGET)-*.pkg.tar.zst \
 		install-sh \
 		Makefile \
 		Makefile.in \
 		missing \
 		src/.* \
-		src/*.o
-
-.PHONY: release
-release: clean-release
-	aclocal
-	autoconf
-	automake --add-missing
-	./configure
-	make distcheck
+		src/*.o \
 
 .PHONY: release-arch
 release-arch: clean

@@ -21,3 +21,4 @@ forge
 configure
 *.pkg.tar.zst
 pkg
+forge-*
