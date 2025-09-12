@@ -22,8 +22,26 @@ install: build
 valgrind: build
 	valgrind --leak-check=full -s ./build/$(TARGET) $(TEST_ARGS)
 
+.PHONY: clean-release
+clean-release:
+	@rm -rf \
+		autom4te.cache \
+		aclocal.m4 \
+		compile \
+		config.* \
+		configure \
+		depcomp \
+		$(TARGET) \
+		$(TARGET)-*.tar.gz \
+		install-sh \
+		Makefile \
+		Makefile.in \
+		missing \
+		src/.* \
+		src/*.o
+
 .PHONY: release
-release:
+release: clean-release
 	aclocal
 	autoconf
 	automake --add-missing
