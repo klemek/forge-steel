@@ -48,13 +48,14 @@ make install
 ## CLI arguments
 
 ```txt
-usage: forge [--help] [-v]
+usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-f=FRAG_PATH] 
 
 Fusion Of Real-time Generative Effects.
 
 options:
-  --help             show this help message and exit
+  -h, --help         show this help message and exit
   -v, --version      print version
+  -hr, --hot-reload  hot reload of shaders scripts
   -s, --screen       output screen number (default: primary)
   -f, --frag         fragment shader path (default: TODO)
 ```
@@ -90,7 +91,7 @@ make -f Makefile.dev release-arch
   - [x] Read fragment shader from file
   - [ ] Handle compilation errors
   - [x] Minimal working fragment sample
-  - [x] Hot-reload fragment shader
+  - [x] Hot-reload fragment shader (with arg)
   - [x] Specify fragment shader path
   - [x] Force fullscreen
   - [x] Select screen as argument / config

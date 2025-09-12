@@ -9,15 +9,17 @@
 void print_help(int status_code) {
   puts(PACKAGE " " VERSION "\n\n"
                "usage: " PACKAGE " "
-               "[--help] "
+               "[-h] "
                "[-v] "
+               "[-hr] "
                "[-s=SCREEN] "
                "[-f=FRAG_PATH] "
                "\n\n"
                "Fusion Of Real-time Generative Effects.\n\n"
                "options:\n"
-               "  --help             show this help message and exit\n"
+               "  -h, --help         show this help message and exit\n"
                "  -v, --version      print version\n"
+               "  -hr, --hot-reload  hot reload of shaders scripts\n"
                "  -s, --screen       output screen number (default: primary)\n"
                "  -f, --frag         fragment shader path (default: TODO)\n");
   exit(status_code);
@@ -68,7 +70,7 @@ unsigned char parse_uchar(char *arg, char *value) {
 }
 
 Parameters parse_args(int argc, char **argv) {
-  Parameters params = {0, 0};
+  Parameters params = {0, 0, false};
 
   int i;
   char *arg;
@@ -76,11 +78,13 @@ Parameters parse_args(int argc, char **argv) {
   for (i = 1; i < argc; i++) {
     arg = argv[i];
     value = split_arg_value(arg);
-    if (is_arg(arg, "--help")) {
+    if (is_arg(arg, "-h") || is_arg(arg, "--help")) {
       print_help(EXIT_SUCCESS);
     } else if (is_arg(arg, "-v") || is_arg(arg, "--version")) {
       puts(PACKAGE " " VERSION);
       exit(EXIT_SUCCESS);
+    } else if (is_arg(arg, "-hr") || is_arg(arg, "--hot-reload")) {
+      params.hot_reload = true;
     } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
       params.screen = parse_uchar(arg, value);
     } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {

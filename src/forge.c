@@ -199,7 +199,7 @@ void forge_run(Parameters params) {
   }
 
   while (!glfwWindowShouldClose(window)) {
-    if (should_update_file(&fragment_shader)) {
+    if (params.hot_reload && should_update_file(&fragment_shader)) {
       update_file(&fragment_shader);
       update_program(program, fragment_shader);
     }

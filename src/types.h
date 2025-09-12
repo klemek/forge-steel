@@ -10,6 +10,7 @@
 typedef struct Parameters {
   unsigned char screen;
   char *frag_path;
+  bool hot_reload;
 } Parameters;
 
 typedef struct Vertex {
