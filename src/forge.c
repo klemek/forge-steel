@@ -37,8 +37,8 @@ static const char *fragment_shader_text =
     "    vec2 uv0 = vUV.st;\n"
     "    float ratio = iResolution.x / iResolution.y;\n"
     "    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);\n"
-    "    vec3 color = vec3(vUV, 0.0);\n"
-    "    color *= 1 - step(abs(sin(iTime) * 0.5),length(uv1));\n"
+    "    vec3 color = vec3(vUV, sin(iTime * 0.5) * 0.5 + 0.5);\n"
+    "    color *= 1 - step(cos(iTime) * 0.5 + 0.5,length(uv1));\n"
     "    fragColor = vec4(color, 1.0);\n"
     "}\n";
 
@@ -120,7 +120,6 @@ ShaderProgram init_program() {
 void loop(GLFWwindow *window, ShaderProgram program) {
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
-  const float ratio = width / (float)height;
   vec2 resolution = {(float)width, (float)height};
 
   glViewport(0, 0, width, height);
@@ -128,7 +127,7 @@ void loop(GLFWwindow *window, ShaderProgram program) {
 
   mat4x4 m, p, mvp;
   mat4x4_identity(m);
-  mat4x4_ortho(p, 0, ratio, 0.0f, 1.0f, 1.0f, 0.0f);
+  mat4x4_ortho(p, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f);
   mat4x4_mul(mvp, p, m);
 
   glUseProgram(program.program);
