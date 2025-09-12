@@ -9,6 +9,7 @@
 
 typedef struct Parameters {
   unsigned char screen;
+  char *frag_path;
 } Parameters;
 
 typedef struct Vertex {

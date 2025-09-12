@@ -12,7 +12,7 @@ build:
 	gcc -Wall -Wextra src/*.c src/*.h -lglfw -lGL -lm -Iinclude -ldl -o build/$(TARGET)
 
 run: build
-	./build/forge
+	./build/forge --frag=./shaders/frag.glsl
 
 .PHONY: install
 install: build

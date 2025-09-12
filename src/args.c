@@ -7,18 +7,19 @@
 #include "config.h"
 
 void print_help(int status_code) {
-  puts(PACKAGE
-       " " VERSION "\n\n"
-       "usage: " PACKAGE " "
-       "[--help] "
-       "[-v] "
-       "[-s=SCREEN] "
-       "\n\n"
-       "Fusion Of Real-time Generative Effects.\n\n"
-       "options:\n"
-       "  --help             show this help message and exit\n"
-       "  -v, --version      print version\n"
-       "  -s, --screen       output screen number (default: primary)\n");
+  puts(PACKAGE " " VERSION "\n\n"
+               "usage: " PACKAGE " "
+               "[--help] "
+               "[-v] "
+               "[-s=SCREEN] "
+               "[-f=FRAG_PATH] "
+               "\n\n"
+               "Fusion Of Real-time Generative Effects.\n\n"
+               "options:\n"
+               "  --help             show this help message and exit\n"
+               "  -v, --version      print version\n"
+               "  -s, --screen       output screen number (default: primary)\n"
+               "  -f, --frag         fragment shader path (default: TODO)\n");
   exit(status_code);
 }
 
@@ -67,9 +68,7 @@ unsigned char parse_uchar(char *arg, char *value) {
 }
 
 Parameters parse_args(int argc, char **argv) {
-  Parameters params;
-
-  params.screen = 0;
+  Parameters params = {0, 0};
 
   int i;
   char *arg;
@@ -84,9 +83,16 @@ Parameters parse_args(int argc, char **argv) {
       exit(EXIT_SUCCESS);
     } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
       params.screen = parse_uchar(arg, value);
+    } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {
+      params.frag_path = value;
     } else {
       invalid_arg(arg);
     }
+  }
+
+  if (params.frag_path == 0) {
+    fprintf(stderr, "required argument -f/--frag\n\n");
+    exit(EXIT_FAILURE);
   }
 
   return params;

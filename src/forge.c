@@ -181,7 +181,7 @@ void loop(GLFWwindow *window, ShaderProgram program) {
 void forge_run(Parameters params) {
   GLFWwindow *window;
 
-  File fragment_shader = read_file("shaders/tmp.glsl");
+  File fragment_shader = read_file(params.frag_path);
 
   if (fragment_shader.error) {
     fprintf(stderr, "Cannot read file\n");
