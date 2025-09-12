@@ -1,3 +1,5 @@
+[![CI](https://github.com/klemek/forge/actions/workflows/ci.yml/badge.svg)](https://github.com/klemek/forge/actions/workflows/ci.yml)
+
 # F.O.R.G.E.
 
 > **F**usion **O**f **R**eal **T**ime **G**enerative **E**ffects
