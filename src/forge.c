@@ -3,9 +3,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include "linmath.h"
+#include <linmath.h>
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>

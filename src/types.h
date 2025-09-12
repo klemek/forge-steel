@@ -1,5 +1,5 @@
-#include "linmath.h"
 #include <glad/gl.h>
+#include <linmath.h>
 
 #ifndef TYPES_H
 #define TYPES_H
