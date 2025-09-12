@@ -3,6 +3,6 @@
 #ifndef FORGE_H
 #define FORGE_H
 
-void forge_run(parameters params);
+void forge_run(Parameters params);
 
 #endif

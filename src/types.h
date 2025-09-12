@@ -4,9 +4,9 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-struct Parameters {
-  // TODO
-};
+typedef struct Parameters {
+  unsigned char screen;
+} Parameters;
 
 typedef struct Vertex {
   vec2 pos;
@@ -27,7 +27,5 @@ typedef struct ShaderProgram {
 
   GLuint vertex_array;
 } ShaderProgram;
-
-typedef struct Parameters parameters;
 
 #endif

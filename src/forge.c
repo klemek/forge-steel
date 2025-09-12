@@ -45,42 +45,69 @@ static const char *fragment_shader_text =
 
 void error_callback(int error, const char *description) {
   fprintf(stderr, "Error %d: %s\n", error, description);
+  glfwTerminate();
+  exit(EXIT_FAILURE);
 }
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
+  // close window on escape key
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 }
 
-void *init_window(GLFWwindow **window) {
+void *init_window(GLFWwindow **window, Parameters params) {
+  // set errors handler
   glfwSetErrorCallback(error_callback);
 
+  // print current GLFW version
   fprintf(stdout, "[GLFW] %s\n", glfwGetVersionString());
 
+  // init GLFW
   if (!glfwInit()) {
     fprintf(stderr, "[GLFW] Initialization failed\n");
     exit(EXIT_FAILURE);
   }
 
+  // add context to window before creation
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_DECORATED, NULL);
+  glfwWindowHint(GLFW_DECORATED, 0);
 
-  (*window) = glfwCreateWindow(640, 480, PACKAGE " " VERSION,
-                               glfwGetPrimaryMonitor(), NULL);
+  // detect monitors
+  int count;
+  GLFWmonitor **monitors = glfwGetMonitors(&count);
 
+  // check selected monitor availability
+  if (params.screen >= count) {
+    fprintf(stderr, "Screen %d is out of range [0-%d]\n", params.screen,
+            count - 1);
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+  }
+
+  // create fullscreen window in selected monitor
+  (*window) = glfwCreateWindow(1, 1, PACKAGE " " VERSION,
+                               monitors[params.screen], NULL);
+
+  // handle window creation fail
   if (!(*window)) {
     fprintf(stderr, "[GLFW] Window or context creation failed\n");
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
 
+  // use current window
   glfwMakeContextCurrent((*window));
+  // link GLAD and GLFW window
   gladLoadGL(glfwGetProcAddress);
+  // set keyboard handler
   glfwSetKeyCallback((*window), key_callback);
+  // hide cursor
+  glfwSetInputMode((*window), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+  // vsync
   glfwSwapInterval(1);
 
   return window;
@@ -144,10 +171,10 @@ void loop(GLFWwindow *window, ShaderProgram program) {
   glfwPollEvents();
 }
 
-void forge_run(parameters params) {
+void forge_run(Parameters params) {
   GLFWwindow *window;
 
-  init_window(&window);
+  init_window(&window, params);
 
   ShaderProgram program = init_program();
 

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 int main(int argc, char **argv) {
-  parameters params;
+  Parameters params;
   params = parse_args(argc, argv);
   puts(PACKAGE " " VERSION);
   forge_run(params);

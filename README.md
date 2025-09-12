@@ -55,6 +55,7 @@ Fusion Of Real-time Generative Effects.
 options:
   --help             show this help message and exit
   -v, --version      print version
+  -s, --screen       output screen number (default: primary)
 ```
 
 ## Release guide
@@ -89,8 +90,8 @@ make -f Makefile.dev release-arch
   - [ ] Handle compilation errors
   - [ ] Minimal working fragment sample
   - [ ] Hot-reload fragment shader
-  - [ ] Force fullscreen
-  - [ ] Select screen as argument
+  - [x] Force fullscreen
+  - [ ] Select screen as argument / config
 - [ ] Midi
   - [ ] Read Midi events
   - [ ] Read midi mapping config file
