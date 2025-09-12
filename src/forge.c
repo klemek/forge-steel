@@ -11,10 +11,6 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-typedef struct Vertex {
-  vec2 pos;
-} Vertex;
-
 static const Vertex vertices[6] = {{{0.0f, 0.0f}}, {{0.0f, 1.0f}},
                                    {{1.0f, 1.0f}}, {{0.0f, 0.0f}},
                                    {{1.0f, 1.0f}}, {{1.0f, 0.0f}}};
@@ -57,9 +53,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 }
 
-void forge_run(parameters params) {
-  GLFWwindow *window;
-
+void *init_window(GLFWwindow **window) {
   glfwSetErrorCallback(error_callback);
 
   fprintf(stdout, "[GLFW] %s\n", glfwGetVersionString());
@@ -73,72 +67,90 @@ void forge_run(parameters params) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  window = glfwCreateWindow(640, 480, PACKAGE " " VERSION, NULL, NULL);
+  (*window) = glfwCreateWindow(640, 480, PACKAGE " " VERSION, NULL, NULL);
 
-  if (!window) {
+  if (!(*window)) {
     fprintf(stderr, "[GLFW] Window or context creation failed\n");
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
 
-  glfwMakeContextCurrent(window);
+  glfwMakeContextCurrent((*window));
   gladLoadGL(glfwGetProcAddress);
-  glfwSetKeyCallback(window, key_callback);
+  glfwSetKeyCallback((*window), key_callback);
   glfwSwapInterval(1);
 
-  GLuint vertex_buffer;
-  glGenBuffers(1, &vertex_buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+  return window;
+}
+
+ShaderProgram init_program() {
+  ShaderProgram program = {};
+
+  glGenBuffers(1, &program.vertex_buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, program.vertex_buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  const GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
-  glCompileShader(vertex_shader);
+  program.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(program.vertex_shader, 1, &vertex_shader_text, NULL);
+  glCompileShader(program.vertex_shader);
 
-  const GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
-  glCompileShader(fragment_shader);
+  program.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(program.fragment_shader, 1, &fragment_shader_text, NULL);
+  glCompileShader(program.fragment_shader);
 
-  const GLuint program = glCreateProgram();
-  glAttachShader(program, vertex_shader);
-  glAttachShader(program, fragment_shader);
-  glLinkProgram(program);
+  program.program = glCreateProgram();
+  glAttachShader(program.program, program.vertex_shader);
+  glAttachShader(program.program, program.fragment_shader);
+  glLinkProgram(program.program);
 
-  const GLint mvp_location = glGetUniformLocation(program, "mvp");
-  const GLint itime_location = glGetUniformLocation(program, "iTime");
-  const GLint ires_location = glGetUniformLocation(program, "iResolution");
-  const GLint vpos_location = glGetAttribLocation(program, "vPos");
+  program.mvp_location = glGetUniformLocation(program.program, "mvp");
+  program.itime_location = glGetUniformLocation(program.program, "iTime");
+  program.ires_location = glGetUniformLocation(program.program, "iResolution");
+  program.vpos_location = glGetAttribLocation(program.program, "vPos");
 
-  GLuint vertex_array;
-  glGenVertexArrays(1, &vertex_array);
-  glBindVertexArray(vertex_array);
-  glEnableVertexAttribArray(vpos_location);
-  glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                        (void *)offsetof(Vertex, pos));
+  glGenVertexArrays(1, &program.vertex_array);
+  glBindVertexArray(program.vertex_array);
+  glEnableVertexAttribArray(program.vpos_location);
+  glVertexAttribPointer(program.vpos_location, 2, GL_FLOAT, GL_FALSE,
+                        sizeof(Vertex), (void *)offsetof(Vertex, pos));
+
+  return program;
+}
+
+void loop(GLFWwindow *window, ShaderProgram program) {
+  int width, height;
+  glfwGetFramebufferSize(window, &width, &height);
+  const float ratio = width / (float)height;
+  vec2 resolution = {(float)width, (float)height};
+
+  glViewport(0, 0, width, height);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  mat4x4 m, p, mvp;
+  mat4x4_identity(m);
+  mat4x4_ortho(p, 0, ratio, 0.0f, 1.0f, 1.0f, 0.0f);
+  mat4x4_mul(mvp, p, m);
+
+  glUseProgram(program.program);
+  glUniformMatrix4fv(program.mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
+  glUniform1f(program.itime_location, (const GLfloat)glfwGetTime());
+  glUniform2fv(program.ires_location, 1, (const GLfloat *)&resolution);
+  glBindVertexArray(program.vertex_array);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+
+  glfwSwapBuffers(window);
+  glfwPollEvents();
+}
+
+void forge_run(parameters params) {
+  GLFWwindow *window;
+
+  init_window(&window);
+
+  ShaderProgram program = init_program();
 
   while (!glfwWindowShouldClose(window)) {
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    const float ratio = width / (float)height;
-    vec2 resolution = {(float)width, (float)height};
-
-    glViewport(0, 0, width, height);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    mat4x4 m, p, mvp;
-    mat4x4_identity(m);
-    mat4x4_ortho(p, 0, ratio, 0.0f, 1.0f, 1.0f, 0.0f);
-    mat4x4_mul(mvp, p, m);
-
-    glUseProgram(program);
-    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
-    glUniform1f(itime_location, (const GLfloat)glfwGetTime());
-    glUniform2fv(ires_location, 1, (const GLfloat *)&resolution);
-    glBindVertexArray(vertex_array);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+    loop(window, program);
   }
 
   glfwTerminate();
