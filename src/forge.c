@@ -19,10 +19,11 @@ void error_callback(int error, const char *description) {
   exit(EXIT_FAILURE);
 }
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
+static void key_callback(GLFWwindow *window, int key,
+                         __attribute__((unused)) int scancode, int action,
                          int mods) {
   // close window on escape key
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS && mods == 0) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 }
