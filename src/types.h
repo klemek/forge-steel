@@ -1,5 +1,7 @@
 #include <glad/gl.h>
 #include <linmath.h>
+#include <stdbool.h>
+#include <time.h>
 
 #ifndef TYPES_H
 #define TYPES_H
@@ -11,6 +13,13 @@ typedef struct Parameters {
 typedef struct Vertex {
   vec2 pos;
 } Vertex;
+
+typedef struct File {
+  char *path;
+  char *content;
+  bool error;
+  time_t last_write;
+} File;
 
 typedef struct ShaderProgram {
   GLuint program;

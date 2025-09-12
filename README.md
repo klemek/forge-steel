@@ -91,7 +91,7 @@ make -f Makefile.dev release-arch
   - [ ] Minimal working fragment sample
   - [ ] Hot-reload fragment shader
   - [x] Force fullscreen
-  - [ ] Select screen as argument / config
+  - [x] Select screen as argument / config
 - [ ] Midi
   - [ ] Read Midi events
   - [ ] Read midi mapping config file
@@ -105,3 +105,4 @@ make -f Makefile.dev release-arch
   - [ ] Video input
   - [ ] Feedback input
   - [ ] Tap-tempo feature
+  - [ ] Monitor screen feature (other window)
