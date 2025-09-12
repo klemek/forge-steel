@@ -27,12 +27,12 @@ void print_help(int status_code) {
 
 void invalid_arg(char *arg) {
   fprintf(stderr, "invalid argument: '%s'\n\n", arg);
-  print_help(1);
+  print_help(EXIT_FAILURE);
 }
 
 void invalid_value(char *arg, char *value) {
   fprintf(stderr, "invalid value for argument '%s': '%s'\n\n", arg, value);
-  print_help(1);
+  print_help(EXIT_FAILURE);
 }
 
 bool is_arg(char *arg, char *ref) { return strcoll(arg, ref) == 0; }
