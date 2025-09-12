@@ -86,10 +86,11 @@ make -f Makefile.dev release-arch
   - [x] Create GLSL Window
   - [x] Load static fragment shader into GLSL
   - [x] Add default uniforms
-  - [ ] Read fragment shader from file
+  - [x] Read fragment shader from file
   - [ ] Handle compilation errors
-  - [ ] Minimal working fragment sample
-  - [ ] Hot-reload fragment shader
+  - [x] Minimal working fragment sample
+  - [x] Hot-reload fragment shader
+  - [ ] Specify fragment shader path
   - [x] Force fullscreen
   - [x] Select screen as argument / config
 - [ ] Midi

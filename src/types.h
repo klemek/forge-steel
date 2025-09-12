@@ -1,7 +1,8 @@
-#include <glad/gl.h>
-#include <linmath.h>
 #include <stdbool.h>
 #include <time.h>
+
+#include <glad/gl.h>
+#include <linmath.h>
 
 #ifndef TYPES_H
 #define TYPES_H
@@ -35,6 +36,8 @@ typedef struct ShaderProgram {
   GLuint ires_location;
 
   GLuint vertex_array;
+
+  bool error;
 } ShaderProgram;
 
 #endif

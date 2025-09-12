@@ -1,9 +1,10 @@
-#include "args.h"
-#include "config.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "args.h"
+#include "config.h"
 
 void print_help(int status_code) {
   puts(PACKAGE

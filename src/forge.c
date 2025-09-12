@@ -1,46 +1,17 @@
-#include "config.h"
-#include "types.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <linmath.h>
+#include "config.h"
+#include "constants.h"
+#include "file.h"
+#include "types.h"
 
+#include <linmath.h>
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-
-static const Vertex vertices[6] = {{{0.0f, 0.0f}}, {{0.0f, 1.0f}},
-                                   {{1.0f, 1.0f}}, {{0.0f, 0.0f}},
-                                   {{1.0f, 1.0f}}, {{1.0f, 0.0f}}};
-
-static const char *vertex_shader_text =
-    "#version 330\n"
-    "uniform mat4 mvp;\n"
-    "in vec2 vPos;\n"
-    "out vec2 vUV;\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = mvp * vec4(vPos, 0.0, 1.0);\n"
-    "    vUV = vPos;\n"
-    "}\n";
-
-static const char *fragment_shader_text =
-    "#version 330\n"
-    "uniform float iTime;\n"
-    "uniform vec2 iResolution;\n"
-    "in vec2 vUV;\n"
-    "out vec4 fragColor;\n"
-    "void main()\n"
-    "{\n"
-    "    vec2 uv0 = vUV.st;\n"
-    "    float ratio = iResolution.x / iResolution.y;\n"
-    "    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);\n"
-    "    vec3 color = vec3(vUV, sin(iTime * 0.5) * 0.5 + 0.5);\n"
-    "    color *= 1 - step(cos(iTime) * 0.5 + 0.5,length(uv1));\n"
-    "    fragColor = vec4(color, 1.0);\n"
-    "}\n";
 
 void error_callback(int error, const char *description) {
   fprintf(stderr, "Error %d: %s\n", error, description);
@@ -56,6 +27,8 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 }
 
+// TODO extract to window file
+// TODO split into smaller functions
 void *init_window(GLFWwindow **window, Parameters params) {
   // set errors handler
   glfwSetErrorCallback(error_callback);
@@ -112,8 +85,11 @@ void *init_window(GLFWwindow **window, Parameters params) {
   return window;
 }
 
-ShaderProgram init_program() {
+// TODO extract to "shaders" file
+// TODO split into smaller functions
+ShaderProgram init_program(File fragment_shader) {
   ShaderProgram program = {};
+  GLint status_params;
 
   glGenBuffers(1, &program.vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, program.vertex_buffer);
@@ -123,9 +99,26 @@ ShaderProgram init_program() {
   glShaderSource(program.vertex_shader, 1, &vertex_shader_text, NULL);
   glCompileShader(program.vertex_shader);
 
+  glGetShaderiv(program.vertex_shader, GL_COMPILE_STATUS, &status_params);
+  if (status_params == GL_FALSE) {
+    program.error = true;
+    // TODO use glGetShaderInfoLog( 	GLuint shader, GLsizei
+    // maxLength, GLsizei *length, GLchar *infoLog);
+  }
+
   program.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(program.fragment_shader, 1, &fragment_shader_text, NULL);
+  glShaderSource(program.fragment_shader, 1,
+                 (const GLchar *const *)&fragment_shader.content, NULL);
   glCompileShader(program.fragment_shader);
+
+  glGetShaderiv(program.fragment_shader, GL_COMPILE_STATUS, &status_params);
+  if (status_params == GL_FALSE) {
+    program.error = true;
+  }
+
+  if (program.error) {
+    return program;
+  }
 
   program.program = glCreateProgram();
   glAttachShader(program.program, program.vertex_shader);
@@ -144,6 +137,21 @@ ShaderProgram init_program() {
                         sizeof(Vertex), (void *)offsetof(Vertex, pos));
 
   return program;
+}
+
+// TODO extract to "shaders" file
+void update_program(ShaderProgram program, File fragment_shader) {
+  GLint status_params;
+  glShaderSource(program.fragment_shader, 1,
+                 (const GLchar *const *)&fragment_shader.content, NULL);
+  glCompileShader(program.fragment_shader);
+
+  glGetShaderiv(program.fragment_shader, GL_COMPILE_STATUS, &status_params);
+  if (status_params == GL_FALSE) {
+    fprintf(stderr, "Failed to compile shaders\n"); // TODO add info
+    return;
+  }
+  glLinkProgram(program.program);
 }
 
 void loop(GLFWwindow *window, ShaderProgram program) {
@@ -173,13 +181,32 @@ void loop(GLFWwindow *window, ShaderProgram program) {
 void forge_run(Parameters params) {
   GLFWwindow *window;
 
+  File fragment_shader = read_file("shaders/tmp.glsl");
+
+  if (fragment_shader.error) {
+    fprintf(stderr, "Cannot read file\n");
+    exit(EXIT_FAILURE);
+  }
+
   init_window(&window, params);
 
-  ShaderProgram program = init_program();
+  ShaderProgram program = init_program(fragment_shader);
+
+  if (program.error) {
+    fprintf(stderr, "Failed to compile shaders\n");
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+  }
 
   while (!glfwWindowShouldClose(window)) {
+    if (should_update_file(&fragment_shader)) {
+      update_file(&fragment_shader);
+      update_program(program, fragment_shader);
+    }
     loop(window, program);
   }
 
   glfwTerminate();
+
+  free_file(&fragment_shader);
 }

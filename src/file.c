@@ -23,7 +23,9 @@ bool should_update_file(File *file) {
 
 void update_file(File *file) {
   // free remaining data
-  free(file->content);
+  if (file->content != 0) {
+    free(file->content);
+  }
   // init empty file
   file->content = 0;
   file->error = false;
@@ -56,7 +58,9 @@ void update_file(File *file) {
 }
 
 File read_file(char *path) {
-  File file = {path, 0, 0, 0};
+  File file = {path, 0, false, 0};
   update_file(&file);
   return file;
 }
+
+void free_file(File *file) { free(file->content); }

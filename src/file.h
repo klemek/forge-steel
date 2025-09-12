@@ -9,4 +9,6 @@ bool should_update_file(File *file);
 
 void update_file(File *file);
 
+void free_file(File *file);
+
 #endif

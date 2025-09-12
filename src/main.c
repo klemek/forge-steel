@@ -1,9 +1,10 @@
-#include "args.h"
-#include "config.h"
-#include "forge.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "args.h"
+#include "config.h"
+#include "forge.h"
 
 int main(int argc, char **argv) {
   Parameters params;
