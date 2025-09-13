@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <linmath.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -92,4 +93,37 @@ Window *init_window(Parameters params,
   use_window(window);
 
   return window;
+}
+
+void update_window(Window *window) {
+  // swap front and back buffers
+  glfwSwapBuffers(window);
+  // listen to mouse and keyboard events
+  glfwPollEvents();
+}
+
+Context get_window_context(Window *window) {
+  Context context;
+
+  glfwGetFramebufferSize(window, &context.width, &context.height);
+
+  context.time = glfwGetTime();
+
+  return context;
+}
+
+void close_window(Window *window, bool hard) {
+  if (hard) {
+    glfwTerminate();
+  } else {
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+}
+
+bool window_should_close(Window *window) {
+  return glfwWindowShouldClose(window) == GLFW_TRUE;
+}
+
+bool escape_key(int key, int action) {
+  return key == GLFW_KEY_ESCAPE && action == GLFW_PRESS;
 }

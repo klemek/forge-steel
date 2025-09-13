@@ -46,4 +46,10 @@ typedef struct ShaderProgram {
 
 typedef GLFWwindow Window;
 
+typedef struct Context {
+  int width;
+  int height;
+  double time;
+} Context;
+
 #endif

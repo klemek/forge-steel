@@ -72,3 +72,23 @@ void update_program(ShaderProgram program, File fragment_shader) {
   }
   glLinkProgram(program.program);
 }
+
+void apply_program(ShaderProgram program, Context context) {
+  mat4x4 m, p, mvp;
+
+  glViewport(0, 0, context.width, context.height);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  mat4x4_identity(m);
+  mat4x4_ortho(p, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+  mat4x4_mul(mvp, p, m);
+
+  vec2 resolution = {(float)context.width, (float)context.height};
+
+  glUseProgram(program.program);
+  glUniformMatrix4fv(program.mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
+  glUniform1f(program.itime_location, (const GLfloat)context.time);
+  glUniform2fv(program.ires_location, 1, (const GLfloat *)&resolution);
+  glBindVertexArray(program.vertex_array);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+}
