@@ -6,19 +6,16 @@
 
 #include "types.h"
 
-void update_file_time(File *file) {
+time_t get_file_time(File file) {
   struct stat attr;
-  if (stat(file->path, &attr) == 0) {
-    file->last_write = attr.st_mtime;
+  if (stat(file.path, &attr) == 0) {
+    return attr.st_mtim.tv_sec;
   }
+  return 0;
 }
 
-bool should_update_file(File *file) {
-  struct stat attr;
-  if (stat(file->path, &attr) == 0) {
-    return file->last_write != attr.st_mtime;
-  }
-  return false;
+bool should_update_file(File file) {
+  return file.last_write != get_file_time(file);
 }
 
 void update_file(File *file) {
@@ -54,7 +51,7 @@ void update_file(File *file) {
   // append null byte
   file->content[length] = '\0';
   // read last update time
-  update_file_time(file);
+  file->last_write = get_file_time(*file);
 }
 
 File read_file(char *path) {

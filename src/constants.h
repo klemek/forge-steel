@@ -3,7 +3,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-static const char *vertex_shader_text =
+static char *vertex_shader_text =
     "#version 330\n"
     "uniform mat4 mvp;\n"
     "in vec2 vPos;\n"

@@ -24,12 +24,12 @@ static void key_callback(Window *window, int key,
 }
 
 void loop(Window *window, ShaderProgram program, bool hot_reload,
-          File fragment_shader) {
+          File *fragment_shader) {
   Context context;
 
-  if (hot_reload && should_update_file(&fragment_shader)) {
-    update_file(&fragment_shader);
-    update_program(program, fragment_shader);
+  if (hot_reload && should_update_file(*fragment_shader)) {
+    update_file(fragment_shader);
+    update_program(program, *fragment_shader);
   }
 
   context = get_window_context(window);
@@ -60,7 +60,7 @@ void forge_run(Parameters params) {
   }
 
   while (!window_should_close(window)) {
-    loop(window, program, params.hot_reload, fragment_shader);
+    loop(window, program, params.hot_reload, &fragment_shader);
   }
 
   close_window(window, true);

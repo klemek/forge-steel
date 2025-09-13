@@ -49,6 +49,9 @@ GLFWwindow *create_window(GLFWmonitor *monitor,
                           void (*key_callback)(Window *, int, int, int, int)) {
   // Window related hints
   glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+  glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
+  glfwWindowHint(GLFW_CENTER_CURSOR, GLFW_FALSE);
+  glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
 
   // create fullscreen window in selected monitor
   GLFWwindow *window =

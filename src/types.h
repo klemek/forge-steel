@@ -27,21 +27,20 @@ typedef struct File {
 } File;
 
 typedef struct ShaderProgram {
-  GLuint program;
+  bool error;
 
-  GLuint vertex_buffer;
+  GLuint program;
 
   GLuint vertex_shader;
   GLuint fragment_shader;
 
   GLuint mvp_location;
-  GLuint vpos_location;
   GLuint itime_location;
   GLuint ires_location;
 
+  GLuint vertex_buffer;
   GLuint vertex_array;
-
-  bool error;
+  GLuint vpos_location;
 } ShaderProgram;
 
 typedef GLFWwindow Window;
