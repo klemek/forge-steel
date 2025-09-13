@@ -28,16 +28,16 @@ make install
 ### From repository (PKGBUILD)
 
 ```shell
-git clone https://github.com/klemek/forge
+git clone --recursive https://github.com/klemek/forge
 cd forge
-forge -si
+makepkg -si
 ```
 
 
 ### From repository (dev version)
 
 ```shell
-git clone https://github.com/klemek/forge
+git clone --recursive https://github.com/klemek/forge
 cd forge
 aclocal
 autoconf
