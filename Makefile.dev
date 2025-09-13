@@ -9,7 +9,7 @@ clean:
 
 build:
 	@mkdir -p build
-	gcc -v -Wall -Wextra src/*.c src/*.h -Iinclude -lglfw -lGL -lm -ldl -o build/$(TARGET)
+	gcc -Wall -Wextra src/*.h src/*.c -Iinclude -lglfw -lGL -lm -o build/$(TARGET)
 
 run: build
 	./build/forge --hot-reload --frag=./shaders/frag.glsl

@@ -72,7 +72,7 @@ $EDITOR configure.ac
 # make full build
 make -f Makefile.dev release
 # update PKGBUILD with new version and sha256 sum
-sha256sum forge-x.y.z.tar.gz
+sha256sum build/forge-x.y.z.tar.gzx
 $EDITOR PKGBUILD
 # push to repo
 git commit -am "forge vX.Y.Z"

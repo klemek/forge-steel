@@ -1,8 +1,9 @@
 #include <stdbool.h>
 #include <time.h>
 
-#include <glad/gl.h>
 #include <linmath.h>
+
+#include "glfw.h"
 
 #ifndef TYPES_H
 #define TYPES_H
@@ -41,5 +42,7 @@ typedef struct ShaderProgram {
 
   bool error;
 } ShaderProgram;
+
+typedef GLFWwindow Window;
 
 #endif

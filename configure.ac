@@ -4,6 +4,7 @@ AC_PROG_CC
 AC_CHECK_HEADERS([stdio.h])
 AC_CHECK_HEADERS([stdlib.h])
 AC_CHECK_HEADERS([stdbool.h])
+AC_CHECK_HEADERS([stddef.h])
 AC_CHECK_HEADERS([string.h])
 AC_CHECK_HEADERS([time.h])
 AC_CHECK_HEADERS([sys/stat.h])

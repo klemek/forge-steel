@@ -1,5 +1,8 @@
 #include "types.h"
 
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
 static const char *vertex_shader_text =
     "#version 330\n"
     "uniform mat4 mvp;\n"
@@ -14,3 +17,5 @@ static const char *vertex_shader_text =
 static const Vertex vertices[6] = {{{0.0f, 0.0f}}, {{0.0f, 1.0f}},
                                    {{1.0f, 1.0f}}, {{0.0f, 0.0f}},
                                    {{1.0f, 1.0f}}, {{1.0f, 0.0f}}};
+
+#endif
