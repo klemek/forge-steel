@@ -1,16 +1,13 @@
 #include <GLFW/glfw3.h>
+#include <linmath.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <linmath.h>
 
 #include "config.h"
 #include "types.h"
 
-#ifndef GLAD_GL_IMPLEMENTATION
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
-#endif
 
 // TODO split into smaller functions
 // TODO custom struct to remove glfw in signature

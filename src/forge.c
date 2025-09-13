@@ -1,10 +1,9 @@
 #include <GLFW/glfw3.h>
+#include <glad/gl.h>
+#include <linmath.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <glad/gl.h>
-#include <linmath.h>
 
 #include "file.h"
 #include "shaders.h"
