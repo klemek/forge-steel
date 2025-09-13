@@ -44,7 +44,8 @@ GLFWmonitor *get_monitor(unsigned char screen_index) {
   return monitors[screen_index];
 }
 
-GLFWwindow *create_window(GLFWmonitor *monitor) {
+GLFWwindow *create_window(GLFWmonitor *monitor,
+                          void (*key_callback)(Window *, int, int, int, int)) {
   // Window related hints
   glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
@@ -59,19 +60,19 @@ GLFWwindow *create_window(GLFWmonitor *monitor) {
     exit(EXIT_FAILURE);
   }
 
-  return window;
-}
-
-void use_window(GLFWwindow *window,
-                void (*key_callback)(Window *, int, int, int, int)) {
-  // use current window
-  glfwMakeContextCurrent(window);
-  // link GLAD and GLFW window
-  gladLoadGL(glfwGetProcAddress);
   // set keyboard handler
   glfwSetKeyCallback(window, key_callback);
   // hide cursor
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+  return window;
+}
+
+void use_window(GLFWwindow *window) {
+  // use current window
+  glfwMakeContextCurrent(window);
+  // link GLAD and GLFW window
+  gladLoadGL(glfwGetProcAddress);
   // vsync
   glfwSwapInterval(1);
 }
@@ -86,9 +87,9 @@ Window *init_window(Parameters params,
 
   monitor = get_monitor(params.screen);
 
-  window = create_window(monitor);
+  window = create_window(monitor, key_callback);
 
-  use_window(window, key_callback);
+  use_window(window);
 
   return window;
 }
