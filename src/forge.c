@@ -62,7 +62,7 @@ void forge_run(Parameters params) {
     exit(EXIT_FAILURE);
   }
 
-  init_window(&window, params, error_callback, key_callback);
+  window = init_window(params, error_callback, key_callback);
 
   ShaderProgram program = init_program(fragment_shader);
 
