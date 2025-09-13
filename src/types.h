@@ -1,9 +1,13 @@
 #include <stdbool.h>
 #include <time.h>
 
+#include <glad/gl.h>
 #include <linmath.h>
 
-#include "glfw.h"
+#ifndef GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#endif
 
 #ifndef TYPES_H
 #define TYPES_H

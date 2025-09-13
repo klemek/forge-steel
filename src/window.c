@@ -4,8 +4,9 @@
 #include <linmath.h>
 
 #include "config.h"
-#include "glfw.h"
 #include "types.h"
+
+#include "glfw.h"
 
 // TODO split into smaller functions
 // TODO custom struct to remove glfw in signature
@@ -25,8 +26,8 @@ void *init_window(Window **window, Parameters params,
   }
 
   // add context to window before creation
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_DECORATED, 0);
 

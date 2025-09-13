@@ -1,9 +1,9 @@
 #include <stddef.h>
+#include <stdio.h>
 
 #include <linmath.h>
 
 #include "constants.h"
-#include "glfw.h"
 #include "types.h"
 
 // TODO split into smaller functions

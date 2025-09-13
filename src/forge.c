@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <linmath.h>
+
 #include "file.h"
-#include "glfw.h"
 #include "shaders.h"
 #include "types.h"
 #include "window.h"

@@ -14,7 +14,7 @@ jobs:
       - name: install libs
         run: sudo apt install -y libglfw3-dev libgl-dev
       - name: gcc
-        run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lglfw -lGL -lm -Iinclude -ldl
+        run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lglfw -lGL -lm -Iinclude
 
   build-release:
     needs: lint
