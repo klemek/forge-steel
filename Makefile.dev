@@ -14,6 +14,7 @@ build:
 		-Iinclude \
 		-lm -lGL -lglfw \
 		-Wall -Wextra \
+		-DGLFW_INCLUDE_NONE \
 		-o build/$(TARGET)
 
 run: build

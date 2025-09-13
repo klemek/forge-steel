@@ -1,1 +1,2 @@
 -Iinclude
+-DGLFW_INCLUDE_NONE

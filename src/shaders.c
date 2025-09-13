@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include <glad/gl.h>
 #include <linmath.h>
 
 #include "constants.h"
