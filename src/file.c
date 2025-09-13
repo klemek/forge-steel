@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "logs.h"
 #include "types.h"
 
 time_t get_file_time(File file) {
@@ -23,6 +24,7 @@ void update_file(File *file) {
   if (file->content != 0) {
     free(file->content);
   }
+  log_info("Reading '%s'...", file->path);
   // init empty file
   file->content = 0;
   file->error = false;
@@ -31,6 +33,7 @@ void update_file(File *file) {
   FILE *file_pointer = fopen(file->path, "rb");
   if (!file_pointer) {
     file->error = true;
+    log_error("Cannot open file '%s'", file->path);
     return;
   }
   // read file length
@@ -42,6 +45,7 @@ void update_file(File *file) {
   if (!file->content) {
     file->error = true;
     fclose(file_pointer);
+    log_error("Cannot read file '%s'", file->path);
     return;
   }
   // read file

@@ -5,21 +5,24 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "logs.h"
 #include "types.h"
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 
 void init_glfw(void (*error_callback)(int, const char *)) {
+  log_info("[GLFW] Initializing...");
+
   // set errors handler
   glfwSetErrorCallback(error_callback);
 
   // print current GLFW version
-  fprintf(stdout, "[GLFW] %s\n", glfwGetVersionString());
+  log_info("[GLFW] %s", glfwGetVersionString());
 
   // init GLFW
   if (!glfwInit()) {
-    fprintf(stderr, "[GLFW] Initialization failed\n");
+    log_error("[GLFW] Initialization failed");
     exit(EXIT_FAILURE);
   }
 
@@ -27,6 +30,8 @@ void init_glfw(void (*error_callback)(int, const char *)) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  log_success("[GLFS] Initialized...");
 }
 
 GLFWmonitor *get_monitor(unsigned char screen_index) {
@@ -36,8 +41,8 @@ GLFWmonitor *get_monitor(unsigned char screen_index) {
 
   // check selected monitor availability
   if (screen_index >= count) {
-    fprintf(stderr, "Screen %d is out of range [0-%d]\n", screen_index,
-            count - 1);
+    log_error("[GLFW] Screen %d is out of range [0-%d]", screen_index,
+              count - 1);
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
@@ -47,6 +52,9 @@ GLFWmonitor *get_monitor(unsigned char screen_index) {
 
 GLFWwindow *create_window(GLFWmonitor *monitor,
                           void (*key_callback)(Window *, int, int, int, int)) {
+
+  log_info("[GLFW] Creating window...");
+
   // Window related hints
   glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
   glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
@@ -59,7 +67,7 @@ GLFWwindow *create_window(GLFWmonitor *monitor,
 
   // handle window creation fail
   if (!window) {
-    fprintf(stderr, "[GLFW] Window or context creation failed\n");
+    log_error("[GLFW] Window or context creation failed");
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
@@ -68,6 +76,8 @@ GLFWwindow *create_window(GLFWmonitor *monitor,
   glfwSetKeyCallback(window, key_callback);
   // hide cursor
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+  log_success("[GLFW] Window created");
 
   return window;
 }
@@ -117,8 +127,10 @@ Context get_window_context(Window *window) {
 
 void close_window(Window *window, bool hard) {
   if (hard) {
+    log_info("[GLFW] Terminating library...");
     glfwTerminate();
   } else {
+    log_info("[GLFW] Closing window...");
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 }

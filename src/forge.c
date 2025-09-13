@@ -1,15 +1,15 @@
 #include <linmath.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "file.h"
+#include "logs.h"
 #include "shaders.h"
 #include "types.h"
 #include "window.h"
 
 void error_callback(int error, const char *description) {
-  fprintf(stderr, "Error %d: %s\n", error, description);
+  log_error("[GLFW] %d: %s", error, description);
   close_window(0, true);
   exit(EXIT_FAILURE);
 }
@@ -45,7 +45,6 @@ void forge_run(Parameters params) {
   File fragment_shader = read_file(params.frag_path);
 
   if (fragment_shader.error) {
-    fprintf(stderr, "Cannot read file\n");
     exit(EXIT_FAILURE);
   }
 
@@ -54,7 +53,6 @@ void forge_run(Parameters params) {
   ShaderProgram program = init_program(fragment_shader);
 
   if (program.error) {
-    fprintf(stderr, "Failed to compile shaders\n");
     close_window(window, true);
     exit(EXIT_FAILURE);
   }

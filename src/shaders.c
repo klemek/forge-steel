@@ -1,14 +1,16 @@
 #include <glad/gl.h>
 #include <linmath.h>
 #include <stddef.h>
-#include <stdio.h>
 
 #include "constants.h"
+#include "logs.h"
 #include "types.h"
 
 bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   GLint status_params;
   char log[1024];
+
+  log_info("Compiling '%s'...", name);
 
   // update shader source code
   glShaderSource(shader_id, 1, (const GLchar **)&source_code, NULL);
@@ -21,9 +23,9 @@ bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   glGetShaderInfoLog(shader_id, 1024, NULL, (GLchar *)&log);
 
   if (status_params == GL_FALSE) {
-    fprintf(stderr, "Failed to compile shader '%s'\n%s\n", name, log);
+    log_error("Failed to compile\n%s", log);
   } else {
-    fprintf(stdout, "Compiled shader '%s'\n", name);
+    log_success("Compilation successful");
   }
 
   return status_params == GL_TRUE;
@@ -72,6 +74,8 @@ ShaderProgram init_program(File fragment_shader) {
   glVertexAttribPointer(program.vpos_location, 2, GL_FLOAT, GL_FALSE,
                         sizeof(Vertex), (void *)offsetof(Vertex, pos));
 
+  log_success("Program initialized");
+
   return program;
 }
 
@@ -84,6 +88,8 @@ void update_program(ShaderProgram program, File fragment_shader) {
   if (result) {
     // re-link program
     glLinkProgram(program.program);
+
+    log_success("Program updated");
   }
 }
 

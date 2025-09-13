@@ -5,6 +5,7 @@
 
 #include "args.h"
 #include "config.h"
+#include "logs.h"
 
 void print_help(int status_code) {
   puts(PACKAGE " " VERSION "\n\n"
@@ -26,12 +27,12 @@ void print_help(int status_code) {
 }
 
 void invalid_arg(char *arg) {
-  fprintf(stderr, "invalid argument: '%s'\n\n", arg);
+  log_error("invalid argument: '%s'", arg);
   print_help(EXIT_FAILURE);
 }
 
 void invalid_value(char *arg, char *value) {
-  fprintf(stderr, "invalid value for argument '%s': '%s'\n\n", arg, value);
+  log_error("invalid value for argument '%s': '%s'", arg, value);
   print_help(EXIT_FAILURE);
 }
 
@@ -95,7 +96,7 @@ Parameters parse_args(int argc, char **argv) {
   }
 
   if (params.frag_path == 0) {
-    fprintf(stderr, "required argument -f/--frag\n\n");
+    log_error("required argument -f/--frag");
     exit(EXIT_FAILURE);
   }
 
