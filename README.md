@@ -86,18 +86,18 @@ make -f Makefile.dev release-arch
 
 ## Roadmap
 
-- [ ] Basics
+- [x] Basics
   - [x] Create GLSL Window
   - [x] Load static fragment shader into GLSL
   - [x] Add default uniforms
   - [x] Read fragment shader from file
-  - [ ] Handle compilation errors
+  - [x] Handle compilation errors
   - [x] Minimal working fragment sample
   - [x] Hot-reload fragment shader (with arg)
   - [x] Specify fragment shader path
   - [x] Force fullscreen
   - [x] Select screen as argument / config
-  - [ ] Clean code
+  - [x] Clean code
 - [ ] Multi-stage shaders
   - [ ] Test 2 stages with render to texture
   - [ ] 2 in 2 fx 1 mix 1 fx layout
