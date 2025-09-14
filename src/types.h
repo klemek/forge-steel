@@ -36,8 +36,9 @@ typedef struct ShaderProgram {
   GLuint programs[BUFFER_COUNT + 1];
 
   GLuint vertex_shader;
-  GLuint fragment_shader;
   GLuint output_fragment_shader;
+
+  GLuint fragment_shader; // TODO multiple
 
   GLuint itime_locations[BUFFER_COUNT];
   GLuint ires_locations[BUFFER_COUNT];
