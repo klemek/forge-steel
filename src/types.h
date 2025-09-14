@@ -34,6 +34,7 @@ typedef struct ShaderProgram {
 
   GLuint vertex_shader;
   GLuint fragment_shader;
+  GLuint output_fragment_shader;
 
   GLuint mvp_location;
   GLuint itime_location;

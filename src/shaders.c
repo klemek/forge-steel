@@ -103,6 +103,11 @@ ShaderProgram init_program(File fragment_shader, Context context) {
   program.error |= !compile_shader(
       program.fragment_shader, fragment_shader.path, fragment_shader.content);
 
+  program.output_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  program.error |=
+      !compile_shader(program.output_fragment_shader,
+                      "internal fragment shader", output_fragment_shader_text);
+
   if (program.error) {
     return program;
   }
@@ -111,6 +116,7 @@ ShaderProgram init_program(File fragment_shader, Context context) {
   program.program = glCreateProgram();
   glAttachShader(program.program, program.vertex_shader);
   glAttachShader(program.program, program.fragment_shader);
+  glAttachShader(program.program, program.output_fragment_shader);
   glLinkProgram(program.program);
 
   // create uniforms pointers
