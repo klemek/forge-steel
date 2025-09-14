@@ -59,6 +59,7 @@ void forge_run(Parameters params) {
   ShaderProgram program;
   Window *window;
   Timer timer;
+  Context context;
 
   fragment_shader = read_file(params.frag_path);
 
@@ -69,7 +70,9 @@ void forge_run(Parameters params) {
   window = init_window(PACKAGE " " VERSION, params.screen, error_callback,
                        key_callback);
 
-  program = init_program(fragment_shader);
+  context = get_window_context(window);
+
+  program = init_program(fragment_shader, context);
 
   if (program.error) {
     close_window(window, true);

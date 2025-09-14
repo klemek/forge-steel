@@ -2,6 +2,7 @@
 #include <linmath.h>
 #include <stddef.h>
 
+#include "config.h"
 #include "constants.h"
 #include "logs.h"
 #include "types.h"
@@ -31,13 +32,66 @@ bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-ShaderProgram init_program(File fragment_shader) {
-  ShaderProgram program = {0};
+ShaderProgram init_program(File fragment_shader, Context context) {
+  int i, j;
+  GLenum draw_buffers[BUFFER_COUNT];
+  char uniform_name[32];
+
+  for (i = 0; i < BUFFER_COUNT; i++) {
+    draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+  }
+
+  ShaderProgram program = {.error = false, .frame_buffers = FRAMEBUFFER_IDS};
 
   // create vertex buffer and setup vertices
   glGenBuffers(1, &program.vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, program.vertex_buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  // create framebuffers and textures
+  glGenTextures(1, program.textures);
+  glGenFramebuffers(BUFFER_COUNT, program.frame_buffers);
+  glGenRenderbuffers(BUFFER_COUNT, program.render_buffers);
+  for (i = 0; i < BUFFER_COUNT; i++) {
+    glTextureParameteri(program.textures[i], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(program.textures[i], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(program.textures[i], GL_TEXTURE_WRAP_S,
+                        GL_CLAMP_TO_EDGE);
+    glTextureParameteri(program.textures[i], GL_TEXTURE_WRAP_T,
+                        GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_2D, program.textures[i]);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.width, context.height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, program.render_buffers[i]);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, context.width,
+                          context.height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                              GL_RENDERBUFFER, program.render_buffers[i]);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                              GL_RENDERBUFFER, program.render_buffers[i]);
+
+    for (j = 0; j < BUFFER_COUNT; j++) {
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j,
+                             GL_TEXTURE_2D, program.textures[j], 0);
+    }
+
+    glDrawBuffers(BUFFER_COUNT, draw_buffers);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+      log_error("Framebuffer %d is KO: %x", i,
+                glCheckFramebufferStatus(GL_FRAMEBUFFER));
+      program.error = true;
+      return program;
+    }
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   // compile vertex shader
   program.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -63,6 +117,12 @@ ShaderProgram init_program(File fragment_shader) {
   program.mvp_location = glGetUniformLocation(program.program, "mvp");
   program.itime_location = glGetUniformLocation(program.program, "iTime");
   program.ires_location = glGetUniformLocation(program.program, "iResolution");
+
+  for (i = 0; i < BUFFER_COUNT; i++) {
+    sprintf(uniform_name, "frame%d", i);
+    program.frames_location[i] =
+        glGetUniformLocation(program.program, uniform_name);
+  }
 
   // create attribute pointer
   program.vpos_location = glGetAttribLocation(program.program, "vPos");

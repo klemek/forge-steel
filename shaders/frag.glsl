@@ -2,8 +2,10 @@
 
 uniform float iTime;
 uniform vec2 iResolution;
+uniform sampler2D frame0;
 in vec2 vUV;
 out vec4 fragColor;
+layout(location = 0) out vec4 fragColor2;
 
 void main() {
     vec2 uv0 = vUV.st;
@@ -12,4 +14,5 @@ void main() {
     vec3 color = vec3(vUV, sin(iTime * 0.5) * 0.5 + 0.5);
     color *= 1 - step(cos(iTime) * 0.1 + 0.5,length(uv1));
     fragColor = vec4(color, 1.0);
+    fragColor2 = vec4(color, 1.0);
 }

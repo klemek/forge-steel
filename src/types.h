@@ -5,6 +5,8 @@
 #include <sys/time.h>
 #include <time.h>
 
+#include "config.h"
+
 #ifndef TYPES_H
 #define TYPES_H
 
@@ -36,10 +38,15 @@ typedef struct ShaderProgram {
   GLuint mvp_location;
   GLuint itime_location;
   GLuint ires_location;
+  GLuint frames_location[BUFFER_COUNT];
 
   GLuint vertex_buffer;
   GLuint vertex_array;
   GLuint vpos_location;
+
+  GLuint frame_buffers[BUFFER_COUNT];
+  GLuint render_buffers[BUFFER_COUNT];
+  GLuint textures[BUFFER_COUNT];
 } ShaderProgram;
 
 typedef GLFWwindow Window;
