@@ -1,10 +1,9 @@
-#include <stdbool.h>
-#include <time.h>
-
+#include <GLFW/glfw3.h>
 #include <glad/gl.h>
 #include <linmath.h>
-
-#include <GLFW/glfw3.h>
+#include <stdbool.h>
+#include <sys/time.h>
+#include <time.h>
 
 #ifndef TYPES_H
 #define TYPES_H
@@ -50,5 +49,11 @@ typedef struct Context {
   int height;
   double time;
 } Context;
+
+typedef struct Timer {
+  struct timeval start;
+  unsigned int counter;
+  unsigned int target;
+} Timer;
 
 #endif

@@ -97,6 +97,7 @@ make -f Makefile.dev release-arch
   - [x] Specify fragment shader path
   - [x] Force fullscreen
   - [x] Select screen as argument / config
+  - [x] fps in window title
   - [x] Clean code
 - [ ] Multi-stage shaders
   - [ ] Test 2 stages with render to texture

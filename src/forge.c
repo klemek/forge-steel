@@ -2,9 +2,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include "file.h"
 #include "logs.h"
 #include "shaders.h"
+#include "timer.h"
 #include "types.h"
 #include "window.h"
 
@@ -23,9 +25,22 @@ static void key_callback(Window *window, int key,
   }
 }
 
+void compute_fps(Window *window, Timer *timer) {
+  double fps;
+  char title[100];
+
+  if (inc_timer(timer)) {
+    fps = reset_and_count(timer);
+    sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
+    update_window_title(window, title);
+  }
+}
+
 void loop(Window *window, ShaderProgram program, bool hot_reload,
-          File *fragment_shader) {
+          File *fragment_shader, Timer *timer) {
   Context context;
+
+  compute_fps(window, timer);
 
   if (hot_reload && should_update_file(*fragment_shader)) {
     update_file(fragment_shader);
@@ -36,29 +51,35 @@ void loop(Window *window, ShaderProgram program, bool hot_reload,
 
   apply_program(program, context);
 
-  update_window(window);
+  refresh_window(window);
 }
 
 void forge_run(Parameters params) {
+  File fragment_shader;
+  ShaderProgram program;
   Window *window;
+  Timer timer;
 
-  File fragment_shader = read_file(params.frag_path);
+  fragment_shader = read_file(params.frag_path);
 
   if (fragment_shader.error) {
     exit(EXIT_FAILURE);
   }
 
-  window = init_window(params, error_callback, key_callback);
+  window = init_window(PACKAGE " " VERSION, params.screen, error_callback,
+                       key_callback);
 
-  ShaderProgram program = init_program(fragment_shader);
+  program = init_program(fragment_shader);
 
   if (program.error) {
     close_window(window, true);
     exit(EXIT_FAILURE);
   }
 
+  timer = create_timer(60);
+
   while (!window_should_close(window)) {
-    loop(window, program, params.hot_reload, &fragment_shader);
+    loop(window, program, params.hot_reload, &fragment_shader, &timer);
   }
 
   close_window(window, true);

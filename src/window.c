@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "config.h"
 #include "logs.h"
 #include "types.h"
 
@@ -33,23 +32,23 @@ void init_glfw(void (*error_callback)(int, const char *)) {
   log_success("[GLFS] Initialized...");
 }
 
-GLFWmonitor *get_monitor(unsigned char screen_index) {
+GLFWmonitor *get_monitor(unsigned char monitor_index) {
   // detect monitors
   int count;
   GLFWmonitor **monitors = glfwGetMonitors(&count);
 
   // check selected monitor availability
-  if (screen_index >= count) {
-    log_error("[GLFW] Screen %d is out of range [0-%d]", screen_index,
+  if (monitor_index >= count) {
+    log_error("[GLFW] Screen %d is out of range [0-%d]", monitor_index,
               count - 1);
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
 
-  return monitors[screen_index];
+  return monitors[monitor_index];
 }
 
-GLFWwindow *create_window(GLFWmonitor *monitor,
+GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
                           void (*key_callback)(Window *, int, int, int, int)) {
 
   log_info("[GLFW] Creating window...");
@@ -61,8 +60,7 @@ GLFWwindow *create_window(GLFWmonitor *monitor,
   glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
 
   // create fullscreen window in selected monitor
-  GLFWwindow *window =
-      glfwCreateWindow(1, 1, PACKAGE " " VERSION, monitor, NULL);
+  GLFWwindow *window = glfwCreateWindow(1, 1, title, monitor, NULL);
 
   // handle window creation fail
   if (!window) {
@@ -90,7 +88,7 @@ void use_window(GLFWwindow *window) {
   glfwSwapInterval(1);
 }
 
-Window *init_window(Parameters params,
+Window *init_window(char *title, unsigned char monitor_index,
                     void (*error_callback)(int, const char *),
                     void (*key_callback)(Window *, int, int, int, int)) {
   GLFWwindow *window;
@@ -98,16 +96,20 @@ Window *init_window(Parameters params,
 
   init_glfw(error_callback);
 
-  monitor = get_monitor(params.screen);
+  monitor = get_monitor(monitor_index);
 
-  window = create_window(monitor, key_callback);
+  window = create_window(monitor, title, key_callback);
 
   use_window(window);
 
   return window;
 }
 
-void update_window(Window *window) {
+void update_window_title(Window *window, char *title) {
+  glfwSetWindowTitle(window, title);
+}
+
+void refresh_window(Window *window) {
   // swap front and back buffers
   glfwSwapBuffers(window);
   // listen to mouse and keyboard events
