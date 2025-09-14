@@ -9,12 +9,8 @@
 #define VERSION "(dev)"
 #endif
 
-#ifndef FRAMEBUFFER_IDS
-#define FRAMEBUFFER_IDS {0, 1, 2, 3, 4, 5, 6, 7}
-#endif
-
 #ifndef BUFFER_COUNT
-#define BUFFER_COUNT 8
+#define BUFFER_COUNT 1
 #endif
 
 #endif

@@ -34,64 +34,43 @@ bool compile_shader(GLuint shader_id, char *name, char *source_code) {
 
 ShaderProgram init_program(File fragment_shader, Context context) {
   int i, j;
-  GLenum draw_buffers[BUFFER_COUNT];
   char uniform_name[32];
 
+  ShaderProgram program = {.error = false,
+                           .last_width = context.width,
+                           .last_height = context.height};
+
+  // create empty textures
+  glGenTextures(BUFFER_COUNT, program.textures);
+
   for (i = 0; i < BUFFER_COUNT; i++) {
-    draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-  }
-
-  ShaderProgram program = {.error = false, .frame_buffers = FRAMEBUFFER_IDS};
-
-  // create vertex buffer and setup vertices
-  glGenBuffers(1, &program.vertex_buffer);
-  glBindBuffer(GL_ARRAY_BUFFER, program.vertex_buffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  // create framebuffers and textures
-  glGenTextures(1, program.textures);
-  glGenFramebuffers(BUFFER_COUNT, program.frame_buffers);
-  glGenRenderbuffers(BUFFER_COUNT, program.render_buffers);
-  for (i = 0; i < BUFFER_COUNT; i++) {
-    glTextureParameteri(program.textures[i], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTextureParameteri(program.textures[i], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(program.textures[i], GL_TEXTURE_WRAP_S,
-                        GL_CLAMP_TO_EDGE);
-    glTextureParameteri(program.textures[i], GL_TEXTURE_WRAP_T,
-                        GL_CLAMP_TO_EDGE);
+    glActiveTexture(GL_TEXTURE0 + i);
 
     glBindTexture(GL_TEXTURE_2D, program.textures[i]);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.width, context.height, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, 0);
 
-    glBindRenderbuffer(GL_RENDERBUFFER, program.render_buffers[i]);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, context.width,
-                          context.height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                              GL_RENDERBUFFER, program.render_buffers[i]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  }
 
+  // create frame buffers
+  glGenFramebuffers(BUFFER_COUNT, program.frame_buffers);
+
+  for (i = 0; i < BUFFER_COUNT; i++) {
     glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                              GL_RENDERBUFFER, program.render_buffers[i]);
-
-    for (j = 0; j < BUFFER_COUNT; j++) {
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j,
-                             GL_TEXTURE_2D, program.textures[j], 0);
-    }
-
-    glDrawBuffers(BUFFER_COUNT, draw_buffers);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           program.textures[i], 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-      log_error("Framebuffer %d is KO: %x", i,
+      log_error("Framebuffer %d is KO: %x", i + 1,
                 glCheckFramebufferStatus(GL_FRAMEBUFFER));
       program.error = true;
       return program;
     }
   }
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   // compile vertex shader
   program.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -112,75 +91,108 @@ ShaderProgram init_program(File fragment_shader, Context context) {
     return program;
   }
 
-  // create and link full shader program
-  program.program = glCreateProgram();
-  glAttachShader(program.program, program.vertex_shader);
-  glAttachShader(program.program, program.fragment_shader);
-  glAttachShader(program.program, program.output_fragment_shader);
-  glLinkProgram(program.program);
+  // create vertex buffer and setup vertices
+  glGenBuffers(1, &program.vertex_buffer);
+  glBindBuffer(GL_ARRAY_BUFFER, program.vertex_buffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  // create uniforms pointers
-  program.mvp_location = glGetUniformLocation(program.program, "mvp");
-  program.itime_location = glGetUniformLocation(program.program, "iTime");
-  program.ires_location = glGetUniformLocation(program.program, "iResolution");
-
-  for (i = 0; i < BUFFER_COUNT; i++) {
-    sprintf(uniform_name, "frame%d", i);
-    program.frames_location[i] =
-        glGetUniformLocation(program.program, uniform_name);
-  }
-
-  // create attribute pointer
-  program.vpos_location = glGetAttribLocation(program.program, "vPos");
-
-  // create vertex array and bind to vPos attribute
+  // create vertex array
   glGenVertexArrays(1, &program.vertex_array);
   glBindVertexArray(program.vertex_array);
-  glEnableVertexAttribArray(program.vpos_location);
-  glVertexAttribPointer(program.vpos_location, 2, GL_FLOAT, GL_FALSE,
-                        sizeof(Vertex), (void *)offsetof(Vertex, pos));
 
-  log_success("Program initialized");
+  // create and link full shader program
+  for (i = 0; i < BUFFER_COUNT + 1; i++) {
+    program.programs[i] = glCreateProgram();
+    glAttachShader(program.programs[i], program.vertex_shader);
+    if (i == BUFFER_COUNT) {
+      glAttachShader(program.programs[i], program.output_fragment_shader);
+    } else {
+      // TODO add others
+      glAttachShader(program.programs[i], program.fragment_shader);
+    }
+    glLinkProgram(program.programs[i]);
+
+    // create uniforms pointers
+    if (i != BUFFER_COUNT) {
+      program.itime_locations[i] =
+          glGetUniformLocation(program.programs[i], "iTime");
+      program.ires_locations[i] =
+          glGetUniformLocation(program.programs[i], "iResolution");
+    }
+
+    for (j = 0; j < BUFFER_COUNT; j++) {
+      sprintf(uniform_name, "frame%d", j);
+      program.frames_locations[i][j] =
+          glGetUniformLocation(program.programs[i], uniform_name);
+    }
+
+    // create attribute pointer
+    program.vpos_locations[i] =
+        glGetAttribLocation(program.programs[i], "vPos");
+
+    glEnableVertexAttribArray(program.vpos_locations[i]);
+    glVertexAttribPointer(program.vpos_locations[i], 2, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex), (void *)offsetof(Vertex, pos));
+
+    log_success("Program %d initialized", i);
+  }
 
   return program;
 }
 
 void update_program(ShaderProgram program, File fragment_shader) {
   bool result;
+  int i;
 
   result = compile_shader(program.fragment_shader, fragment_shader.path,
                           fragment_shader.content);
 
   if (result) {
     // re-link program
-    glLinkProgram(program.program);
+    for (i = 0; i < BUFFER_COUNT; i++) {
+      glLinkProgram(program.programs[i]);
+    }
 
-    log_success("Program updated");
+    log_success("Programs updated");
   }
 }
 
 void apply_program(ShaderProgram program, Context context) {
-  mat4x4 m, p, mvp;
+  int i, j;
 
-  // update viewport
-  glViewport(0, 0, context.width, context.height);
-  // clear buffer
-  glClear(GL_COLOR_BUFFER_BIT);
+  if (context.width != program.last_width ||
+      context.height != program.last_height) {
+    glViewport(0, 0, context.width, context.height);
 
-  // create model-view-projection matrix
-  mat4x4_identity(m);
-  mat4x4_ortho(p, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-  mat4x4_mul(mvp, p, m);
+    for (i = 0; i < BUFFER_COUNT; i++) {
+      glActiveTexture(GL_TEXTURE0 + i);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.width, context.height, 0,
+                   GL_RGB, GL_UNSIGNED_BYTE, 0);
+    }
+  }
 
   vec2 resolution = {(float)context.width, (float)context.height};
 
-  // update uniforms
-  glUseProgram(program.program);
-  glUniformMatrix4fv(program.mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
-  glUniform1f(program.itime_location, (const GLfloat)context.time);
-  glUniform2fv(program.ires_location, 1, (const GLfloat *)&resolution);
+  for (i = 0; i < BUFFER_COUNT + 1; i++) {
+    glUseProgram(program.programs[i]);
 
-  // start vertex handling
-  glBindVertexArray(program.vertex_array);
-  glDrawArrays(GL_TRIANGLES, 0, 6);
+    if (i == BUFFER_COUNT) {
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+      glClear(GL_COLOR_BUFFER_BIT);
+    } else {
+      glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[0]);
+
+      glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
+      glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
+    }
+
+    for (j = 0; j < BUFFER_COUNT; j++) {
+      glUniform1i(program.frames_locations[i][j], j);
+    }
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+  }
 }
+
+// TODO clean buffers from opengl memories

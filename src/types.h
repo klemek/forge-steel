@@ -30,23 +30,24 @@ typedef struct File {
 typedef struct ShaderProgram {
   bool error;
 
-  GLuint program;
+  int last_width;
+  int last_height;
+
+  GLuint programs[BUFFER_COUNT + 1];
 
   GLuint vertex_shader;
   GLuint fragment_shader;
   GLuint output_fragment_shader;
 
-  GLuint mvp_location;
-  GLuint itime_location;
-  GLuint ires_location;
-  GLuint frames_location[BUFFER_COUNT];
+  GLuint itime_locations[BUFFER_COUNT];
+  GLuint ires_locations[BUFFER_COUNT];
+  GLuint frames_locations[BUFFER_COUNT + 1][BUFFER_COUNT];
+  GLuint vpos_locations[BUFFER_COUNT + 1];
 
   GLuint vertex_buffer;
   GLuint vertex_array;
-  GLuint vpos_location;
 
   GLuint frame_buffers[BUFFER_COUNT];
-  GLuint render_buffers[BUFFER_COUNT];
   GLuint textures[BUFFER_COUNT];
 } ShaderProgram;
 
