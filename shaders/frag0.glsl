@@ -8,6 +8,7 @@
 
 uniform float iTime;
 uniform float iTempo;
+uniform int iFPS;
 uniform vec2 iResolution;
 
 // 2. other frames

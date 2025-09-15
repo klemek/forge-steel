@@ -1,4 +1,5 @@
 #include <linmath.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -25,8 +26,8 @@ static void key_callback(Window *window, int key,
   }
 }
 
-void compute_fps(Window *window, Timer *timer) {
-  double fps;
+int compute_fps(Window *window, Timer *timer) {
+  static double fps;
   char title[100];
 
   if (inc_timer(timer)) {
@@ -34,6 +35,8 @@ void compute_fps(Window *window, Timer *timer) {
     sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
     update_window_title(window, title);
   }
+
+  return (int)round(fps);
 }
 
 void hot_reload(ShaderProgram program, File *common_shader_code,
@@ -59,13 +62,13 @@ void loop(Window *window, ShaderProgram program, bool hr,
           File *common_shader_code, File *fragment_shaders, Timer *timer) {
   Context context;
 
-  compute_fps(window, timer);
-
   if (hr) {
     hot_reload(program, common_shader_code, fragment_shaders);
   }
 
   context = get_window_context(window);
+
+  context.fps = compute_fps(window, timer);
 
   apply_program(program, context);
 
@@ -132,7 +135,7 @@ void forge_run(Parameters params) {
     exit(EXIT_FAILURE);
   }
 
-  timer = create_timer(60);
+  timer = create_timer(30);
 
   while (!window_should_close(window)) {
     loop(window, program, params.hot_reload, &common_shader_code,

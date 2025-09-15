@@ -42,6 +42,7 @@ typedef struct ShaderProgram {
 
   GLuint itime_locations[FRAG_COUNT];
   GLuint itempo_locations[FRAG_COUNT];
+  GLuint ifps_locations[FRAG_COUNT];
   GLuint ires_locations[FRAG_COUNT];
   GLuint frames_locations[FRAG_COUNT + 1][TEX_COUNT];
   GLuint vpos_locations[FRAG_COUNT + 1];
@@ -61,6 +62,7 @@ typedef struct Context {
   int width;
   int height;
   double time;
+  int fps;
 } Context;
 
 typedef struct Timer {

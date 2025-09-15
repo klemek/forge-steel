@@ -7,5 +7,5 @@ in vec2 vUV;
 layout(location = 5) out vec3 fragColor;
 
 void main() {
-    fragColor = texture(frame3, vUV).xyz;
+    fragColor = gauss2(frame3, vUV, 0.001); //texture(frame3, vUV).xyz;
 }

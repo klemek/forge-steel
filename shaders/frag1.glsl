@@ -12,5 +12,5 @@ void main() {
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
     vec3 color = vec3(vUV, sin(iTime * 0.5) * 0.5 + 0.5);
     color *= 1 - step(cos(iTime) * 0.1 + 0.4, length(uv1));
-    fragColor = color + texture(frame0, vUV - 0.04).xyz * 0.5;
+    fragColor = color + texture(frame0, vUV - 0.01).xyz * 0.5;
 }
