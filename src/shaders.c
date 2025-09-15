@@ -56,17 +56,19 @@ bool init_textures(ShaderProgram *program, Context context) {
 }
 
 void init_framebuffers(ShaderProgram *program) {
-  int i;
+  int i, j;
 
   glGenFramebuffers(BUFFER_COUNT, program->frame_buffers);
 
   for (i = 0; i < BUFFER_COUNT; i++) {
     glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
 
-    // attaches a selected mipmap level or image of a texture object as one of
-    // the logical buffers of the framebuffer object
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                           program->textures[i], 0);
+    for (j = 0; j < BUFFER_COUNT; j++) {
+      // attaches a selected mipmap level or image of a texture object as one of
+      // the logical buffers of the framebuffer object
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j,
+                             GL_TEXTURE_2D, program->textures[j], 0);
+    }
 
     // check framebuffer status
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -77,6 +79,8 @@ void init_framebuffers(ShaderProgram *program) {
 
       return;
     }
+
+    log_success("Framebuffer %d initialized", i);
   }
 
   return;
@@ -157,9 +161,7 @@ void init_single_program(ShaderProgram *program, int i, bool output) {
 }
 
 ShaderProgram init_program(File fragment_shader, Context context) {
-  int i, j;
-  char uniform_name[32];
-
+  int i;
   ShaderProgram program = {.error = false,
                            .last_width = context.width,
                            .last_height = context.height};
