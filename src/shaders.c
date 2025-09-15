@@ -32,12 +32,12 @@ bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-bool init_textures(ShaderProgram *program, Context context) {
+void init_textures(ShaderProgram *program, Context context) {
   int i;
 
-  glGenTextures(BUFFER_COUNT, program->textures);
+  glGenTextures(TEXTURE_COUNT, program->textures);
 
-  for (i = 0; i < BUFFER_COUNT; i++) {
+  for (i = 0; i < TEXTURE_COUNT; i++) {
     // selects which texture unit subsequent texture state calls will affect
     glActiveTexture(GL_TEXTURE0 + i);
 
@@ -50,20 +50,20 @@ bool init_textures(ShaderProgram *program, Context context) {
     // setup mipmap context
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  }
 
-  return true;
+    log_success("Texture %d initialized", i);
+  }
 }
 
 void init_framebuffers(ShaderProgram *program) {
   int i, j;
 
-  glGenFramebuffers(BUFFER_COUNT, program->frame_buffers);
+  glGenFramebuffers(FRAMEBUFFER_COUNT, program->frame_buffers);
 
-  for (i = 0; i < BUFFER_COUNT; i++) {
+  for (i = 0; i < FRAMEBUFFER_COUNT; i++) {
     glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
 
-    for (j = 0; j < BUFFER_COUNT; j++) {
+    for (j = 0; j < TEXTURE_COUNT; j++) {
       // attaches a selected mipmap level or image of a texture object as one of
       // the logical buffers of the framebuffer object
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j,
@@ -141,7 +141,7 @@ void init_single_program(ShaderProgram *program, int i, bool output) {
   }
 
   // create frameX uniforms pointer
-  for (j = 0; j < BUFFER_COUNT; j++) {
+  for (j = 0; j < TEXTURE_COUNT; j++) {
     sprintf(uniform_name, "frame%d", j);
     program->frames_locations[i][j] =
         glGetUniformLocation(program->programs[i], uniform_name);
@@ -179,8 +179,8 @@ ShaderProgram init_program(File fragment_shader, Context context) {
   init_vertices(&program);
 
   // create and link full shader programs
-  for (i = 0; i < BUFFER_COUNT + 1; i++) {
-    init_single_program(&program, i, i == BUFFER_COUNT);
+  for (i = 0; i < FRAMEBUFFER_COUNT + 1; i++) {
+    init_single_program(&program, i, i == FRAMEBUFFER_COUNT);
   }
 
   return program;
@@ -195,7 +195,7 @@ void update_program(ShaderProgram program, File fragment_shader) {
 
   if (result) {
     // re-link all programs
-    for (i = 0; i < BUFFER_COUNT; i++) {
+    for (i = 0; i < FRAMEBUFFER_COUNT; i++) {
       glLinkProgram(program.programs[i]);
     }
 
@@ -213,7 +213,7 @@ void apply_program(ShaderProgram program, Context context) {
     glViewport(0, 0, context.width, context.height);
 
     // clean and resize all textures
-    for (i = 0; i < BUFFER_COUNT; i++) {
+    for (i = 0; i < TEXTURE_COUNT; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.width, context.height, 0,
                    GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -222,11 +222,11 @@ void apply_program(ShaderProgram program, Context context) {
 
   vec2 resolution = {(float)context.width, (float)context.height};
 
-  for (i = 0; i < BUFFER_COUNT + 1; i++) {
+  for (i = 0; i < FRAMEBUFFER_COUNT + 1; i++) {
     // use specific shader program
     glUseProgram(program.programs[i]);
 
-    if (i == BUFFER_COUNT) {
+    if (i == FRAMEBUFFER_COUNT) {
       // use default framebuffer (output)
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -242,7 +242,7 @@ void apply_program(ShaderProgram program, Context context) {
     }
 
     // set GL_TEXTURE(X) to uniform sampler2D frameX
-    for (j = 0; j < BUFFER_COUNT; j++) {
+    for (j = 0; j < FRAMEBUFFER_COUNT; j++) {
       glUniform1i(program.frames_locations[i][j], j);
     }
 

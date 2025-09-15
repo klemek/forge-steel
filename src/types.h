@@ -33,23 +33,23 @@ typedef struct ShaderProgram {
   int last_width;
   int last_height;
 
-  GLuint programs[BUFFER_COUNT + 1];
+  GLuint programs[FRAMEBUFFER_COUNT + 1];
 
   GLuint vertex_shader;
   GLuint output_fragment_shader;
 
   GLuint fragment_shader; // TODO multiple
 
-  GLuint itime_locations[BUFFER_COUNT];
-  GLuint ires_locations[BUFFER_COUNT];
-  GLuint frames_locations[BUFFER_COUNT + 1][BUFFER_COUNT];
-  GLuint vpos_locations[BUFFER_COUNT + 1];
+  GLuint itime_locations[FRAMEBUFFER_COUNT];
+  GLuint ires_locations[FRAMEBUFFER_COUNT];
+  GLuint frames_locations[FRAMEBUFFER_COUNT + 1][FRAMEBUFFER_COUNT];
+  GLuint vpos_locations[FRAMEBUFFER_COUNT + 1];
 
   GLuint vertex_buffer;
   GLuint vertex_array;
 
-  GLuint frame_buffers[BUFFER_COUNT];
-  GLuint textures[BUFFER_COUNT];
+  GLuint frame_buffers[FRAMEBUFFER_COUNT];
+  GLuint textures[FRAMEBUFFER_COUNT];
 } ShaderProgram;
 
 typedef GLFWwindow Window;

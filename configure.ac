@@ -11,6 +11,7 @@ AC_CHECK_HEADERS([math.h])
 AC_CHECK_HEADERS([sys/stat.h])
 AC_CHECK_HEADERS([sys/types.h])
 AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_HEADERS([linux/videodev2.h])
 AC_CHECK_HEADERS([GLFW/glfw3.h])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
