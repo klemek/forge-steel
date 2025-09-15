@@ -9,12 +9,12 @@
 #define VERSION "(dev)"
 #endif
 
-#ifndef FRAMEBUFFER_COUNT
-#define FRAMEBUFFER_COUNT 7
+#ifndef FRAG_COUNT
+#define FRAG_COUNT 6
 #endif
 
-#ifndef TEXTURE_COUNT
-#define TEXTURE_COUNT 8
+#ifndef TEX_COUNT
+#define TEX_COUNT 8
 #endif
 
 #endif

@@ -18,7 +18,7 @@ build:
 		-o build/$(TARGET)
 
 run: build
-	./build/forge --hot-reload --frag=./shaders/frag.glsl
+	./build/forge --hot-reload --frag=./shaders
 
 .PHONY: install
 install: build

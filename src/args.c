@@ -8,21 +8,22 @@
 #include "logs.h"
 
 void print_help(int status_code) {
-  puts(PACKAGE " " VERSION "\n\n"
-               "usage: " PACKAGE " "
-               "[-h] "
-               "[-v] "
-               "[-hr] "
-               "[-s=SCREEN] "
-               "[-f=FRAG_PATH] "
-               "\n\n"
-               "Fusion Of Real-time Generative Effects.\n\n"
-               "options:\n"
-               "  -h, --help         show this help message and exit\n"
-               "  -v, --version      print version\n"
-               "  -hr, --hot-reload  hot reload of shaders scripts\n"
-               "  -s, --screen       output screen number (default: primary)\n"
-               "  -f, --frag         fragment shader path (default: TODO)\n");
+  puts(PACKAGE
+       " " VERSION "\n\n"
+       "usage: " PACKAGE " "
+       "[-h] "
+       "[-v] "
+       "[-hr] "
+       "[-s=SCREEN] "
+       "[-f=DIR_PATH] "
+       "\n\n"
+       "Fusion Of Real-time Generative Effects.\n\n"
+       "options:\n"
+       "  -h, --help         show this help message and exit\n"
+       "  -v, --version      print version\n"
+       "  -hr, --hot-reload  hot reload of shaders scripts\n"
+       "  -s, --screen       output screen number (default: primary)\n"
+       "  -f, --frag         fragment shaders directory (default: TODO)\n");
   exit(status_code);
 }
 

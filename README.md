@@ -101,7 +101,7 @@ make -f Makefile.dev release-arch
   - [x] Clean code
 - [ ] Multi-stage shaders
   - [x] Test 2 stages with render to texture
-  - [ ] 2 in 2 fx 1 mix 1 fx layout
+  - [x] 2 in 2 fx 1 mix 1 fx layout
   - [ ] Include fragments with special directive
   - [ ] 16 input + 16 fx definition and selection (with param)
   - [x] Feedback texture

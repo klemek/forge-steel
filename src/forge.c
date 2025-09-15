@@ -37,14 +37,20 @@ void compute_fps(Window *window, Timer *timer) {
 }
 
 void loop(Window *window, ShaderProgram program, bool hot_reload,
-          File *fragment_shader, Timer *timer) {
+          File *fragment_shaders, Timer *timer) {
   Context context;
+  int i;
 
   compute_fps(window, timer);
 
-  if (hot_reload && should_update_file(*fragment_shader)) {
-    update_file(fragment_shader);
-    update_program(program, *fragment_shader);
+  if (hot_reload) {
+    // TODO extract to function
+    for (i = 0; i < FRAG_COUNT; i++) {
+      if (should_update_file(fragment_shaders[i])) {
+        update_file(&fragment_shaders[i]);
+        update_program(program, fragment_shaders, i);
+      }
+    }
   }
 
   context = get_window_context(window);
@@ -55,16 +61,21 @@ void loop(Window *window, ShaderProgram program, bool hot_reload,
 }
 
 void forge_run(Parameters params) {
-  File fragment_shader;
+  File fragment_shaders[FRAG_COUNT];
   ShaderProgram program;
   Window *window;
   Timer timer;
   Context context;
+  int i;
+  char file_path[FRAG_COUNT][1024];
 
-  fragment_shader = read_file(params.frag_path);
-
-  if (fragment_shader.error) {
-    exit(EXIT_FAILURE);
+  // TODO extract to function
+  for (i = 0; i < FRAG_COUNT; i++) {
+    sprintf(file_path[i], "%s/frag%d.glsl", params.frag_path, i + 1);
+    fragment_shaders[i] = read_file(file_path[i]);
+    if (fragment_shaders[i].error) {
+      exit(EXIT_FAILURE);
+    }
   }
 
   window = init_window(PACKAGE " " VERSION, params.screen, error_callback,
@@ -72,7 +83,7 @@ void forge_run(Parameters params) {
 
   context = get_window_context(window);
 
-  program = init_program(fragment_shader, context);
+  program = init_program(fragment_shaders, context);
 
   if (program.error) {
     close_window(window, true);
@@ -82,10 +93,13 @@ void forge_run(Parameters params) {
   timer = create_timer(60);
 
   while (!window_should_close(window)) {
-    loop(window, program, params.hot_reload, &fragment_shader, &timer);
+    loop(window, program, params.hot_reload, fragment_shaders, &timer);
   }
 
   close_window(window, true);
 
-  free_file(&fragment_shader);
+  // TODO extract to function
+  for (i = 0; i < FRAG_COUNT; i++) {
+    free_file(&fragment_shaders[i]);
+  }
 }
