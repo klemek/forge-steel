@@ -140,6 +140,8 @@ void init_single_program(ShaderProgram *program, int i, bool output) {
   if (!output) {
     program->itime_locations[i] =
         glGetUniformLocation(program->programs[i], "iTime");
+    program->itempo_locations[i] =
+        glGetUniformLocation(program->programs[i], "iTempo");
     program->ires_locations[i] =
         glGetUniformLocation(program->programs[i], "iResolution");
   }
@@ -243,6 +245,7 @@ void apply_program(ShaderProgram program, Context context) {
 
       // set fragment uniforms
       glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
+      glUniform1f(program.itempo_locations[i], (const GLfloat)120); // TODO TMP
       glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
     }
 

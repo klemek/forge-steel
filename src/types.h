@@ -41,6 +41,7 @@ typedef struct ShaderProgram {
   GLuint fragment_shaders[FRAG_COUNT];
 
   GLuint itime_locations[FRAG_COUNT];
+  GLuint itempo_locations[FRAG_COUNT];
   GLuint ires_locations[FRAG_COUNT];
   GLuint frames_locations[FRAG_COUNT + 1][TEX_COUNT];
   GLuint vpos_locations[FRAG_COUNT + 1];
