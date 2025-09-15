@@ -5,6 +5,7 @@
 #include <sys/types.h>
 
 #include "logs.h"
+#include "strings.h"
 #include "types.h"
 
 time_t get_file_time(File file) {
@@ -64,4 +65,13 @@ File read_file(char *path) {
   return file;
 }
 
-void free_file(File *file) { free(file->content); }
+void prepend_file(File *src, File extra) {
+  char *old_src_content = src->content;
+  src->content = concat(extra.content, src->content);
+  free(old_src_content);
+}
+
+void free_file(File *file) {
+  free(file->content);
+  free(file->path);
+}

@@ -1,6 +1,6 @@
 TARGET ?= forge
 INSTALL_DIR ?= $(HOME)/.local/bin
-TEST_ARGS ?=
+TEST_ARGS ?= --hot-reload --frag=./shaders
 SHELL := /bin/bash
 
 .PHONY: build
@@ -18,7 +18,7 @@ build:
 		-o build/$(TARGET)
 
 run: build
-	./build/forge --hot-reload --frag=./shaders
+	./build/$(TARGET) $(TEST_ARGS)
 
 .PHONY: install
 install: build
@@ -26,7 +26,12 @@ install: build
 
 .PHONY: valgrind
 valgrind: build
-	valgrind --leak-check=full -s ./build/$(TARGET) $(TEST_ARGS)
+	valgrind \
+		--leak-check=full \
+		--track-fds=all \
+		--show-realloc-size-zero=no \
+		--undef-value-errors=no \
+		./build/$(TARGET) $(TEST_ARGS)
 
 .PHONY: release
 release: clean

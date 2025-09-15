@@ -257,5 +257,3 @@ void apply_program(ShaderProgram program, Context context) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
   }
 }
-
-// TODO clean buffers from opengl memories

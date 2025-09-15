@@ -1,19 +1,11 @@
 #version 460
 
-uniform float iTime;
-uniform vec2 iResolution;
-
-uniform sampler2D frame0;
-uniform sampler2D frame1;
-
-in vec2 vUV;
-layout(location = 3) out vec3 fragColor;
-
-
 // SRC A
 // ---------
 // IN: 0 / 1
 // OUT: 3
+
+layout(location = 3) out vec3 fragColor;
 
 void main() {
     vec2 uv0 = vUV.st;

@@ -102,7 +102,7 @@ make -f Makefile.dev release-arch
 - [ ] Multi-stage shaders
   - [x] Test 2 stages with render to texture
   - [x] 2 in 2 fx 1 mix 1 fx layout
-  - [ ] Include fragments with special directive
+  - [x] Include common code
   - [ ] 16 input + 16 fx definition and selection (with param)
   - [x] Feedback texture
   - [ ] Free opengl memory

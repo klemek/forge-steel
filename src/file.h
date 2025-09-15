@@ -11,4 +11,6 @@ void update_file(File *file);
 
 void free_file(File *file);
 
+void prepend_file(File *src, File extra);
+
 #endif
