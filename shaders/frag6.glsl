@@ -3,6 +3,7 @@
 // IN: 7 / 0
 // OUT: 0
 
+in vec2 vUV;
 layout(location = 0) out vec3 fragColor;
 
 void main() {

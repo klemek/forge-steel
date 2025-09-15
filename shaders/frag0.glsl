@@ -4,12 +4,14 @@
 // ================================
 
 // 1. real time uniforms
+// ---------------------
 
 uniform float iTime;
 uniform float iTempo;
 uniform vec2 iResolution;
 
 // 2. other frames
+// ---------------
 
 uniform sampler2D frame0;
 uniform sampler2D frame1;
@@ -20,15 +22,13 @@ uniform sampler2D frame5;
 uniform sampler2D frame6;
 uniform sampler2D frame7;
 
-// 3. input UV vector
-
-in vec2 vUV;
-
-// 4. definitions
+// 3. definitions
+// --------------
 
 #define PI 3.1415927
 
-// 5. functions
+// 4. functions
+// ------------
 
 // BASICS
 
@@ -785,4 +785,12 @@ int guess_char(sampler2D frame, vec2 uv, float k, float t)
     return mc;
 }
 
-// OTHER
+// 5. generators
+// -------------
+
+// TODO
+
+// 6. effects
+// ----------
+
+// TODO
