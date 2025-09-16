@@ -18,7 +18,7 @@
 #endif
 
 #ifndef SUB_COUNT
-#define SUB_COUNT 3 // TODO 16
+#define SUB_COUNT 16
 #endif
 
 #endif

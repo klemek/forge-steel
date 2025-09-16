@@ -891,6 +891,84 @@ subroutine(src_stage_sub) vec3 src_2(vec2 vUV)
     return vec3(v);
 }
 
+subroutine(src_stage_sub) vec3 src_3(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_4(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_5(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_6(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_7(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_8(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_9(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_10(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_11(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_12(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_13(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_14(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_15(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
 // 6. effects
 // ----------
 
@@ -916,31 +994,105 @@ subroutine(fx_stage_sub) vec3 fx_2(vec2 vUV, sampler2D previous, sampler2D feedb
     return gauss3(previous, vUV, 0.001);
 }
 
+subroutine(fx_stage_sub) vec3 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
 // 7. mix
 // ----------
 
-subroutine vec3 mix_stage_sub(vec2 vUV, sampler2D frame_a, sampler2D frame_b);
+subroutine vec3 mix_stage_sub(vec2 vUV, sampler2D frame_a, sampler2D frame_b, float lvl);
 
 subroutine uniform mix_stage_sub mix_stage;
 
-subroutine(mix_stage_sub) vec3 mix_0(vec2 vUV, sampler2D fa, sampler2D fb)
+subroutine(mix_stage_sub) vec3 mix_0(vec2 vUV, sampler2D fa, sampler2D fb, float lvl)
 {
-    float v = 0.5;
-
     vec3 color_a = texture(fa, vUV).xyz;
     vec3 color_b = texture(fb, vUV).xyz;
 
-    return mix(color_b, color_a, v);
+    return mix(color_b, color_a, lvl);
 }
 
-subroutine(mix_stage_sub) vec3 mix_1(vec2 vUV, sampler2D fa, sampler2D fb)
+subroutine(mix_stage_sub) vec3 mix_1(vec2 vUV, sampler2D fa, sampler2D fb, float lvl)
 {
-    float v = 0.5;
-
     vec3 color_a = texture(fa, vUV).xyz;
     vec3 color_b = texture(fb, vUV).xyz;
 
     float k = mean(color_a);
 
-    return mix(color_b, color_a, step(v, k));
+    return mix(color_b, color_a, step(lvl, k));
 }
