@@ -919,4 +919,28 @@ subroutine(fx_stage_sub) vec3 fx_2(vec2 vUV, sampler2D previous, sampler2D feedb
 // 7. mix
 // ----------
 
-// TODO
+subroutine vec3 mix_stage_sub(vec2 vUV, sampler2D frame_a, sampler2D frame_b);
+
+subroutine uniform mix_stage_sub mix_stage;
+
+subroutine(mix_stage_sub) vec3 mix_0(vec2 vUV, sampler2D fa, sampler2D fb)
+{
+    float v = 0.5;
+
+    vec3 color_a = texture(fa, vUV).xyz;
+    vec3 color_b = texture(fb, vUV).xyz;
+
+    return mix(color_b, color_a, v);
+}
+
+subroutine(mix_stage_sub) vec3 mix_1(vec2 vUV, sampler2D fa, sampler2D fb)
+{
+    float v = 0.5;
+
+    vec3 color_a = texture(fa, vUV).xyz;
+    vec3 color_b = texture(fb, vUV).xyz;
+
+    float k = mean(color_a);
+
+    return mix(color_b, color_a, step(v, k));
+}

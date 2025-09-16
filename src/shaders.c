@@ -151,19 +151,18 @@ void init_single_program(ShaderProgram *program, int i, bool output) {
     program->ires_locations[i] =
         glGetUniformLocation(program->programs[i], "iResolution");
 
-    program->sub_src_locations[i] = glGetSubroutineUniformLocation(
-        program->programs[i], GL_FRAGMENT_SHADER, "src_stage");
-    program->sub_fx_locations[i] = glGetSubroutineUniformLocation(
-        program->programs[i], GL_FRAGMENT_SHADER, "fx_stage");
-
     for (j = 0; j < SUB_COUNT; j++) {
       sprintf(name, "src_%d", j);
       program->sub_src_indexes[i][j] =
           glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
-      log_debug("%s %d", name, program->sub_src_indexes[i][j]);
       sprintf(name, "fx_%d", j);
       program->sub_fx_indexes[i][j] =
           glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
+      if (j < 2) {
+        sprintf(name, "mix_%d", j);
+        program->sub_mix_indexes[i][j] = glGetSubroutineIndex(
+            program->programs[i], GL_FRAGMENT_SHADER, name);
+      }
     }
   }
 
@@ -233,7 +232,7 @@ void update_program(ShaderProgram program, File *fragment_shaders, int i) {
 
 void apply_program(ShaderProgram program, Context context) {
   int i, j;
-  GLuint subroutines[2];
+  GLuint subroutines[3];
 
   // viewport changed
   if (context.width != program.last_width ||
@@ -275,8 +274,9 @@ void apply_program(ShaderProgram program, Context context) {
       // TODO tmp
       subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
       subroutines[1] = program.sub_fx_indexes[i][i == 2 ? 1 : 0];
+      subroutines[2] = program.sub_mix_indexes[i][1];
 
-      glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 2, subroutines);
+      glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
     }
 
     // set GL_TEXTURE(X) to uniform sampler2D frameX

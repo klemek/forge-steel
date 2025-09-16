@@ -8,6 +8,5 @@ in vec2 vUV;
 layout(location = 7) out vec3 fragColor;
 
 void main() {
-    // TODO subroutine
-    fragColor = texture(frame5, vUV).xyz + texture(frame6, vUV).xyz;
+    fragColor = mix_stage(vUV, frame5, frame6);
 }
