@@ -17,4 +17,8 @@
 #define TEX_COUNT 8
 #endif
 
+#ifndef SUB_COUNT
+#define SUB_COUNT 3 // TODO 16
+#endif
+
 #endif

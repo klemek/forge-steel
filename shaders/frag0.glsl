@@ -725,6 +725,70 @@ float char_at(vec2 uv, vec2 pos, int code)
     return char(uv - pos, code) ? 1 : 0;
 }
 
+float write_5(vec2 uv, vec2 pos, int str[5])
+{
+    float d = 0;
+    int i;
+
+    for (i = 0; i < 5; i++) {
+        if (str[i] == 0) {
+            return d;
+        }
+
+        d += char_at(uv, pos + vec2(i, 0), str[i]);
+    }
+
+    return d;
+}
+
+float write_10(vec2 uv, vec2 pos, int str[10])
+{
+    float d = 0;
+    int i;
+
+    for (i = 0; i < 10; i++) {
+        if (str[i] == 0) {
+            return d;
+        }
+
+        d += char_at(uv, pos + vec2(i, 0), str[i]);
+    }
+
+    return d;
+}
+
+float write_20(vec2 uv, vec2 pos, int str[20])
+{
+    float d = 0;
+    int i;
+
+    for (i = 0; i < 20; i++) {
+        if (str[i] == 0) {
+            return d;
+        }
+
+        d += char_at(uv, pos + vec2(i, 0), str[i]);
+    }
+
+    return d;
+}
+
+float write_int(vec2 uv, vec2 pos, int value, int magnitude)
+{
+    int i;
+    int m = 1;
+    float d = 0;
+    for (i = 0; i < magnitude; i++) {
+        if (i == 0 || value >= m) {
+            d += char_at(uv, pos + vec2(magnitude - i - 1, 0), int(0x30 + (value % (m * 10)) / m));
+            m *= 10;
+        } else {
+            break;
+        }
+    }
+    return d;
+}
+
 int read(sampler2D frame, vec2 uv, float k, int d, float t)
 {
     float inv_k = 1 / k;
@@ -789,9 +853,70 @@ int guess_char(sampler2D frame, vec2 uv, float k, float t)
 // 5. generators
 // -------------
 
-// TODO
+subroutine vec3 src_stage_sub(vec2 vUV);
+
+subroutine uniform src_stage_sub src_stage;
+
+subroutine(src_stage_sub) vec3 src_0(vec2 vUV)
+{
+    // TODO tmp
+    return vec3(vUV, 0.0);
+}
+
+subroutine(src_stage_sub) vec3 src_1(vec2 vUV)
+{
+    // TODO tmp
+    vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+    vec3 color = vec3(vUV, sin(iTime * 0.5) * 0.5 + 0.5);
+    color *= 1 - step(cos(iTime) * 0.1 + 0.4, length(uv1));
+    return color + texture(frame0, vUV - 0.01).xyz * 0.5;
+}
+
+subroutine(src_stage_sub) vec3 src_2(vec2 vUV)
+{
+    const int text[5] = {0x66, 0x70, 0x73, 0x00, 0x00};
+    vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = uv0 * vec2(ratio, 1);
+    vec2 uv2 = uv1 * 20;
+
+    float v = 0;
+
+    v += write_int(uv2, vec2(0.5, 0.5), iFPS, 3);
+
+    v += write_5(uv2, vec2(4.0, 0.5), text);
+
+    return vec3(v);
+}
 
 // 6. effects
+// ----------
+
+subroutine vec3 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback);
+
+subroutine uniform fx_stage_sub fx_stage;
+
+subroutine(fx_stage_sub) vec3 fx_0(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV).xyz;
+}
+
+subroutine(fx_stage_sub) vec3 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return gauss2(previous, vUV, 0.001);
+}
+
+subroutine(fx_stage_sub) vec3 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return gauss3(previous, vUV, 0.001);
+}
+
+// 7. mix
 // ----------
 
 // TODO

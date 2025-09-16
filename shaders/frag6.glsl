@@ -1,11 +1,12 @@
 // MFX
-// ---------
-// IN: 7 / 0
-// OUT: 0
+// ------------
+// IN: 7 (A+B)
+// IN: 0 (OUT)
+// OUT: 0 (OUT)
 
 in vec2 vUV;
 layout(location = 0) out vec3 fragColor;
 
 void main() {
-    fragColor = texture(frame7, vUV).xyz;
+    fragColor = fx_stage(vUV, frame7, frame0);
 }

@@ -117,12 +117,16 @@ void init_shaders(ShaderProgram *program, File *fragment_shaders) {
     program->error |=
         !compile_shader(program->fragment_shaders[i], fragment_shaders[i].path,
                         fragment_shaders[i].content);
+
+    if (program->error) {
+      return;
+    }
   }
 }
 
 void init_single_program(ShaderProgram *program, int i, bool output) {
   int j;
-  char uniform_name[32];
+  char name[32];
 
   program->programs[i] = glCreateProgram();
 
@@ -146,13 +150,28 @@ void init_single_program(ShaderProgram *program, int i, bool output) {
         glGetUniformLocation(program->programs[i], "iFPS");
     program->ires_locations[i] =
         glGetUniformLocation(program->programs[i], "iResolution");
+
+    program->sub_src_locations[i] = glGetSubroutineUniformLocation(
+        program->programs[i], GL_FRAGMENT_SHADER, "src_stage");
+    program->sub_fx_locations[i] = glGetSubroutineUniformLocation(
+        program->programs[i], GL_FRAGMENT_SHADER, "fx_stage");
+
+    for (j = 0; j < SUB_COUNT; j++) {
+      sprintf(name, "src_%d", j);
+      program->sub_src_indexes[i][j] =
+          glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
+      log_debug("%s %d", name, program->sub_src_indexes[i][j]);
+      sprintf(name, "fx_%d", j);
+      program->sub_fx_indexes[i][j] =
+          glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
+    }
   }
 
   // create frameX uniforms pointer
   for (j = 0; j < TEX_COUNT; j++) {
-    sprintf(uniform_name, "frame%d", j);
+    sprintf(name, "frame%d", j);
     program->frames_locations[i][j] =
-        glGetUniformLocation(program->programs[i], uniform_name);
+        glGetUniformLocation(program->programs[i], name);
   }
 
   // create attribute pointer
@@ -214,6 +233,7 @@ void update_program(ShaderProgram program, File *fragment_shaders, int i) {
 
 void apply_program(ShaderProgram program, Context context) {
   int i, j;
+  GLuint subroutines[2];
 
   // viewport changed
   if (context.width != program.last_width ||
@@ -251,6 +271,12 @@ void apply_program(ShaderProgram program, Context context) {
                   (const GLfloat)120.0f); // TODO TMP
       glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
       glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
+
+      // TODO tmp
+      subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
+      subroutines[1] = program.sub_fx_indexes[i][i == 2 ? 1 : 0];
+
+      glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 2, subroutines);
     }
 
     // set GL_TEXTURE(X) to uniform sampler2D frameX
