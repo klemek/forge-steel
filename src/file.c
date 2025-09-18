@@ -8,7 +8,7 @@
 
 #include "file.h"
 #include "logs.h"
-#include "strings.h"
+#include "string.h"
 #include "types.h"
 
 static time_t get_file_time(File file) {
@@ -81,7 +81,7 @@ void file_prepend(File *src, File extra) {
   char *old_src_content;
 
   old_src_content = src->content;
-  src->content = strings_concat(extra.content, src->content);
+  src->content = string_concat(extra.content, src->content);
   free(old_src_content);
 }
 

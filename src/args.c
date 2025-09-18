@@ -6,6 +6,7 @@
 #include "args.h"
 #include "config.h"
 #include "logs.h"
+#include "string.h"
 #include "types.h"
 
 static void print_help(int status_code) {
@@ -45,25 +46,8 @@ static char *split_arg_value(char *arg) {
   return strtok(NULL, "=");
 }
 
-static bool is_digit(char c) { return c >= '0' && c <= '9'; }
-
-static bool is_number(char *value) {
-  unsigned long value_len;
-  unsigned int i;
-  if (value == NULL) {
-    return false;
-  }
-  value_len = strlen(value);
-  for (i = 0; i < value_len; i++) {
-    if (!is_digit(value[i])) {
-      return false;
-    }
-  }
-  return true;
-}
-
 static unsigned char parse_uchar(char *arg, char *value) {
-  if (!is_number(value)) {
+  if (!string_is_number(value)) {
     invalid_value(arg, value);
   }
   unsigned long long tmp_value = (unsigned long long)atoll(value);

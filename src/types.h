@@ -83,8 +83,8 @@ typedef struct ConfigFile {
 } ConfigFile;
 
 typedef struct ConfigFileItem {
-  char *key;
-  char *value;
+  char key[256];
+  char value[2048];
 } ConfigFileItem;
 
 #endif /* TYPES_H */
