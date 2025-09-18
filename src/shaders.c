@@ -62,11 +62,11 @@ static void init_textures(ShaderProgram *program, Context context) {
 static void init_framebuffers(ShaderProgram *program) {
   unsigned int i, j;
 
-  program->frame_buffers = malloc(program->frag_count * sizeof(GLuint));
+  program->frame_buffers = malloc(program->framebuffer_count * sizeof(GLuint));
 
-  glGenFramebuffers(program->frag_count, program->frame_buffers);
+  glGenFramebuffers(program->framebuffer_count, program->frame_buffers);
 
-  for (i = 0; i < program->frag_count; i++) {
+  for (i = 0; i < program->framebuffer_count; i++) {
     glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
 
     for (j = 0; j < TEX_COUNT; j++) {
@@ -111,18 +111,6 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
   program->error |= !compile_shader(
       program->vertex_shader, "internal vertex shader", vertex_shader_text);
 
-  // compile output fragment shader
-  program->output_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  program->error |=
-      !compile_shader(program->output_shader,
-                      "internal fragment shader (output)", output_shader_text);
-
-  // compile output fragment shader
-  program->monitor_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  program->error |= !compile_shader(program->monitor_shader,
-                                    "internal fragment shader (monitor)",
-                                    monitor_shader_text);
-
   program->fragment_shaders = malloc(program->frag_count * sizeof(GLuint));
 
   // compile fragment shaders
@@ -139,49 +127,42 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
 }
 
 static void init_single_program(ShaderProgram *program, unsigned int i,
-                                ConfigFile shader_config, bool output) {
+                                ConfigFile shader_config) {
   unsigned int j;
   char name[32];
 
   program->programs[i] = glCreateProgram();
 
   glAttachShader(program->programs[i], program->vertex_shader);
-
-  if (output) {
-    glAttachShader(program->programs[i], program->monitor_shader); // TODO tmp
-  } else {
-    glAttachShader(program->programs[i], program->fragment_shaders[i]);
-  }
+  glAttachShader(program->programs[i], program->fragment_shaders[i]);
   glLinkProgram(program->programs[i]);
 
   // create uniforms pointers
-  if (!output) {
-    program->itime_locations[i] = glGetUniformLocation(
-        program->programs[i],
-        config_file_get_str(shader_config, "UNIFORM_TIME", "iTime"));
-    program->itempo_locations[i] = glGetUniformLocation(
-        program->programs[i],
-        config_file_get_str(shader_config, "UNIFORM_TEMPO", "iTempo"));
-    program->ifps_locations[i] = glGetUniformLocation(
-        program->programs[i],
-        config_file_get_str(shader_config, "UNIFORM_FPS", "iFPS"));
-    program->ires_locations[i] = glGetUniformLocation(
-        program->programs[i],
-        config_file_get_str(shader_config, "UNIFORM_RESOLUTION",
-                            "iResolution"));
+  program->itime_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(shader_config, "UNIFORM_TIME", "iTime"));
+  program->itempo_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(shader_config, "UNIFORM_TEMPO", "iTempo"));
+  program->ifps_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(shader_config, "UNIFORM_FPS", "iFPS"));
+  program->ires_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(shader_config, "UNIFORM_RESOLUTION", "iResolution"));
 
-    for (j = 0; j < SUB_COUNT; j++) {
-      sprintf(name, "src_%d", j + 1);
-      program->sub_src_indexes[i][j] =
+  // TODO sub substitution
+  for (j = 0; j < SUB_COUNT; j++) {
+    sprintf(name, "src_%d", j + 1);
+    program->sub_src_indexes[i][j] =
+        glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
+    sprintf(name, "fx_%d", j + 1);
+    program->sub_fx_indexes[i][j] =
+        glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
+    if (j < 2) {
+      sprintf(name, "mix_%d", j + 1);
+      program->sub_mix_indexes[i][j] =
           glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
-      sprintf(name, "fx_%d", j + 1);
-      program->sub_fx_indexes[i][j] =
-          glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
-      if (j < 2) {
-        sprintf(name, "mix_%d", j + 1);
-        program->sub_mix_indexes[i][j] = glGetSubroutineIndex(
-            program->programs[i], GL_FRAGMENT_SHADER, name);
-      }
     }
   }
 
@@ -220,8 +201,8 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
         malloc(program->frag_count * sizeof(GLuint));
   }
 
-  for (i = 0; i < program->frag_count + 1; i++) {
-    init_single_program(program, i, shader_config, i == program->frag_count);
+  for (i = 0; i < program->frag_count; i++) {
+    init_single_program(program, i, shader_config);
   }
 }
 
@@ -241,6 +222,11 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
   program.last_width = context.width;
   program.last_height = context.height;
   program.frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
+  program.framebuffer_count = program.frag_count - 2;
+  program.frag_output_index =
+      config_file_get_int(shader_config, "FRAG_OUT", 0) - 1;
+  program.frag_monitor_index =
+      config_file_get_int(shader_config, "FRAG_MONITOR", 0) - 1;
 
   init_textures(&program, context);
 
@@ -313,22 +299,21 @@ static void use_program(ShaderProgram program, int i, bool output,
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
     // use memory framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[0]);
-
-    // set fragment uniforms
-    glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
-    glUniform1f(program.itempo_locations[i],
-                (const GLfloat)120.0f); // TODO TMP
-    glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
-    glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
-
-    // TODO tmp
-    subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
-    subroutines[1] = program.sub_fx_indexes[i][0];
-    subroutines[2] = program.sub_mix_indexes[i][0];
-
-    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
+    glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
   }
+  // set fragment uniforms
+  glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
+  glUniform1f(program.itempo_locations[i],
+              (const GLfloat)120.0f); // TODO TMP
+  glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
+  glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
+
+  // TODO tmp
+  subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
+  subroutines[1] = program.sub_fx_indexes[i][0];
+  subroutines[2] = program.sub_mix_indexes[i][0];
+
+  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
 
   // set GL_TEXTURE(X) to uniform sampler2D texX
   for (j = 0; j < TEX_COUNT; j++) {
@@ -347,6 +332,10 @@ void shaders_apply(ShaderProgram program, Context context) {
   update_viewport(program, context);
 
   for (i = 0; i < program.frag_count + 1; i++) {
-    use_program(program, i, i == program.frag_count, context);
+    if (i != program.frag_output_index && i != program.frag_monitor_index) {
+      use_program(program, i, false, context);
+    }
   }
+
+  use_program(program, program.frag_output_index, true, context);
 }

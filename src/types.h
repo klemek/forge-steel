@@ -36,12 +36,14 @@ typedef struct ShaderProgram {
   int last_height;
 
   unsigned int frag_count;
+  unsigned int frag_output_index;
+  unsigned int frag_monitor_index;
+
+  unsigned int framebuffer_count;
 
   GLuint *programs;
 
   GLuint vertex_shader;
-  GLuint output_shader;
-  GLuint monitor_shader;
 
   GLuint *fragment_shaders;
 
@@ -52,9 +54,9 @@ typedef struct ShaderProgram {
 
   GLuint *textures_locations[TEX_COUNT];
 
-  GLuint sub_src_indexes[6][SUB_COUNT]; // TODO change
-  GLuint sub_fx_indexes[6][SUB_COUNT];
-  GLuint sub_mix_indexes[6][2];
+  GLuint sub_src_indexes[8][SUB_COUNT]; // TODO change
+  GLuint sub_fx_indexes[8][SUB_COUNT];
+  GLuint sub_mix_indexes[8][2];
 
   GLuint *vpos_locations;
 
