@@ -107,7 +107,7 @@ make -f Makefile.dev release-arch
   - [x] Feedback texture
   - [ ] Shaders config file
     - [x] uniform config
-    - [ ] fragment output config
+    - [x] fragment config
     - [ ] subroutines config
   - [ ] Clean code
 - [ ] Midi

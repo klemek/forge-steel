@@ -148,7 +148,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   glAttachShader(program->programs[i], program->vertex_shader);
 
   if (output) {
-    glAttachShader(program->programs[i], program->monitor_shader);
+    glAttachShader(program->programs[i], program->monitor_shader); // TODO tmp
   } else {
     glAttachShader(program->programs[i], program->fragment_shaders[i]);
   }
