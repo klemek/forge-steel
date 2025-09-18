@@ -59,22 +59,27 @@ static void init_textures(ShaderProgram *program, Context context) {
   }
 }
 
-static void init_framebuffers(ShaderProgram *program) {
+static void init_framebuffers(ShaderProgram *program,
+                              ConfigFile shader_config) {
   unsigned int i, j;
+  unsigned tex_i;
+  char name[32];
 
-  program->frame_buffers = malloc(program->framebuffer_count * sizeof(GLuint));
+  program->frame_buffers = malloc(program->frag_count * sizeof(GLuint));
 
-  glGenFramebuffers(program->framebuffer_count, program->frame_buffers);
+  glGenFramebuffers(program->frag_count, program->frame_buffers);
 
-  for (i = 0; i < program->framebuffer_count; i++) {
+  for (i = 0; i < program->frag_count; i++) {
+    if (i == program->frag_output_index || i == program->frag_monitor_index) {
+      continue;
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
 
-    for (j = 0; j < TEX_COUNT; j++) {
-      // attaches a selected mipmap level or image of a texture object as one of
-      // the logical buffers of the framebuffer object
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + j,
-                             GL_TEXTURE_2D, program->textures[j], 0);
-    }
+    sprintf(name, "FRAG_%d_OUT", i + 1);
+    tex_i = config_file_get_int(shader_config, name, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           program->textures[tex_i], 0);
 
     // check framebuffer status
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -206,14 +211,6 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   }
 }
 
-static void init_drawbuffers(ShaderProgram *program) {
-  unsigned int i;
-
-  for (i = 0; i < TEX_COUNT; i++) {
-    program->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-  }
-}
-
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
                            Context context) {
   ShaderProgram program;
@@ -230,7 +227,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
 
   init_textures(&program, context);
 
-  init_framebuffers(&program);
+  init_framebuffers(&program, shader_config);
 
   init_shaders(&program, fragment_shaders);
 
@@ -241,8 +238,6 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
   init_vertices(&program);
 
   init_programs(&program, shader_config);
-
-  init_drawbuffers(&program);
 
   return program;
 }
@@ -300,6 +295,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   } else {
     // use memory framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
   }
   // set fragment uniforms
   glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
@@ -320,8 +316,6 @@ static void use_program(ShaderProgram program, int i, bool output,
     glUniform1i(program.textures_locations[j][i], j);
   }
 
-  glDrawBuffers(TEX_COUNT, program.draw_buffers);
-
   // draw output
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }
@@ -337,5 +331,5 @@ void shaders_apply(ShaderProgram program, Context context) {
     }
   }
 
-  use_program(program, program.frag_output_index, true, context);
+  use_program(program, program.frag_monitor_index, true, context);
 }

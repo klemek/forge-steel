@@ -5,7 +5,7 @@
 // OUT: 5 (FX B)
 
 in vec2 vUV;
-layout(location = 5) out vec4 fragColor;
+out vec4 fragColor;
 
 void main() {
     fragColor = src_stage(vUV);
