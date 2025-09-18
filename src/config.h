@@ -10,7 +10,7 @@
 #endif /* VERSION */
 
 #ifndef TEX_COUNT
-#define TEX_COUNT 9
+#define TEX_COUNT 8
 #endif /* TEXT_COUNT */
 
 #ifndef SUB_COUNT

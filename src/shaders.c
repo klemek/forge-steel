@@ -1,6 +1,7 @@
 #include <glad/gl.h>
 #include <linmath.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "config.h"
@@ -147,7 +148,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   glAttachShader(program->programs[i], program->vertex_shader);
 
   if (output) {
-    glAttachShader(program->programs[i], program->monitor_shader); // TODO tmp
+    glAttachShader(program->programs[i], program->monitor_shader);
   } else {
     glAttachShader(program->programs[i], program->fragment_shaders[i]);
   }
@@ -225,9 +226,16 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   }
 }
 
+static void init_drawbuffers(ShaderProgram *program) {
+  unsigned int i;
+
+  for (i = 0; i < TEX_COUNT; i++) {
+    program->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+  }
+}
+
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
                            Context context) {
-  unsigned int i;
   ShaderProgram program;
 
   program.error = false;
@@ -249,10 +257,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
 
   init_programs(&program, shader_config);
 
-  // TODO each for each frag
-  for (i = 0; i < TEX_COUNT; i++) {
-    program.draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-  }
+  init_drawbuffers(&program);
 
   return program;
 }
@@ -327,7 +332,7 @@ void shaders_apply(ShaderProgram program, Context context) {
       glUniform1i(program.textures_locations[j][i], j);
     }
 
-    glDrawBuffers(TEX_COUNT - 1, program.draw_buffers);
+    glDrawBuffers(TEX_COUNT, program.draw_buffers);
 
     // draw output
     glDrawArrays(GL_TRIANGLES, 0, 6);

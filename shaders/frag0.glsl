@@ -22,7 +22,6 @@ uniform sampler2D tex4;
 uniform sampler2D tex5;
 uniform sampler2D tex6;
 uniform sampler2D tex7;
-uniform sampler2D tex8;
 
 // 3. definitions
 // --------------
