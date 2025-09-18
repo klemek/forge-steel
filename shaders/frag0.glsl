@@ -858,12 +858,6 @@ subroutine uniform src_stage_sub src_stage;
 subroutine(src_stage_sub) vec4 src_1(vec2 vUV)
 {
     // TODO tmp
-    return vec4(vUV, 0.0, 0.0);
-}
-
-subroutine(src_stage_sub) vec4 src_2(vec2 vUV)
-{
-    // TODO tmp
     vec2 uv0 = vUV.st;
     float ratio = iResolution.x / iResolution.y;
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
@@ -873,7 +867,7 @@ subroutine(src_stage_sub) vec4 src_2(vec2 vUV)
     return mix(color, gauss(tex0, vUV - 0.01) * 0.5, f);
 }
 
-subroutine(src_stage_sub) vec4 src_3(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_2(vec2 vUV)
 {
     const int text[5] = {0x66, 0x70, 0x73, 0x00, 0x00};
     vec2 uv0 = vUV.st;
@@ -888,6 +882,12 @@ subroutine(src_stage_sub) vec4 src_3(vec2 vUV)
     v += write_5(uv2, vec2(4.0, 0.5), text);
 
     return vec4(v);
+}
+
+subroutine(src_stage_sub) vec4 src_3(vec2 vUV)
+{
+    // TODO tmp
+    return vec4(vUV, 0.0, 0.0);
 }
 
 subroutine(src_stage_sub) vec4 src_4(vec2 vUV)

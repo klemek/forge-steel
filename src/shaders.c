@@ -135,9 +135,10 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
 
 static void init_single_program(ShaderProgram *program, unsigned int i,
                                 ConfigFile shader_config) {
-  unsigned int j;
+  unsigned int j, k;
   char name[32];
   char *tex_prefix;
+  char *sub_prefix;
 
   program->programs[i] = glCreateProgram();
 
@@ -159,17 +160,14 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
       program->programs[i],
       config_file_get_str(shader_config, "UNIFORM_RESOLUTION", "iResolution"));
 
-  // TODO sub substitution
-  for (j = 0; j < SUB_COUNT; j++) {
-    sprintf(name, "src_%d", j + 1);
-    program->sub_src_indexes[i][j] =
-        glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
-    sprintf(name, "fx_%d", j + 1);
-    program->sub_fx_indexes[i][j] =
-        glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
-    if (j < 2) {
-      sprintf(name, "mix_%d", j + 1);
-      program->sub_mix_indexes[i][j] =
+  for (j = 0; j < program->sub_type_count; j++) {
+    sprintf(name, "SUB_%d_PREFIX", j + 1);
+    sub_prefix = config_file_get_str(shader_config, name, 0);
+    for (k = 0; k < program->sub_variant_count; k++) {
+      sprintf(name, "%s%d", sub_prefix, k + 1);
+      program->sub_locations[i * program->sub_variant_count *
+                                 program->sub_type_count +
+                             j * program->sub_variant_count + k] =
           glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
     }
   }
@@ -178,7 +176,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   tex_prefix = config_file_get_str(shader_config, "UNIFORM_TEX_PREFIX", "tex");
   for (j = 0; j < program->tex_count; j++) {
     sprintf(name, "%s%d", tex_prefix, j);
-    program->textures_locations[i * program->frag_count + j] =
+    program->textures_locations[i * program->tex_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
@@ -206,6 +204,9 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   program->vpos_locations = malloc(program->frag_count * sizeof(GLuint));
   program->textures_locations =
       malloc(program->frag_count * program->tex_count * sizeof(GLuint));
+  program->sub_locations =
+      malloc(program->frag_count * program->sub_type_count *
+             program->sub_variant_count * sizeof(GLuint));
 
   for (i = 0; i < program->frag_count; i++) {
     init_single_program(program, i, shader_config);
@@ -225,6 +226,10 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
       config_file_get_int(shader_config, "FRAG_OUT", 0) - 1;
   program.frag_monitor_index =
       config_file_get_int(shader_config, "FRAG_MONITOR", 0) - 1;
+  program.sub_type_count =
+      config_file_get_int(shader_config, "SUB_TYPE_COUNT", 0);
+  program.sub_variant_count =
+      config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 1);
 
   init_textures(&program, context);
 
@@ -277,12 +282,13 @@ static void update_viewport(ShaderProgram program, Context context) {
 
 static void use_program(ShaderProgram program, int i, bool output,
                         Context context) {
-  unsigned int j;
-  GLuint subroutines[3];
+  unsigned int j, k;
+  GLuint *subroutines;
   vec2 resolution;
 
   resolution[0] = (float)context.width;
   resolution[1] = (float)context.height;
+  subroutines = malloc(program.sub_type_count * sizeof(GLuint));
 
   // use specific shader program
   glUseProgram(program.programs[i]);
@@ -305,16 +311,23 @@ static void use_program(ShaderProgram program, int i, bool output,
   glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
   glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
 
-  // TODO tmp
-  subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
-  subroutines[1] = program.sub_fx_indexes[i][0];
-  subroutines[2] = program.sub_mix_indexes[i][0];
+  for (j = 0; j < program.sub_type_count; j++) {
+    k = 0;
+    if (j == 0 &&
+        i == 1) { // TODO pass context here to select correct sub with mapping
+      k = 1;
+    }
+    subroutines[j] = program.sub_locations[i * program.sub_type_count *
+                                               program.sub_variant_count +
+                                           j * program.sub_variant_count + k];
+  }
 
-  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
+  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program.sub_type_count,
+                          subroutines);
 
   // set GL_TEXTURE(X) to uniform sampler2D texX
   for (j = 0; j < program.tex_count; j++) {
-    glUniform1i(program.textures_locations[i * program.frag_count + j], j);
+    glUniform1i(program.textures_locations[i * program.tex_count + j], j);
   }
 
   // draw output

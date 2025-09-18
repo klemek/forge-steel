@@ -35,16 +35,21 @@ typedef struct ShaderProgram {
   int last_width;
   int last_height;
 
+  GLuint vertex_shader;
+
+  GLuint vertex_buffer;
+  GLuint vertex_array;
+
+  unsigned int tex_count;
+  GLuint *textures;
+
   unsigned int frag_count;
   unsigned int frag_output_index;
   unsigned int frag_monitor_index;
 
-  unsigned int tex_count;
-
   GLuint *programs;
 
-  GLuint vertex_shader;
-
+  GLuint *frame_buffers;
   GLuint *fragment_shaders;
 
   GLuint *itime_locations;
@@ -52,19 +57,13 @@ typedef struct ShaderProgram {
   GLuint *ifps_locations;
   GLuint *ires_locations;
 
-  GLuint *textures_locations;
-
-  GLuint sub_src_indexes[8][SUB_COUNT]; // TODO change
-  GLuint sub_fx_indexes[8][SUB_COUNT];
-  GLuint sub_mix_indexes[8][2];
-
   GLuint *vpos_locations;
 
-  GLuint vertex_buffer;
-  GLuint vertex_array;
+  GLuint *textures_locations;
 
-  GLuint *frame_buffers;
-  GLuint *textures;
+  unsigned int sub_type_count;
+  unsigned int sub_variant_count;
+  GLuint *sub_locations;
 } ShaderProgram;
 
 typedef GLFWwindow Window;
