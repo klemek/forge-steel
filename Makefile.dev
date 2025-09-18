@@ -12,6 +12,7 @@ build:
 	gcc \
 		src/*.h src/*.c \
 		-Iinclude \
+		hashmap.c/hashmap.c \
 		-lm -lGL -lglfw \
 		-Wall -Wextra \
 		-DGLFW_INCLUDE_NONE \

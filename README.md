@@ -105,12 +105,14 @@ make -f Makefile.dev release-arch
   - [x] Include common code
   - [ ] 16 input + 16 fx definition and selection (with const param)
   - [x] Feedback texture
+  - [ ] Shaders config file
   - [ ] Clean code
 - [ ] Midi
   - [ ] Read Midi events
   - [ ] Read midi mapping config file
   - [ ] Write Midi events
   - [ ] Save midi state
+  - [ ] State machine with A/B switch
   - [ ] Tap-tempo feature
   - [ ] Clean code
 - [ ] Video input
