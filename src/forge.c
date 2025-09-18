@@ -53,7 +53,7 @@ static void hot_reload(ShaderProgram program, File *common_shader_code,
     force_update = true;
   }
 
-  for (i = 0; i < FRAG_COUNT; i++) {
+  for (i = 0; i < program.frag_count; i++) {
     if (force_update || file_should_update(fragment_shaders[i])) {
       file_update(&fragment_shaders[i]);
       file_prepend(&fragment_shaders[i], *common_shader_code);
@@ -96,10 +96,10 @@ File read_fragment_shader_file(char *frag_path, unsigned int i) {
 }
 
 static void init_files(char *frag_path, File *common_shader_code,
-                       File *fragment_shaders) {
+                       File *fragment_shaders, unsigned int frag_count) {
   unsigned int i;
 
-  for (i = 0; i < FRAG_COUNT + 1; i++) {
+  for (i = 0; i < frag_count + 1; i++) {
     if (i == 0) {
       (*common_shader_code) = read_fragment_shader_file(frag_path, i);
     } else {
@@ -110,10 +110,11 @@ static void init_files(char *frag_path, File *common_shader_code,
   }
 }
 
-static void free_files(File *common_shader_code, File *fragment_shaders) {
+static void free_files(File *common_shader_code, File *fragment_shaders,
+                       unsigned int frag_count) {
   unsigned int i;
 
-  for (i = 0; i < FRAG_COUNT; i++) {
+  for (i = 0; i < frag_count; i++) {
     file_free(&fragment_shaders[i], true);
   }
 
@@ -121,7 +122,8 @@ static void free_files(File *common_shader_code, File *fragment_shaders) {
 }
 
 void forge_run(Parameters params) {
-  File fragment_shaders[FRAG_COUNT];
+  unsigned int frag_count;
+  File *fragment_shaders;
   File common_shader_code;
   ShaderProgram program;
   Window *window;
@@ -129,9 +131,14 @@ void forge_run(Parameters params) {
   Context context;
   ConfigFile shader_config;
 
-  init_files(params.frag_path, &common_shader_code, fragment_shaders);
-
   shader_config = config_file_read(params.frag_config_path, false);
+
+  frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
+
+  fragment_shaders = malloc(frag_count * sizeof(File));
+
+  init_files(params.frag_path, &common_shader_code, fragment_shaders,
+             frag_count);
 
   window = window_init(PACKAGE " " VERSION, params.screen, error_callback,
                        key_callback);
@@ -152,9 +159,9 @@ void forge_run(Parameters params) {
          fragment_shaders, &timer);
   }
 
-  window_close(window, true);
-
-  free_files(&common_shader_code, fragment_shaders);
+  free_files(&common_shader_code, fragment_shaders, frag_count);
 
   config_file_free(shader_config);
+
+  window_close(window, true);
 }

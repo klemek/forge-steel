@@ -35,31 +35,33 @@ typedef struct ShaderProgram {
   int last_width;
   int last_height;
 
-  GLuint programs[FRAG_COUNT + 1];
+  unsigned int frag_count;
+
+  GLuint *programs;
 
   GLuint vertex_shader;
   GLuint output_shader;
   GLuint monitor_shader;
 
-  GLuint fragment_shaders[FRAG_COUNT];
+  GLuint *fragment_shaders;
 
-  GLuint itime_locations[FRAG_COUNT];
-  GLuint itempo_locations[FRAG_COUNT];
-  GLuint ifps_locations[FRAG_COUNT];
-  GLuint ires_locations[FRAG_COUNT];
+  GLuint *itime_locations;
+  GLuint *itempo_locations;
+  GLuint *ifps_locations;
+  GLuint *ires_locations;
 
-  GLuint textures_locations[FRAG_COUNT + 1][TEX_COUNT];
+  GLuint *textures_locations[TEX_COUNT];
 
-  GLuint sub_src_indexes[FRAG_COUNT][SUB_COUNT];
-  GLuint sub_fx_indexes[FRAG_COUNT][SUB_COUNT];
-  GLuint sub_mix_indexes[FRAG_COUNT][2];
+  GLuint sub_src_indexes[6][SUB_COUNT]; // TODO change
+  GLuint sub_fx_indexes[6][SUB_COUNT];
+  GLuint sub_mix_indexes[6][2];
 
-  GLuint vpos_locations[FRAG_COUNT + 1];
+  GLuint *vpos_locations;
 
   GLuint vertex_buffer;
   GLuint vertex_array;
 
-  GLuint frame_buffers[FRAG_COUNT];
+  GLuint *frame_buffers;
   GLuint textures[TEX_COUNT];
 
   GLenum draw_buffers[TEX_COUNT];

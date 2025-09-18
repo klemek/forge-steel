@@ -1,8 +1,10 @@
 #include <glad/gl.h>
 #include <linmath.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #include "config.h"
+#include "config_file.h"
 #include "constants.h"
 #include "logs.h"
 #include "shaders.h"
@@ -59,9 +61,11 @@ static void init_textures(ShaderProgram *program, Context context) {
 static void init_framebuffers(ShaderProgram *program) {
   unsigned int i, j;
 
-  glGenFramebuffers(FRAG_COUNT, program->frame_buffers);
+  program->frame_buffers = malloc(program->frag_count * sizeof(GLuint));
 
-  for (i = 0; i < FRAG_COUNT; i++) {
+  glGenFramebuffers(program->frag_count, program->frame_buffers);
+
+  for (i = 0; i < program->frag_count; i++) {
     glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
 
     for (j = 0; j < TEX_COUNT; j++) {
@@ -118,8 +122,10 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
                                     "internal fragment shader (monitor)",
                                     monitor_shader_text);
 
+  program->fragment_shaders = malloc(program->frag_count * sizeof(GLuint));
+
   // compile fragment shaders
-  for (i = 0; i < FRAG_COUNT; i++) {
+  for (i = 0; i < program->frag_count; i++) {
     program->fragment_shaders[i] = glCreateShader(GL_FRAGMENT_SHADER);
     program->error |=
         !compile_shader(program->fragment_shaders[i], fragment_shaders[i].path,
@@ -132,7 +138,7 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
 }
 
 static void init_single_program(ShaderProgram *program, unsigned int i,
-                                bool output) {
+                                ConfigFile shader_config, bool output) {
   unsigned int j;
   char name[32];
 
@@ -150,14 +156,19 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
   // create uniforms pointers
   if (!output) {
-    program->itime_locations[i] =
-        glGetUniformLocation(program->programs[i], "iTime");
-    program->itempo_locations[i] =
-        glGetUniformLocation(program->programs[i], "iTempo");
-    program->ifps_locations[i] =
-        glGetUniformLocation(program->programs[i], "iFPS");
-    program->ires_locations[i] =
-        glGetUniformLocation(program->programs[i], "iResolution");
+    program->itime_locations[i] = glGetUniformLocation(
+        program->programs[i],
+        config_file_get_str(shader_config, "UNIFORM_TIME", "iTime"));
+    program->itempo_locations[i] = glGetUniformLocation(
+        program->programs[i],
+        config_file_get_str(shader_config, "UNIFORM_TEMPO", "iTempo"));
+    program->ifps_locations[i] = glGetUniformLocation(
+        program->programs[i],
+        config_file_get_str(shader_config, "UNIFORM_FPS", "iFPS"));
+    program->ires_locations[i] = glGetUniformLocation(
+        program->programs[i],
+        config_file_get_str(shader_config, "UNIFORM_RESOLUTION",
+                            "iResolution"));
 
     for (j = 0; j < SUB_COUNT; j++) {
       sprintf(name, "src_%d", j + 1);
@@ -177,7 +188,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   // create texX uniforms pointer
   for (j = 0; j < TEX_COUNT; j++) {
     sprintf(name, "tex%d", j);
-    program->textures_locations[i][j] =
+    program->textures_locations[j][i] =
         glGetUniformLocation(program->programs[i], name);
   }
 
@@ -194,6 +205,26 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   log_success("Program %d initialized", i + 1);
 }
 
+static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
+  unsigned int i;
+
+  program->programs = malloc(program->frag_count * sizeof(GLuint));
+  program->itime_locations = malloc(program->frag_count * sizeof(GLuint));
+  program->itempo_locations = malloc(program->frag_count * sizeof(GLuint));
+  program->ifps_locations = malloc(program->frag_count * sizeof(GLuint));
+  program->ires_locations = malloc(program->frag_count * sizeof(GLuint));
+  program->vpos_locations = malloc(program->frag_count * sizeof(GLuint));
+
+  for (i = 0; i < TEX_COUNT; i++) {
+    program->textures_locations[i] =
+        malloc(program->frag_count * sizeof(GLuint));
+  }
+
+  for (i = 0; i < program->frag_count + 1; i++) {
+    init_single_program(program, i, shader_config, i == program->frag_count);
+  }
+}
+
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
                            Context context) {
   unsigned int i;
@@ -202,6 +233,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
   program.error = false;
   program.last_width = context.width;
   program.last_height = context.height;
+  program.frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
 
   init_textures(&program, context);
 
@@ -215,11 +247,9 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
 
   init_vertices(&program);
 
-  // create and link full shader programs
-  for (i = 0; i < FRAG_COUNT + 1; i++) {
-    init_single_program(&program, i, i == FRAG_COUNT);
-  }
+  init_programs(&program, shader_config);
 
+  // TODO each for each frag
   for (i = 0; i < TEX_COUNT; i++) {
     program.draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
   }
@@ -263,11 +293,11 @@ void shaders_apply(ShaderProgram program, Context context) {
   resolution[0] = (float)context.width;
   resolution[1] = (float)context.height;
 
-  for (i = 0; i < FRAG_COUNT + 1; i++) {
+  for (i = 0; i < program.frag_count + 1; i++) {
     // use specific shader program
     glUseProgram(program.programs[i]);
 
-    if (i == FRAG_COUNT) {
+    if (i == program.frag_count) {
       // use default framebuffer (output)
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -294,7 +324,7 @@ void shaders_apply(ShaderProgram program, Context context) {
 
     // set GL_TEXTURE(X) to uniform sampler2D texX
     for (j = 0; j < TEX_COUNT; j++) {
-      glUniform1i(program.textures_locations[i][j], j);
+      glUniform1i(program.textures_locations[j][i], j);
     }
 
     glDrawBuffers(TEX_COUNT - 1, program.draw_buffers);

@@ -102,7 +102,8 @@ char *config_file_get_str(ConfigFile config, char *key, char *default_value) {
   return item->value;
 }
 
-int config_file_get_int(ConfigFile config, char *key, int default_value) {
+unsigned int config_file_get_int(ConfigFile config, char *key,
+                                 int default_value) {
   ConfigFileItem c_key;
   ConfigFileItem *item;
 
@@ -119,7 +120,7 @@ int config_file_get_int(ConfigFile config, char *key, int default_value) {
     return default_value;
   }
 
-  return atoi(item->value);
+  return (unsigned int)atoi(item->value);
 }
 
 void config_file_free(ConfigFile config) { hashmap_free(config.map); }
