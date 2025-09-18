@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <glad/gl.h>
+#include <hashmap.h>
 #include <linmath.h>
 #include <stdbool.h>
 #include <sys/time.h>
@@ -76,5 +77,14 @@ typedef struct Timer {
   unsigned int counter;
   unsigned int target;
 } Timer;
+
+typedef struct ConfigFile {
+  struct hashmap *map;
+} ConfigFile;
+
+typedef struct ConfigFileItem {
+  char *key;
+  char *value;
+} ConfigFileItem;
 
 #endif /* TYPES_H */
