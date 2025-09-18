@@ -160,14 +160,14 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
         glGetUniformLocation(program->programs[i], "iResolution");
 
     for (j = 0; j < SUB_COUNT; j++) {
-      sprintf(name, "src_%d", j);
+      sprintf(name, "src_%d", j + 1);
       program->sub_src_indexes[i][j] =
           glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
-      sprintf(name, "fx_%d", j);
+      sprintf(name, "fx_%d", j + 1);
       program->sub_fx_indexes[i][j] =
           glGetSubroutineIndex(program->programs[i], GL_FRAGMENT_SHADER, name);
       if (j < 2) {
-        sprintf(name, "mix_%d", j);
+        sprintf(name, "mix_%d", j + 1);
         program->sub_mix_indexes[i][j] = glGetSubroutineIndex(
             program->programs[i], GL_FRAGMENT_SHADER, name);
       }
@@ -194,7 +194,8 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   log_success("Program %d initialized", i + 1);
 }
 
-ShaderProgram shaders_init(File *fragment_shaders, Context context) {
+ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
+                           Context context) {
   unsigned int i;
   ShaderProgram program;
 

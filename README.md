@@ -106,6 +106,9 @@ make -f Makefile.dev release-arch
   - [ ] 16 input + 16 fx definition and selection (with const param)
   - [x] Feedback texture
   - [ ] Shaders config file
+    - [ ] uniform config
+    - [ ] fragment output config
+    - [ ] subroutines config
   - [ ] Clean code
 - [ ] Midi
   - [ ] Read Midi events

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "config_file.h"
 #include "file.h"
 #include "forge.h"
 #include "logs.h"
@@ -126,15 +127,18 @@ void forge_run(Parameters params) {
   Window *window;
   Timer timer;
   Context context;
+  ConfigFile shader_config;
 
   init_files(params.frag_path, &common_shader_code, fragment_shaders);
+
+  shader_config = config_file_read(params.frag_config_path, false);
 
   window = window_init(PACKAGE " " VERSION, params.screen, error_callback,
                        key_callback);
 
   context = window_get_context(window);
 
-  program = shaders_init(fragment_shaders, context);
+  program = shaders_init(fragment_shaders, shader_config, context);
 
   if (program.error) {
     window_close(window, true);
@@ -151,4 +155,6 @@ void forge_run(Parameters params) {
   window_close(window, true);
 
   free_files(&common_shader_code, fragment_shaders);
+
+  config_file_free(shader_config);
 }

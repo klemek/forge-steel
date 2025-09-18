@@ -855,13 +855,13 @@ subroutine vec4 src_stage_sub(vec2 vUV);
 
 subroutine uniform src_stage_sub src_stage;
 
-subroutine(src_stage_sub) vec4 src_0(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_1(vec2 vUV)
 {
     // TODO tmp
     return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec4 src_1(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_2(vec2 vUV)
 {
     // TODO tmp
     vec2 uv0 = vUV.st;
@@ -873,7 +873,7 @@ subroutine(src_stage_sub) vec4 src_1(vec2 vUV)
     return mix(color, gauss(tex0, vUV - 0.01) * 0.5, f);
 }
 
-subroutine(src_stage_sub) vec4 src_2(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_3(vec2 vUV)
 {
     const int text[5] = {0x66, 0x70, 0x73, 0x00, 0x00};
     vec2 uv0 = vUV.st;
@@ -888,12 +888,6 @@ subroutine(src_stage_sub) vec4 src_2(vec2 vUV)
     v += write_5(uv2, vec2(4.0, 0.5), text);
 
     return vec4(v);
-}
-
-subroutine(src_stage_sub) vec4 src_3(vec2 vUV)
-{
-    // TODO tmp
-    return vec4(vUV, 0.0, 0.0);
 }
 
 subroutine(src_stage_sub) vec4 src_4(vec2 vUV)
@@ -968,6 +962,12 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV)
     return vec4(vUV, 0.0, 0.0);
 }
 
+subroutine(src_stage_sub) vec4 src_16(vec2 vUV)
+{
+    // TODO tmp
+    return vec4(vUV, 0.0, 0.0);
+}
+
 // 6. effects
 // ----------
 
@@ -975,22 +975,16 @@ subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback);
 
 subroutine uniform fx_stage_sub fx_stage;
 
-subroutine(fx_stage_sub) vec4 fx_0(vec2 vUV, sampler2D previous, sampler2D feedback)
-{
-    // TODO tmp
-    return texture(previous, vUV);
-}
-
 subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return gauss(previous, vUV);
+    return texture(previous, vUV);
 }
 
 subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV);
+    return gauss(previous, vUV);
 }
 
 subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback)
@@ -1071,6 +1065,12 @@ subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feed
     return texture(previous, vUV);
 }
 
+subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feedback)
+{
+    // TODO tmp
+    return texture(previous, vUV);
+}
+
 // 7. mix
 // ----------
 
@@ -1078,7 +1078,7 @@ subroutine vec4 mix_stage_sub(vec2 vUV, sampler2D tex_a, sampler2D tex_a, float 
 
 subroutine uniform mix_stage_sub mix_stage;
 
-subroutine(mix_stage_sub) vec4 mix_0(vec2 vUV, sampler2D ta, sampler2D tb, float lvl)
+subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, float lvl)
 {
     vec4 color_a = texture(ta, vUV);
     vec4 color_b = texture(tb, vUV);
@@ -1086,7 +1086,7 @@ subroutine(mix_stage_sub) vec4 mix_0(vec2 vUV, sampler2D ta, sampler2D tb, float
     return color_a + color_b;// TODOmix(color_b, color_a, lvl);
 }
 
-subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, float lvl)
+subroutine(mix_stage_sub) vec4 mix_2(vec2 vUV, sampler2D ta, sampler2D tb, float lvl)
 {
     vec4 color_a = texture(ta, vUV);
     vec4 color_b = texture(tb, vUV);

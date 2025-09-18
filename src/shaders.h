@@ -3,7 +3,8 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-ShaderProgram shaders_init(File *fragment_shader, Context context);
+ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
+                           Context context);
 
 void shaders_update(ShaderProgram program, File *fragment_shaders,
                     unsigned int i);
