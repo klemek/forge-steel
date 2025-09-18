@@ -1,5 +1,6 @@
 #include <sys/time.h>
 
+#include "timer.h"
 #include "types.h"
 
 Timer timer_init(const unsigned int target) {

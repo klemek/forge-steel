@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "args.h"
 #include "config.h"
 #include "logs.h"
 #include "types.h"

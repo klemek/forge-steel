@@ -5,6 +5,7 @@
 #include "config.h"
 #include "constants.h"
 #include "logs.h"
+#include "shaders.h"
 #include "types.h"
 
 static bool compile_shader(GLuint shader_id, char *name, char *source_code) {

@@ -5,6 +5,7 @@
 
 #include "logs.h"
 #include "types.h"
+#include "window.h"
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>

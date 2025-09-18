@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "file.h"
+#include "forge.h"
 #include "logs.h"
 #include "shaders.h"
 #include "timer.h"

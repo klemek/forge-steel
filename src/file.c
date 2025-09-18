@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <time.h>
 
+#include "file.h"
 #include "logs.h"
 #include "strings.h"
 #include "types.h"

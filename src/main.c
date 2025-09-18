@@ -5,6 +5,7 @@
 #include "args.h"
 #include "config.h"
 #include "forge.h"
+#include "main.h"
 
 int main(int argc, char **argv) {
   Parameters params;
