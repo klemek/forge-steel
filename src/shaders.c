@@ -152,7 +152,6 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   } else {
     glAttachShader(program->programs[i], program->fragment_shaders[i]);
   }
-
   glLinkProgram(program->programs[i]);
 
   // create uniforms pointers
@@ -276,10 +275,8 @@ void shaders_update(ShaderProgram program, File *fragment_shaders,
   }
 }
 
-void shaders_apply(ShaderProgram program, Context context) {
-  unsigned int i, j;
-  GLuint subroutines[3];
-  vec2 resolution;
+static void update_viewport(ShaderProgram program, Context context) {
+  unsigned int i;
 
   // viewport changed
   if (context.width != program.last_width ||
@@ -294,47 +291,62 @@ void shaders_apply(ShaderProgram program, Context context) {
                    GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
   }
+}
+
+static void use_program(ShaderProgram program, int i, bool output,
+                        Context context) {
+  unsigned int j;
+  GLuint subroutines[3];
+  vec2 resolution;
 
   resolution[0] = (float)context.width;
   resolution[1] = (float)context.height;
 
+  // use specific shader program
+  glUseProgram(program.programs[i]);
+
+  if (output) {
+    // use default framebuffer (output)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // clear buffer
+    glClear(GL_COLOR_BUFFER_BIT);
+  } else {
+    // use memory framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[0]);
+
+    // set fragment uniforms
+    glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
+    glUniform1f(program.itempo_locations[i],
+                (const GLfloat)120.0f); // TODO TMP
+    glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
+    glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
+
+    // TODO tmp
+    subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
+    subroutines[1] = program.sub_fx_indexes[i][0];
+    subroutines[2] = program.sub_mix_indexes[i][0];
+
+    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
+  }
+
+  // set GL_TEXTURE(X) to uniform sampler2D texX
+  for (j = 0; j < TEX_COUNT; j++) {
+    glUniform1i(program.textures_locations[j][i], j);
+  }
+
+  glDrawBuffers(TEX_COUNT, program.draw_buffers);
+
+  // draw output
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void shaders_apply(ShaderProgram program, Context context) {
+  unsigned int i;
+
+  update_viewport(program, context);
+
   for (i = 0; i < program.frag_count + 1; i++) {
-    // use specific shader program
-    glUseProgram(program.programs[i]);
-
-    if (i == program.frag_count) {
-      // use default framebuffer (output)
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-      // clear buffer
-      glClear(GL_COLOR_BUFFER_BIT);
-    } else {
-      // use memory framebuffer
-      glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[0]);
-
-      // set fragment uniforms
-      glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
-      glUniform1f(program.itempo_locations[i],
-                  (const GLfloat)120.0f); // TODO TMP
-      glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
-      glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
-
-      // TODO tmp
-      subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
-      subroutines[1] = program.sub_fx_indexes[i][0];
-      subroutines[2] = program.sub_mix_indexes[i][0];
-
-      glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
-    }
-
-    // set GL_TEXTURE(X) to uniform sampler2D texX
-    for (j = 0; j < TEX_COUNT; j++) {
-      glUniform1i(program.textures_locations[j][i], j);
-    }
-
-    glDrawBuffers(TEX_COUNT, program.draw_buffers);
-
-    // draw output
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    use_program(program, i, i == program.frag_count, context);
   }
 }
