@@ -18,6 +18,7 @@ void main() {
     fragColor += s(uv,0,1) * texture(tex4, uv);
     fragColor += s(uv,1,1) * texture(tex5, uv);
     fragColor += s(uv,2,1) * texture(tex6, uv);
-    fragColor += s(uv,0.5,0) * texture(tex7, uv-vec2(0.5,0));
-    fragColor += s(uv,1.5,0) * texture(tex0, uv-vec2(0.5,0));
+    fragColor += s(uv,0,0) * texture(tex7, uv);
+    fragColor += s(uv,1,0) * texture(tex8, uv);
+    fragColor += s(uv,2,0) * texture(tex0, uv);
 }

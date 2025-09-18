@@ -39,9 +39,11 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
 static void init_textures(ShaderProgram *program, Context context) {
   unsigned int i;
 
-  glGenTextures(TEX_COUNT, program->textures);
+  program->textures = malloc(program->tex_count * sizeof(GLuint));
 
-  for (i = 0; i < TEX_COUNT; i++) {
+  glGenTextures(program->tex_count, program->textures);
+
+  for (i = 0; i < program->tex_count; i++) {
     // selects which texture unit subsequent texture state calls will affect
     glActiveTexture(GL_TEXTURE0 + i);
 
@@ -61,7 +63,7 @@ static void init_textures(ShaderProgram *program, Context context) {
 
 static void init_framebuffers(ShaderProgram *program,
                               ConfigFile shader_config) {
-  unsigned int i, j;
+  unsigned int i;
   unsigned tex_i;
   char name[32];
 
@@ -135,6 +137,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
                                 ConfigFile shader_config) {
   unsigned int j;
   char name[32];
+  char *tex_prefix;
 
   program->programs[i] = glCreateProgram();
 
@@ -172,9 +175,10 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   }
 
   // create texX uniforms pointer
-  for (j = 0; j < TEX_COUNT; j++) {
-    sprintf(name, "tex%d", j);
-    program->textures_locations[j][i] =
+  tex_prefix = config_file_get_str(shader_config, "UNIFORM_TEX_PREFIX", "tex");
+  for (j = 0; j < program->tex_count; j++) {
+    sprintf(name, "%s%d", tex_prefix, j);
+    program->textures_locations[i * program->frag_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
@@ -200,11 +204,8 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   program->ifps_locations = malloc(program->frag_count * sizeof(GLuint));
   program->ires_locations = malloc(program->frag_count * sizeof(GLuint));
   program->vpos_locations = malloc(program->frag_count * sizeof(GLuint));
-
-  for (i = 0; i < TEX_COUNT; i++) {
-    program->textures_locations[i] =
-        malloc(program->frag_count * sizeof(GLuint));
-  }
+  program->textures_locations =
+      malloc(program->frag_count * program->tex_count * sizeof(GLuint));
 
   for (i = 0; i < program->frag_count; i++) {
     init_single_program(program, i, shader_config);
@@ -218,8 +219,8 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
   program.error = false;
   program.last_width = context.width;
   program.last_height = context.height;
+  program.tex_count = config_file_get_int(shader_config, "TEX_COUNT", 9);
   program.frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
-  program.framebuffer_count = program.frag_count - 2;
   program.frag_output_index =
       config_file_get_int(shader_config, "FRAG_OUT", 0) - 1;
   program.frag_monitor_index =
@@ -266,7 +267,7 @@ static void update_viewport(ShaderProgram program, Context context) {
     glViewport(0, 0, context.width, context.height);
 
     // clean and resize all textures
-    for (i = 0; i < TEX_COUNT; i++) {
+    for (i = 0; i < program.tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.width, context.height, 0,
                    GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -312,8 +313,8 @@ static void use_program(ShaderProgram program, int i, bool output,
   glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
 
   // set GL_TEXTURE(X) to uniform sampler2D texX
-  for (j = 0; j < TEX_COUNT; j++) {
-    glUniform1i(program.textures_locations[j][i], j);
+  for (j = 0; j < program.tex_count; j++) {
+    glUniform1i(program.textures_locations[i * program.frag_count + j], j);
   }
 
   // draw output

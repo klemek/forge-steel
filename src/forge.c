@@ -154,6 +154,8 @@ void forge_run(Parameters params) {
 
   timer = timer_init(30);
 
+  log_success("Initialized");
+
   while (!window_should_close(window)) {
     loop(window, program, params.hot_reload, &common_shader_code,
          fragment_shaders, &timer);

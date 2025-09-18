@@ -8,5 +8,5 @@ in vec2 vUV;
 out vec4 fragColor;
 
 void main() {
-    fragColor = fx_stage(vUV, tex7, tex0);
+    fragColor = fx_stage(vUV, tex8, tex0);
 }

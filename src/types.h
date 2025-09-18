@@ -39,7 +39,7 @@ typedef struct ShaderProgram {
   unsigned int frag_output_index;
   unsigned int frag_monitor_index;
 
-  unsigned int framebuffer_count;
+  unsigned int tex_count;
 
   GLuint *programs;
 
@@ -52,7 +52,7 @@ typedef struct ShaderProgram {
   GLuint *ifps_locations;
   GLuint *ires_locations;
 
-  GLuint *textures_locations[TEX_COUNT];
+  GLuint *textures_locations;
 
   GLuint sub_src_indexes[8][SUB_COUNT]; // TODO change
   GLuint sub_fx_indexes[8][SUB_COUNT];
@@ -64,9 +64,7 @@ typedef struct ShaderProgram {
   GLuint vertex_array;
 
   GLuint *frame_buffers;
-  GLuint textures[TEX_COUNT];
-
-  GLenum draw_buffers[TEX_COUNT];
+  GLuint *textures;
 } ShaderProgram;
 
 typedef GLFWwindow Window;
