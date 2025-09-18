@@ -33,7 +33,7 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
 }
 
 static void init_textures(ShaderProgram *program, Context context) {
-  int i;
+  unsigned int i;
 
   glGenTextures(TEX_COUNT, program->textures);
 
@@ -56,7 +56,7 @@ static void init_textures(ShaderProgram *program, Context context) {
 }
 
 static void init_framebuffers(ShaderProgram *program) {
-  int i, j;
+  unsigned int i, j;
 
   glGenFramebuffers(FRAG_COUNT, program->frame_buffers);
 
@@ -98,7 +98,7 @@ static void init_vertices(ShaderProgram *program) {
 }
 
 static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
-  int i;
+  unsigned int i;
 
   // compile vertex shader
   program->vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -124,8 +124,9 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
   }
 }
 
-static void init_single_program(ShaderProgram *program, int i, bool output) {
-  int j;
+static void init_single_program(ShaderProgram *program, unsigned int i,
+                                bool output) {
+  unsigned int j;
   char name[32];
 
   program->programs[i] = glCreateProgram();
@@ -187,7 +188,7 @@ static void init_single_program(ShaderProgram *program, int i, bool output) {
 }
 
 ShaderProgram shaders_init(File *fragment_shaders, Context context) {
-  int i;
+  unsigned int i;
   ShaderProgram program;
 
   program.error = false;
@@ -219,7 +220,8 @@ ShaderProgram shaders_init(File *fragment_shaders, Context context) {
   return program;
 }
 
-void shaders_update(ShaderProgram program, File *fragment_shaders, int i) {
+void shaders_update(ShaderProgram program, File *fragment_shaders,
+                    unsigned int i) {
   bool result;
 
   result = compile_shader(program.fragment_shaders[i], fragment_shaders[i].path,
@@ -233,7 +235,7 @@ void shaders_update(ShaderProgram program, File *fragment_shaders, int i) {
 }
 
 void shaders_apply(ShaderProgram program, Context context) {
-  int i, j;
+  unsigned int i, j;
   GLuint subroutines[3];
   vec2 resolution;
 

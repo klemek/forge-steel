@@ -5,7 +5,8 @@
 
 ShaderProgram shaders_init(File *fragment_shader, Context context);
 
-void shaders_update(ShaderProgram program, File *fragment_shaders, int i);
+void shaders_update(ShaderProgram program, File *fragment_shaders,
+                    unsigned int i);
 
 void shaders_apply(ShaderProgram program, Context context);
 

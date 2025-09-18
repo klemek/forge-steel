@@ -68,7 +68,7 @@ typedef struct Context {
   int width;
   int height;
   double time;
-  int fps;
+  unsigned int fps;
 } Context;
 
 typedef struct Timer {

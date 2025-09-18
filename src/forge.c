@@ -26,7 +26,7 @@ static void key_callback(Window *window, int key,
   }
 }
 
-static int compute_fps(Window *window, Timer *timer) {
+static unsigned int compute_fps(Window *window, Timer *timer) {
   static double fps;
   char title[100];
 
@@ -36,12 +36,12 @@ static int compute_fps(Window *window, Timer *timer) {
     window_update_title(window, title);
   }
 
-  return (int)round(fps);
+  return (unsigned int)round(fps);
 }
 
 static void hot_reload(ShaderProgram program, File *common_shader_code,
                        File *fragment_shaders) {
-  int i;
+  unsigned int i;
   bool force_update;
 
   force_update = false;
@@ -78,7 +78,7 @@ static void loop(Window *window, ShaderProgram program, bool hr,
   window_refresh(window);
 }
 
-File read_fragment_shader_file(char *frag_path, int i) {
+File read_fragment_shader_file(char *frag_path, unsigned int i) {
   File fragment_shader;
   char *file_path;
 
@@ -95,7 +95,7 @@ File read_fragment_shader_file(char *frag_path, int i) {
 
 static void init_files(char *frag_path, File *common_shader_code,
                        File *fragment_shaders) {
-  int i;
+  unsigned int i;
 
   for (i = 0; i < FRAG_COUNT + 1; i++) {
     if (i == 0) {
@@ -109,7 +109,7 @@ static void init_files(char *frag_path, File *common_shader_code,
 }
 
 static void free_files(File *common_shader_code, File *fragment_shaders) {
-  int i;
+  unsigned int i;
 
   for (i = 0; i < FRAG_COUNT; i++) {
     file_free(&fragment_shaders[i], true);

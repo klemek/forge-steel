@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "args.h"
 #include "config.h"
 #include "logs.h"
+#include "types.h"
 
 static void print_help(int status_code) {
   puts(PACKAGE
