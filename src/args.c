@@ -18,14 +18,16 @@ static void print_help(int status_code) {
        "[-hr] "
        "[-s=SCREEN] "
        "[-f=DIR_PATH] "
+       "[-fc=CFG_PATH] "
        "\n\n"
        "Fusion Of Real-time Generative Effects.\n\n"
        "options:\n"
-       "  -h, --help         show this help message and exit\n"
-       "  -v, --version      print version\n"
-       "  -hr, --hot-reload  hot reload of shaders scripts\n"
-       "  -s, --screen       output screen number (default: primary)\n"
-       "  -f, --frag         fragment shaders directory (default: TODO)\n");
+       "  -h, --help          show this help message and exit\n"
+       "  -v, --version       print version\n"
+       "  -hr, --hot-reload   hot reload of shaders scripts\n"
+       "  -s, --screen        output screen number (default: primary)\n"
+       "  -f, --frag          fragment shaders directory (default: TODO)\n"
+       "  -fc, --frag-config  fragment shaders config file (default: TODO)\n");
   exit(status_code);
 }
 
@@ -65,6 +67,7 @@ Parameters args_parse(int argc, char **argv) {
 
   params.screen = 0;
   params.frag_path = 0;
+  params.frag_config_path = 0;
   params.hot_reload = false;
 
   for (i = 1; i < argc; i++) {
@@ -81,6 +84,8 @@ Parameters args_parse(int argc, char **argv) {
       params.screen = parse_uchar(arg, value);
     } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {
       params.frag_path = value;
+    } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
+      params.frag_config_path = value;
     } else {
       invalid_arg(arg);
     }
@@ -88,6 +93,11 @@ Parameters args_parse(int argc, char **argv) {
 
   if (params.frag_path == 0) {
     log_error("required argument -f/--frag");
+    exit(EXIT_FAILURE);
+  }
+
+  if (params.frag_path == 0) {
+    log_error("required argument -fc/--frag-config");
     exit(EXIT_FAILURE);
   }
 

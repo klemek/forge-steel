@@ -107,10 +107,16 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
       program->vertex_shader, "internal vertex shader", vertex_shader_text);
 
   // compile output fragment shader
-  program->output_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  program->output_shader = glCreateShader(GL_FRAGMENT_SHADER);
   program->error |=
-      !compile_shader(program->output_fragment_shader,
-                      "internal fragment shader", output_fragment_shader_text);
+      !compile_shader(program->output_shader,
+                      "internal fragment shader (output)", output_shader_text);
+
+  // compile output fragment shader
+  program->monitor_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  program->error |= !compile_shader(program->monitor_shader,
+                                    "internal fragment shader (monitor)",
+                                    monitor_shader_text);
 
   // compile fragment shaders
   for (i = 0; i < FRAG_COUNT; i++) {
@@ -135,7 +141,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   glAttachShader(program->programs[i], program->vertex_shader);
 
   if (output) {
-    glAttachShader(program->programs[i], program->output_fragment_shader);
+    glAttachShader(program->programs[i], program->monitor_shader); // TODO tmp
   } else {
     glAttachShader(program->programs[i], program->fragment_shaders[i]);
   }
@@ -213,7 +219,6 @@ ShaderProgram shaders_init(File *fragment_shaders, Context context) {
     init_single_program(&program, i, i == FRAG_COUNT);
   }
 
-  // TODO functions
   for (i = 0; i < TEX_COUNT; i++) {
     program.draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
   }
@@ -291,7 +296,7 @@ void shaders_apply(ShaderProgram program, Context context) {
       glUniform1i(program.frames_locations[i][j], j);
     }
 
-    glDrawBuffers(TEX_COUNT, program.draw_buffers);
+    glDrawBuffers(TEX_COUNT - 1, program.draw_buffers);
 
     // draw output
     glDrawArrays(GL_TRIANGLES, 0, 6);

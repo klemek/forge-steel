@@ -14,7 +14,7 @@
 #endif /* FRAG_COUNT */
 
 #ifndef TEX_COUNT
-#define TEX_COUNT 8
+#define TEX_COUNT 9
 #endif /* TEXT_COUNT */
 
 #ifndef SUB_COUNT

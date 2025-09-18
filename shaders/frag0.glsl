@@ -22,6 +22,7 @@ uniform sampler2D frame4;
 uniform sampler2D frame5;
 uniform sampler2D frame6;
 uniform sampler2D frame7;
+uniform sampler2D frame8;
 
 // 3. definitions
 // --------------

@@ -14,6 +14,7 @@
 typedef struct Parameters {
   unsigned char screen;
   char *frag_path;
+  char *frag_config_path;
   bool hot_reload;
 } Parameters;
 
@@ -37,7 +38,8 @@ typedef struct ShaderProgram {
   GLuint programs[FRAG_COUNT + 1];
 
   GLuint vertex_shader;
-  GLuint output_fragment_shader;
+  GLuint output_shader;
+  GLuint monitor_shader;
 
   GLuint fragment_shaders[FRAG_COUNT];
 
