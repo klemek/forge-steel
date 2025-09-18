@@ -3,12 +3,13 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 
 #include "logs.h"
 #include "strings.h"
 #include "types.h"
 
-time_t get_file_time(File file) {
+static time_t get_file_time(File file) {
   struct stat attr;
   if (stat(file.path, &attr) == 0) {
     return attr.st_mtim.tv_sec;
@@ -16,11 +17,11 @@ time_t get_file_time(File file) {
   return 0;
 }
 
-bool should_update_file(File file) {
+bool file_should_update(File file) {
   return file.last_write != get_file_time(file);
 }
 
-void update_file(File *file) {
+void file_update(File *file) {
   // free remaining data
   if (file->content != 0) {
     free(file->content);
@@ -32,7 +33,7 @@ void update_file(File *file) {
   long length;
   // open file
   FILE *file_pointer = fopen(file->path, "rb");
-  if (!file_pointer) {
+  if (file_pointer == NULL) {
     file->error = true;
     log_error("Cannot open file '%s'", file->path);
     return;
@@ -43,7 +44,7 @@ void update_file(File *file) {
   // init buffer
   fseek(file_pointer, 0, SEEK_SET);
   file->content = (char *)malloc((length + 1) * sizeof(char));
-  if (!file->content) {
+  if (file->content == NULL) {
     file->error = true;
     fclose(file_pointer);
     log_error("Cannot read file '%s'", file->path);
@@ -59,19 +60,19 @@ void update_file(File *file) {
   file->last_write = get_file_time(*file);
 }
 
-File read_file(char *path) {
+File file_read(char *path) {
   File file = {path, 0, false, 0};
-  update_file(&file);
+  file_update(&file);
   return file;
 }
 
-void prepend_file(File *src, File extra) {
+void file_prepend(File *src, File extra) {
   char *old_src_content = src->content;
-  src->content = concat(extra.content, src->content);
+  src->content = strings_concat(extra.content, src->content);
   free(old_src_content);
 }
 
-void free_file(File *file) {
+void file_free(File *file) {
   free(file->content);
   free(file->path);
 }

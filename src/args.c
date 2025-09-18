@@ -7,7 +7,7 @@
 #include "config.h"
 #include "logs.h"
 
-void print_help(int status_code) {
+static void print_help(int status_code) {
   puts(PACKAGE
        " " VERSION "\n\n"
        "usage: " PACKAGE " "
@@ -27,26 +27,26 @@ void print_help(int status_code) {
   exit(status_code);
 }
 
-void invalid_arg(char *arg) {
+static void invalid_arg(char *arg) {
   log_error("invalid argument: '%s'", arg);
   print_help(EXIT_FAILURE);
 }
 
-void invalid_value(char *arg, char *value) {
+static void invalid_value(char *arg, char *value) {
   log_error("invalid value for argument '%s': '%s'", arg, value);
   print_help(EXIT_FAILURE);
 }
 
-bool is_arg(char *arg, char *ref) { return strcoll(arg, ref) == 0; }
+static bool is_arg(char *arg, char *ref) { return strcoll(arg, ref) == 0; }
 
-char *split_arg_value(char *arg) {
+static char *split_arg_value(char *arg) {
   strtok(arg, "=");
   return strtok(NULL, "=");
 }
 
-bool is_digit(char c) { return c >= '0' && c <= '9'; }
+static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
-bool is_number(char *value) {
+static bool is_number(char *value) {
   if (value == NULL) {
     return false;
   }
@@ -60,7 +60,7 @@ bool is_number(char *value) {
   return true;
 }
 
-unsigned char parse_uchar(char *arg, char *value) {
+static unsigned char parse_uchar(char *arg, char *value) {
   if (!is_number(value)) {
     invalid_value(arg, value);
   }
@@ -71,7 +71,7 @@ unsigned char parse_uchar(char *arg, char *value) {
   return (unsigned char)tmp_value;
 }
 
-Parameters parse_args(int argc, char **argv) {
+Parameters args_parse(int argc, char **argv) {
   Parameters params = {0, 0, false};
 
   int i;

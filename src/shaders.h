@@ -3,10 +3,10 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-ShaderProgram init_program(File *fragment_shader, Context context);
+ShaderProgram shaders_init(File *fragment_shader, Context context);
 
-void update_program(ShaderProgram program, File *fragment_shaders, int i);
+void shaders_update(ShaderProgram program, File *fragment_shaders, int i);
 
-void apply_program(ShaderProgram program, Context context);
+void shaders_apply(ShaderProgram program, Context context);
 
-#endif
+#endif /* SHADERS_H */

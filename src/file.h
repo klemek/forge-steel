@@ -3,14 +3,14 @@
 #ifndef FILE_H
 #define FILE_H
 
-File read_file(char *path);
+File file_read(char *path);
 
-bool should_update_file(File file);
+bool file_should_update(File file);
 
-void update_file(File *file);
+void file_update(File *file);
 
-void free_file(File *file);
+void file_prepend(File *src, File extra);
 
-void prepend_file(File *src, File extra);
+void file_free(File *file);
 
-#endif
+#endif /* FILE_H */

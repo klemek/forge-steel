@@ -3,22 +3,22 @@
 
 #ifndef PACKAGE
 #define PACKAGE "forge"
-#endif
+#endif /* PACKAGE */
 
 #ifndef VERSION
 #define VERSION "(dev)"
-#endif
+#endif /* VERSION */
 
 #ifndef FRAG_COUNT
 #define FRAG_COUNT 6
-#endif
+#endif /* FRAG_COUNT */
 
 #ifndef TEX_COUNT
 #define TEX_COUNT 8
-#endif
+#endif /* TEXT_COUNT */
 
 #ifndef SUB_COUNT
 #define SUB_COUNT 16
-#endif
+#endif /* SUB_COUNT */
 
-#endif
+#endif /* CONFIG_H */

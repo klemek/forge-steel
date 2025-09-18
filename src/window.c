@@ -9,7 +9,7 @@
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 
-void init_glfw(void (*error_callback)(int, const char *)) {
+static void init_glfw(void (*error_callback)(int, const char *)) {
   log_info("[GLFW] Initializing...");
 
   // set errors handler
@@ -32,7 +32,7 @@ void init_glfw(void (*error_callback)(int, const char *)) {
   log_success("[GLFS] Initialized...");
 }
 
-GLFWmonitor *get_monitor(unsigned char monitor_index) {
+static GLFWmonitor *get_monitor(unsigned char monitor_index) {
   // detect monitors
   int count;
   GLFWmonitor **monitors = glfwGetMonitors(&count);
@@ -48,8 +48,9 @@ GLFWmonitor *get_monitor(unsigned char monitor_index) {
   return monitors[monitor_index];
 }
 
-GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
-                          void (*key_callback)(Window *, int, int, int, int)) {
+static GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
+                                 void (*key_callback)(Window *, int, int, int,
+                                                      int)) {
 
   log_info("[GLFW] Creating window...");
 
@@ -63,7 +64,7 @@ GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
   GLFWwindow *window = glfwCreateWindow(1, 1, title, monitor, NULL);
 
   // handle window creation fail
-  if (!window) {
+  if (window == NULL) {
     log_error("[GLFW] Window or context creation failed");
     glfwTerminate();
     exit(EXIT_FAILURE);
@@ -79,7 +80,7 @@ GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
   return window;
 }
 
-void use_window(GLFWwindow *window) {
+static void use_window(GLFWwindow *window) {
   // use current window
   glfwMakeContextCurrent(window);
   // link GLAD and GLFW window
@@ -88,7 +89,7 @@ void use_window(GLFWwindow *window) {
   glfwSwapInterval(1);
 }
 
-Window *init_window(char *title, unsigned char monitor_index,
+Window *window_init(char *title, unsigned char monitor_index,
                     void (*error_callback)(int, const char *),
                     void (*key_callback)(Window *, int, int, int, int)) {
   GLFWwindow *window;
@@ -105,18 +106,18 @@ Window *init_window(char *title, unsigned char monitor_index,
   return window;
 }
 
-void update_window_title(Window *window, char *title) {
+void window_update_title(Window *window, char *title) {
   glfwSetWindowTitle(window, title);
 }
 
-void refresh_window(Window *window) {
+void window_refresh(Window *window) {
   // swap front and back buffers
   glfwSwapBuffers(window);
   // listen to mouse and keyboard events
   glfwPollEvents();
 }
 
-Context get_window_context(Window *window) {
+Context window_get_context(Window *window) {
   Context context;
 
   glfwGetFramebufferSize(window, &context.width, &context.height);
@@ -126,7 +127,7 @@ Context get_window_context(Window *window) {
   return context;
 }
 
-void close_window(Window *window, bool hard) {
+void window_close(Window *window, bool hard) {
   if (hard) {
     log_info("[GLFW] Terminating library...");
     glfwTerminate();
@@ -140,6 +141,6 @@ bool window_should_close(Window *window) {
   return glfwWindowShouldClose(window) == GLFW_TRUE;
 }
 
-bool escape_key(int key, int action) {
+bool window_escape_key(int key, int action) {
   return key == GLFW_KEY_ESCAPE && action == GLFW_PRESS;
 }

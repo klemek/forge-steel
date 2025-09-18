@@ -77,4 +77,4 @@ typedef struct Timer {
   unsigned int target;
 } Timer;
 
-#endif
+#endif /* TYPES_H */

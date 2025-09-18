@@ -2,7 +2,7 @@
 
 #include "types.h"
 
-Timer create_timer(const unsigned int target) {
+Timer timer_init(const unsigned int target) {
   Timer output = {
       .counter = 0,
       .target = target,
@@ -13,12 +13,12 @@ Timer create_timer(const unsigned int target) {
   return output;
 }
 
-bool inc_timer(Timer *timer) {
+bool timer_inc(Timer *timer) {
   timer->counter += 1;
   return timer->counter >= timer->target;
 }
 
-double reset_and_count(Timer *timer) {
+double timer_reset(Timer *timer) {
   struct timeval stop;
   double secs, per_secs;
   gettimeofday(&stop, NULL);

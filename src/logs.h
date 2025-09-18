@@ -26,4 +26,4 @@
   fprintf(stderr, ANSI_COLOR_RED "[FAIL] " format ANSI_COLOR_RESET             \
                                  "\n" __VA_OPT__(, ) __VA_ARGS__)
 
-#endif
+#endif /* LOG_H */

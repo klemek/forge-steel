@@ -3,6 +3,6 @@
 #ifndef ARGS_H
 #define ARGS_H
 
-Parameters parse_args(int argc, char **argv);
+Parameters args_parse(int argc, char **argv);
 
-#endif
+#endif /* ARGS_H */

@@ -7,7 +7,7 @@
 #include "logs.h"
 #include "types.h"
 
-bool compile_shader(GLuint shader_id, char *name, char *source_code) {
+static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   GLint status_params;
   char log[1024];
 
@@ -32,7 +32,7 @@ bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-void init_textures(ShaderProgram *program, Context context) {
+static void init_textures(ShaderProgram *program, Context context) {
   int i;
 
   glGenTextures(TEX_COUNT, program->textures);
@@ -55,7 +55,7 @@ void init_textures(ShaderProgram *program, Context context) {
   }
 }
 
-void init_framebuffers(ShaderProgram *program) {
+static void init_framebuffers(ShaderProgram *program) {
   int i, j;
 
   glGenFramebuffers(FRAG_COUNT, program->frame_buffers);
@@ -86,7 +86,7 @@ void init_framebuffers(ShaderProgram *program) {
   return;
 }
 
-void init_vertices(ShaderProgram *program) {
+static void init_vertices(ShaderProgram *program) {
   // create vertex buffer and setup vertices
   glGenBuffers(1, &program->vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, program->vertex_buffer);
@@ -97,7 +97,7 @@ void init_vertices(ShaderProgram *program) {
   glBindVertexArray(program->vertex_array);
 }
 
-void init_shaders(ShaderProgram *program, File *fragment_shaders) {
+static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
   int i;
 
   // compile vertex shader
@@ -124,7 +124,7 @@ void init_shaders(ShaderProgram *program, File *fragment_shaders) {
   }
 }
 
-void init_single_program(ShaderProgram *program, int i, bool output) {
+static void init_single_program(ShaderProgram *program, int i, bool output) {
   int j;
   char name[32];
 
@@ -186,7 +186,7 @@ void init_single_program(ShaderProgram *program, int i, bool output) {
   log_success("Program %d initialized", i + 1);
 }
 
-ShaderProgram init_program(File *fragment_shaders, Context context) {
+ShaderProgram shaders_init(File *fragment_shaders, Context context) {
   int i;
   ShaderProgram program = {.error = false,
                            .last_width = context.width,
@@ -217,7 +217,7 @@ ShaderProgram init_program(File *fragment_shaders, Context context) {
   return program;
 }
 
-void update_program(ShaderProgram program, File *fragment_shaders, int i) {
+void shaders_update(ShaderProgram program, File *fragment_shaders, int i) {
   bool result;
 
   result = compile_shader(program.fragment_shaders[i], fragment_shaders[i].path,
@@ -230,7 +230,7 @@ void update_program(ShaderProgram program, File *fragment_shaders, int i) {
   }
 }
 
-void apply_program(ShaderProgram program, Context context) {
+void shaders_apply(ShaderProgram program, Context context) {
   int i, j;
   GLuint subroutines[3];
 

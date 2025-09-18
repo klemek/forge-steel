@@ -103,9 +103,8 @@ make -f Makefile.dev release-arch
   - [x] Test 2 stages with render to texture
   - [x] 2 in 2 fx 1 mix 1 fx layout
   - [x] Include common code
-  - [ ] 16 input + 16 fx definition and selection (with param)
+  - [ ] 16 input + 16 fx definition and selection (with const param)
   - [x] Feedback texture
-  - [ ] Free opengl memory
   - [ ] Clean code
 - [ ] Midi
   - [ ] Read Midi events

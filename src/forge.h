@@ -5,4 +5,4 @@
 
 void forge_run(Parameters params);
 
-#endif
+#endif /* FORGE_H */
