@@ -33,9 +33,11 @@ static void init_glfw(void (*error_callback)(int, const char *)) {
 }
 
 static GLFWmonitor *get_monitor(unsigned char monitor_index) {
-  // detect monitors
   int count;
-  GLFWmonitor **monitors = glfwGetMonitors(&count);
+  GLFWmonitor **monitors;
+
+  // detect monitors
+  monitors = glfwGetMonitors(&count);
 
   // check selected monitor availability
   if (monitor_index >= count) {
@@ -51,6 +53,7 @@ static GLFWmonitor *get_monitor(unsigned char monitor_index) {
 static GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
                                  void (*key_callback)(Window *, int, int, int,
                                                       int)) {
+  GLFWwindow *window;
 
   log_info("[GLFW] Creating window...");
 
@@ -61,7 +64,7 @@ static GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
   glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
 
   // create fullscreen window in selected monitor
-  GLFWwindow *window = glfwCreateWindow(1, 1, title, monitor, NULL);
+  window = glfwCreateWindow(1, 1, title, monitor, NULL);
 
   // handle window creation fail
   if (window == NULL) {

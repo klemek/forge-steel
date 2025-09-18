@@ -11,6 +11,6 @@ void file_update(File *file);
 
 void file_prepend(File *src, File extra);
 
-void file_free(File *file);
+void file_free(File *file, bool free_path);
 
 #endif /* FILE_H */

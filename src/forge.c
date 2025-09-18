@@ -42,7 +42,9 @@ static int compute_fps(Window *window, Timer *timer) {
 static void hot_reload(ShaderProgram program, File *common_shader_code,
                        File *fragment_shaders) {
   int i;
-  bool force_update = false;
+  bool force_update;
+
+  force_update = false;
 
   if (file_should_update(*common_shader_code)) {
     file_update(common_shader_code);
@@ -78,7 +80,9 @@ static void loop(Window *window, ShaderProgram program, bool hr,
 
 File read_fragment_shader_file(char *frag_path, int i) {
   File fragment_shader;
-  char *file_path = malloc(sizeof(char) * 1024);
+  char *file_path;
+
+  file_path = malloc(sizeof(char) * 1024);
 
   sprintf(file_path, "%s/frag%d.glsl", frag_path, i);
   fragment_shader = file_read(file_path);
@@ -108,10 +112,10 @@ static void free_files(File *common_shader_code, File *fragment_shaders) {
   int i;
 
   for (i = 0; i < FRAG_COUNT; i++) {
-    file_free(&fragment_shaders[i]);
+    file_free(&fragment_shaders[i], true);
   }
 
-  file_free(common_shader_code);
+  file_free(common_shader_code, true);
 }
 
 void forge_run(Parameters params) {

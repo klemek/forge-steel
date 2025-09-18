@@ -8,8 +8,12 @@
 
 int main(int argc, char **argv) {
   Parameters params;
+
   params = args_parse(argc, argv);
+
   puts(PACKAGE " " VERSION);
+
   forge_run(params);
+
   return EXIT_SUCCESS;
 }

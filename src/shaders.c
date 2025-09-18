@@ -188,9 +188,11 @@ static void init_single_program(ShaderProgram *program, int i, bool output) {
 
 ShaderProgram shaders_init(File *fragment_shaders, Context context) {
   int i;
-  ShaderProgram program = {.error = false,
-                           .last_width = context.width,
-                           .last_height = context.height};
+  ShaderProgram program;
+
+  program.error = false;
+  program.last_width = context.width;
+  program.last_height = context.height;
 
   init_textures(&program, context);
 
@@ -233,6 +235,7 @@ void shaders_update(ShaderProgram program, File *fragment_shaders, int i) {
 void shaders_apply(ShaderProgram program, Context context) {
   int i, j;
   GLuint subroutines[3];
+  vec2 resolution;
 
   // viewport changed
   if (context.width != program.last_width ||
@@ -248,7 +251,8 @@ void shaders_apply(ShaderProgram program, Context context) {
     }
   }
 
-  vec2 resolution = {(float)context.width, (float)context.height};
+  resolution[0] = (float)context.width;
+  resolution[1] = (float)context.height;
 
   for (i = 0; i < FRAG_COUNT + 1; i++) {
     // use specific shader program

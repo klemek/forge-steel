@@ -3,10 +3,10 @@
 #include "types.h"
 
 Timer timer_init(const unsigned int target) {
-  Timer output = {
-      .counter = 0,
-      .target = target,
-  };
+  Timer output;
+
+  output.counter = 0;
+  output.target = target;
 
   gettimeofday(&output.start, NULL);
 
@@ -21,11 +21,15 @@ bool timer_inc(Timer *timer) {
 double timer_reset(Timer *timer) {
   struct timeval stop;
   double secs, per_secs;
+
   gettimeofday(&stop, NULL);
+
   secs = (double)(stop.tv_usec - timer->start.tv_usec) / 1000000 +
          (double)(stop.tv_sec - timer->start.tv_sec);
   per_secs = ((float)timer->counter) / secs;
+
   timer->start = stop;
   timer->counter = 0;
+
   return per_secs;
 }

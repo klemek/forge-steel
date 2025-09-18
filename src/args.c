@@ -47,11 +47,12 @@ static char *split_arg_value(char *arg) {
 static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
 static bool is_number(char *value) {
+  unsigned long value_len;
+  unsigned int i;
   if (value == NULL) {
     return false;
   }
-  unsigned long value_len = strlen(value);
-  unsigned int i;
+  value_len = strlen(value);
   for (i = 0; i < value_len; i++) {
     if (!is_digit(value[i])) {
       return false;
@@ -72,11 +73,15 @@ static unsigned char parse_uchar(char *arg, char *value) {
 }
 
 Parameters args_parse(int argc, char **argv) {
-  Parameters params = {0, 0, false};
-
+  Parameters params;
   int i;
   char *arg;
   char *value;
+
+  params.screen = 0;
+  params.frag_path = 0;
+  params.hot_reload = false;
+
   for (i = 1; i < argc; i++) {
     arg = argv[i];
     value = split_arg_value(arg);
