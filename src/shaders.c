@@ -174,10 +174,10 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
     }
   }
 
-  // create frameX uniforms pointer
+  // create texX uniforms pointer
   for (j = 0; j < TEX_COUNT; j++) {
-    sprintf(name, "frame%d", j);
-    program->frames_locations[i][j] =
+    sprintf(name, "tex%d", j);
+    program->textures_locations[i][j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
@@ -291,9 +291,9 @@ void shaders_apply(ShaderProgram program, Context context) {
       glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
     }
 
-    // set GL_TEXTURE(X) to uniform sampler2D frameX
+    // set GL_TEXTURE(X) to uniform sampler2D texX
     for (j = 0; j < TEX_COUNT; j++) {
-      glUniform1i(program.frames_locations[i][j], j);
+      glUniform1i(program.textures_locations[i][j], j);
     }
 
     glDrawBuffers(TEX_COUNT - 1, program.draw_buffers);

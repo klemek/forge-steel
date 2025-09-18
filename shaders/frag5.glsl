@@ -5,8 +5,8 @@
 // OUT: 7 (MFX)
 
 in vec2 vUV;
-layout(location = 7) out vec3 fragColor;
+layout(location = 7) out vec4 fragColor;
 
 void main() {
-    fragColor = mix_stage(vUV, frame3, frame6, sin(iTime * 0.25) * 0.3 + 0.3); // TODO tmp
+    fragColor = mix_stage(vUV, tex3, tex6, sin(iTime * 0.25) * 0.3 + 0.3); // TODO tmp
 }

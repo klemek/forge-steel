@@ -11,18 +11,18 @@ uniform float iTempo;
 uniform int iFPS;
 uniform vec2 iResolution;
 
-// 2. other frames
+// 2. textures
 // ---------------
 
-uniform sampler2D frame0;
-uniform sampler2D frame1;
-uniform sampler2D frame2;
-uniform sampler2D frame3;
-uniform sampler2D frame4;
-uniform sampler2D frame5;
-uniform sampler2D frame6;
-uniform sampler2D frame7;
-uniform sampler2D frame8;
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+uniform sampler2D tex3;
+uniform sampler2D tex4;
+uniform sampler2D tex5;
+uniform sampler2D tex6;
+uniform sampler2D tex7;
+uniform sampler2D tex8;
 
 // 3. definitions
 // --------------
@@ -105,6 +105,11 @@ vec3 shift3(vec3 c, float f) {
 }
 
 float mean(vec3 v)
+{
+    return v.x * 0.3333 + v.y * 0.3333 + v.z * 0.3333;
+}
+
+float mean(vec4 v)
 {
     return v.x * 0.3333 + v.y * 0.3333 + v.z * 0.3333;
 }
@@ -330,17 +335,17 @@ float h_rect(vec2 uv, vec2 c, vec2 size, float k) {
 
 // INPUTS
 
-vec3 reframe(sampler2D frame, vec2 uv)
+vec4 reframe(sampler2D tex, vec2 uv)
 {
     uv = uv * vec2(iResolution.y / iResolution.x, 1)  + .5;
     uv = saw(uv);
-    return texture(frame, uv).xyz;
+    return texture(tex, uv);
 }
 
-vec3 reframe_b(sampler2D frame, vec2 uv)
+vec4 reframe_b(sampler2D tex, vec2 uv)
 {
     uv = uv * vec2(iResolution.y / iResolution.x, 1)  + .5;
-    return texture(frame, uv).xyz;
+    return texture(tex, uv);
 }
 
 // BLUR
@@ -350,42 +355,42 @@ float gaussian_weight(float x, float sigma)
     return exp(-(x * x) / (2.0 * sigma * sigma));
 }
 
-vec3 gauss(sampler2D frame, vec2 uv, const int kernel_size, float spm, float sigma, float bloom)
+vec4 gauss(sampler2D tex, vec2 uv, const int kernel_size, float spm, float sigma, float bloom)
 {
     int x, y;
     vec2 offset;
     float w;
-    vec3 sum = vec3(0);
+    vec4 sum = vec4(0);
     float weight_sum = 0;
     for (y = -kernel_size; y <= kernel_size; ++y) {
         for (x = -kernel_size; x <= kernel_size; ++x) {
             offset = vec2(x, y) * spm;
             w = gaussian_weight(length(vec2(x, y)), sigma);
-            sum += texture(frame, uv + offset).xyz * w;
+            sum += texture(tex, uv + offset) * w;
             weight_sum += w;
         }
     }
     return (sum / weight_sum) * bloom;
 }
 
-vec3 gauss(sampler2D frame, vec2 uv, const int kernel_size, float spm, float sigma)
+vec4 gauss(sampler2D tex, vec2 uv, const int kernel_size, float spm, float sigma)
 {
-    return gauss(frame, uv, kernel_size, spm, sigma, 1.0);
+    return gauss(tex, uv, kernel_size, spm, sigma, 1.0);
 }
 
-vec3 gauss(sampler2D frame, vec2 uv, const int kernel_size, float spm)
+vec4 gauss(sampler2D tex, vec2 uv, const int kernel_size, float spm)
 {
-    return gauss(frame, uv, kernel_size, spm, 2.0);
+    return gauss(tex, uv, kernel_size, spm, 2.0);
 }
 
-vec3 gauss(sampler2D frame, vec2 uv, const int kernel_size)
+vec4 gauss(sampler2D tex, vec2 uv, const int kernel_size)
 {
-    return gauss(frame, uv, kernel_size, 1 / max(iResolution.x, iResolution.y));
+    return gauss(tex, uv, kernel_size, 1 / max(iResolution.x, iResolution.y));
 }
 
-vec3 gauss(sampler2D frame, vec2 uv)
+vec4 gauss(sampler2D tex, vec2 uv)
 {
-    return gauss(frame, uv, 3);
+    return gauss(tex, uv, 3);
 }
 
 float dither(vec2 uv, float x)
@@ -785,31 +790,28 @@ float write_int(vec2 uv, vec2 pos, int value, int magnitude)
     return d;
 }
 
-int read(sampler2D frame, vec2 uv, float k, int d, float t)
+int read(sampler2D tex, vec2 uv, float k, int d, float t)
 {
     float inv_k = 1 / k;
-    vec2 frame_uv = floor(uv * k) * inv_k;
-    frame_uv += vec2(d % 2, floor(d * 0.5)) * 0.5 * inv_k;
+    vec2 tex_uv = floor(uv * k) * inv_k;
+    tex_uv += vec2(d % 2, floor(d * 0.5)) * 0.5 * inv_k;
     return // TODO threshold
-        ((mean(reframe(frame, frame_uv + vec2(0, 3) * inv_k * 0.125)) > t) ? 1 : 0) + 
-        ((mean(reframe(frame, frame_uv + vec2(0, 2) * inv_k * 0.125)) > t) ? 2 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(0, 1) * inv_k * 0.125)) > t) ? 4 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(0, 0) * inv_k * 0.125)) > t) ? 8 : 0) +
-
-        ((mean(reframe(frame, frame_uv + vec2(1, 3) * inv_k * 0.125)) > t) ? 16 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(1, 2) * inv_k * 0.125)) > t) ? 32 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(1, 1) * inv_k * 0.125)) > t) ? 64 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(1, 0) * inv_k * 0.125)) > t) ? 128 : 0) +
-
-        ((mean(reframe(frame, frame_uv + vec2(2, 3) * inv_k * 0.125)) > t) ? 256 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(2, 2) * inv_k * 0.125)) > t) ? 512 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(2, 1) * inv_k * 0.125)) > t) ? 1024 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(2, 0) * inv_k * 0.125)) > t) ? 2048 : 0) +
-
-        ((mean(reframe(frame, frame_uv + vec2(3, 3) * inv_k * 0.125)) > t) ? 4096 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(3, 2) * inv_k * 0.125)) > t) ? 8192 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(3, 1) * inv_k * 0.125)) > t) ? 16384 : 0) +
-        ((mean(reframe(frame, frame_uv + vec2(3, 0) * inv_k * 0.125)) > t) ? 32768 : 0);
+        ((mean(reframe(tex, tex_uv + vec2(0, 3) * inv_k * 0.125)) > t) ? 1 : 0) + 
+        ((mean(reframe(tex, tex_uv + vec2(0, 2) * inv_k * 0.125)) > t) ? 2 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(0, 1) * inv_k * 0.125)) > t) ? 4 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(0, 0) * inv_k * 0.125)) > t) ? 8 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(1, 3) * inv_k * 0.125)) > t) ? 16 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(1, 2) * inv_k * 0.125)) > t) ? 32 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(1, 1) * inv_k * 0.125)) > t) ? 64 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(1, 0) * inv_k * 0.125)) > t) ? 128 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(2, 3) * inv_k * 0.125)) > t) ? 256 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(2, 2) * inv_k * 0.125)) > t) ? 512 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(2, 1) * inv_k * 0.125)) > t) ? 1024 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(2, 0) * inv_k * 0.125)) > t) ? 2048 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(3, 3) * inv_k * 0.125)) > t) ? 4096 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(3, 2) * inv_k * 0.125)) > t) ? 8192 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(3, 1) * inv_k * 0.125)) > t) ? 16384 : 0) +
+        ((mean(reframe(tex, tex_uv + vec2(3, 0) * inv_k * 0.125)) > t) ? 32768 : 0);
 }
 
 // https://web.archive.org/web/20151229003112/http://blogs.msdn.com/b/jeuge/archive/2005/06/08/hakmem-bit-count.aspx
@@ -820,12 +822,12 @@ int bit_count(int u)
         return ((c + (c >> 3)) & 030707070707) % 63;
 }
 
-int guess_char(sampler2D frame, vec2 uv, float k, float t)
+int guess_char(sampler2D tex, vec2 uv, float k, float t)
 {
-    int b0 = read(frame, uv, k, 0, t);
-    int b1 = read(frame, uv, k, 1, t);
-    int b2 = read(frame, uv, k, 2, t);
-    int b3 = read(frame, uv, k, 3, t);
+    int b0 = read(tex, uv, k, 0, t);
+    int b1 = read(tex, uv, k, 1, t);
+    int b2 = read(tex, uv, k, 2, t);
+    int b3 = read(tex, uv, k, 3, t);
     
     int mc = 0;
     int mb = 100;
@@ -849,29 +851,29 @@ int guess_char(sampler2D frame, vec2 uv, float k, float t)
 // 5. generators
 // -------------
 
-subroutine vec3 src_stage_sub(vec2 vUV);
+subroutine vec4 src_stage_sub(vec2 vUV);
 
 subroutine uniform src_stage_sub src_stage;
 
-subroutine(src_stage_sub) vec3 src_0(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_0(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_1(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_1(vec2 vUV)
 {
     // TODO tmp
     vec2 uv0 = vUV.st;
     float ratio = iResolution.x / iResolution.y;
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
     vec2 uv2 = cmod(uv1, 0.2) * 5;
-    vec3 color = vec3(vUV, sin(iTime * 0.5) * 0.5 + 0.5);
+    vec4 color = vec4(vUV, sin(iTime * 0.5) * 0.5 + 0.5, 0.0);
     float f = step(cos(iTime) * 0.1 + 0.4, length(uv2)); 
-    return mix(color, gauss(frame0, vUV - 0.01) * 0.5, f);
+    return mix(color, gauss(tex0, vUV - 0.01) * 0.5, f);
 }
 
-subroutine(src_stage_sub) vec3 src_2(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_2(vec2 vUV)
 {
     const int text[5] = {0x66, 0x70, 0x73, 0x00, 0x00};
     vec2 uv0 = vUV.st;
@@ -885,209 +887,209 @@ subroutine(src_stage_sub) vec3 src_2(vec2 vUV)
 
     v += write_5(uv2, vec2(4.0, 0.5), text);
 
-    return vec3(v);
+    return vec4(v);
 }
 
-subroutine(src_stage_sub) vec3 src_3(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_3(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_4(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_4(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_5(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_5(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_6(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_6(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_7(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_7(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_8(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_8(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_9(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_9(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_10(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_10(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_11(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_11(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_12(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_12(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_13(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_13(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_14(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_14(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
-subroutine(src_stage_sub) vec3 src_15(vec2 vUV)
+subroutine(src_stage_sub) vec4 src_15(vec2 vUV)
 {
     // TODO tmp
-    return vec3(vUV, 0.0);
+    return vec4(vUV, 0.0, 0.0);
 }
 
 // 6. effects
 // ----------
 
-subroutine vec3 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback);
+subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback);
 
 subroutine uniform fx_stage_sub fx_stage;
 
-subroutine(fx_stage_sub) vec3 fx_0(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_0(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
     return gauss(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
-subroutine(fx_stage_sub) vec3 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback)
+subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback)
 {
     // TODO tmp
-    return texture(previous, vUV).xyz;
+    return texture(previous, vUV);
 }
 
 // 7. mix
 // ----------
 
-subroutine vec3 mix_stage_sub(vec2 vUV, sampler2D frame_a, sampler2D frame_b, float lvl);
+subroutine vec4 mix_stage_sub(vec2 vUV, sampler2D tex_a, sampler2D tex_a, float lvl);
 
 subroutine uniform mix_stage_sub mix_stage;
 
-subroutine(mix_stage_sub) vec3 mix_0(vec2 vUV, sampler2D fa, sampler2D fb, float lvl)
+subroutine(mix_stage_sub) vec4 mix_0(vec2 vUV, sampler2D ta, sampler2D tb, float lvl)
 {
-    vec3 color_a = texture(fa, vUV).xyz;
-    vec3 color_b = texture(fb, vUV).xyz;
+    vec4 color_a = texture(ta, vUV);
+    vec4 color_b = texture(tb, vUV);
 
     return color_a + color_b;// TODOmix(color_b, color_a, lvl);
 }
 
-subroutine(mix_stage_sub) vec3 mix_1(vec2 vUV, sampler2D fa, sampler2D fb, float lvl)
+subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, float lvl)
 {
-    vec3 color_a = texture(fa, vUV).xyz;
-    vec3 color_b = texture(fb, vUV).xyz;
+    vec4 color_a = texture(ta, vUV);
+    vec4 color_b = texture(tb, vUV);
 
     float k = mean(color_a);
 

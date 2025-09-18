@@ -5,8 +5,8 @@
 // OUT: 6 (A+B)
 
 in vec2 vUV;
-layout(location = 6) out vec3 fragColor;
+layout(location = 6) out vec4 fragColor;
 
 void main() {
-    fragColor = fx_stage(vUV, frame5, frame6);
+    fragColor = fx_stage(vUV, tex5, tex6);
 }

@@ -48,7 +48,7 @@ typedef struct ShaderProgram {
   GLuint ifps_locations[FRAG_COUNT];
   GLuint ires_locations[FRAG_COUNT];
 
-  GLuint frames_locations[FRAG_COUNT + 1][TEX_COUNT];
+  GLuint textures_locations[FRAG_COUNT + 1][TEX_COUNT];
 
   GLuint sub_src_indexes[FRAG_COUNT][SUB_COUNT];
   GLuint sub_fx_indexes[FRAG_COUNT][SUB_COUNT];
