@@ -280,8 +280,8 @@ void shaders_apply(ShaderProgram program, Context context) {
 
       // TODO tmp
       subroutines[0] = program.sub_src_indexes[i][i == 0 ? 1 : 2];
-      subroutines[1] = program.sub_fx_indexes[i][i == 2 ? 1 : 0];
-      subroutines[2] = program.sub_mix_indexes[i][1];
+      subroutines[1] = program.sub_fx_indexes[i][0];
+      subroutines[2] = program.sub_mix_indexes[i][0];
 
       glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 3, subroutines);
     }
