@@ -66,6 +66,7 @@ static void loop(Window *window, ShaderProgram program, bool hr,
                  File *common_shader_code, File *fragment_shaders,
                  Timer *timer) {
   Context context;
+  int size;
 
   if (hr) {
     hot_reload(program, common_shader_code, fragment_shaders);
@@ -76,9 +77,17 @@ static void loop(Window *window, ShaderProgram program, bool hr,
   context.fps = compute_fps(window, timer);
   context.tempo = 120.0f; // TODO need tempo here
 
+  // TODO temporary state
+  size = program.frag_count * program.sub_type_count * sizeof(unsigned int);
+  context.sub_state = malloc(size);
+  memset(context.sub_state, 0, size);
+  context.sub_state[0] = 1;
+
   shaders_apply(program, context);
 
   window_refresh(window);
+
+  free(context.sub_state);
 }
 
 File read_fragment_shader_file(char *frag_path, unsigned int i) {

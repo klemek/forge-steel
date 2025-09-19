@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "config.h"
 #include "config_file.h"
 #include "constants.h"
 #include "logs.h"
@@ -223,9 +222,9 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
   program.tex_count = config_file_get_int(shader_config, "TEX_COUNT", 9);
   program.frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
   program.frag_output_index =
-      config_file_get_int(shader_config, "FRAG_OUT", 0) - 1;
+      config_file_get_int(shader_config, "FRAG_OUTPUT", 1) - 1;
   program.frag_monitor_index =
-      config_file_get_int(shader_config, "FRAG_MONITOR", 0) - 1;
+      config_file_get_int(shader_config, "FRAG_MONITOR", 1) - 1;
   program.sub_type_count =
       config_file_get_int(shader_config, "SUB_TYPE_COUNT", 0);
   program.sub_variant_count =
@@ -310,12 +309,9 @@ static void use_program(ShaderProgram program, int i, bool output,
   glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
   glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
 
+  // set subroutines for fragment
   for (j = 0; j < program.sub_type_count; j++) {
-    k = 0;
-    if (j == 0 &&
-        i == 1) { // TODO pass context here to select correct sub with mapping
-      k = 1;
-    }
+    k = context.sub_state[i * program.sub_type_count + j];
     subroutines[j] = program.sub_locations[i * program.sub_type_count *
                                                program.sub_variant_count +
                                            j * program.sub_variant_count + k];
@@ -338,7 +334,7 @@ void shaders_apply(ShaderProgram program, Context context) {
 
   update_viewport(program, context);
 
-  for (i = 0; i < program.frag_count + 1; i++) {
+  for (i = 0; i < program.frag_count; i++) {
     if (i != program.frag_output_index && i != program.frag_monitor_index) {
       use_program(program, i, false, context);
     }

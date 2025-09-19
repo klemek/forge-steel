@@ -6,8 +6,6 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "config.h"
-
 #ifndef TYPES_H
 #define TYPES_H
 
@@ -74,6 +72,7 @@ typedef struct Context {
   double time;
   unsigned int fps;
   float tempo;
+  unsigned int *sub_state;
 } Context;
 
 typedef struct Timer {
