@@ -7,6 +7,8 @@
 in vec2 vUV;
 out vec4 fragColor;
 
+const float seed = 334;
+
 void main() {
-    fragColor = mix_stage(vUV, tex3, tex6, sin(iTime * 0.25) * 0.3 + 0.3); // TODO tmp
+    fragColor = mix_stage(vUV, tex3, tex6, seed);
 }

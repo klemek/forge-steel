@@ -81,7 +81,11 @@ static void loop(Window *window, ShaderProgram program, bool hr,
   size = program.frag_count * program.sub_type_count * sizeof(unsigned int);
   context.sub_state = malloc(size);
   memset(context.sub_state, 0, size);
-  context.sub_state[0] = 1;
+  context.sub_state[program.sub_type_count * 0 + 0] = 1;
+  context.sub_state[program.sub_type_count * 1 + 0] = 6;
+  context.sub_state[program.sub_type_count * 2 + 1] = 1;
+  context.sub_state[program.sub_type_count * 3 + 1] = 3;
+  context.sub_state[program.sub_type_count * 5 + 1] = 6;
 
   shaders_apply(program, context);
 
