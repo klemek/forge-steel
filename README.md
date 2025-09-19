@@ -99,17 +99,17 @@ make -f Makefile.dev release-arch
   - [x] Select screen as argument / config
   - [x] fps in window title
   - [x] Clean code
-- [ ] Multi-stage shaders
+- [x] Multi-stage shaders
   - [x] Test 2 stages with render to texture
   - [x] 2 in 2 fx 1 mix 1 fx layout
   - [x] Include common code
-  - [ ] 16 input + 16 fx definition and selection (with const param)
+  - [x] 16 input + 16 fx definition and selection (with const param)
   - [x] Feedback texture
   - [x] Shaders config file
     - [x] uniform config
     - [x] fragment config
     - [x] subroutines config
-  - [ ] Clean code
+  - [x] Clean code
 - [ ] Midi
   - [ ] Read Midi events
   - [ ] Read midi mapping config file
