@@ -1,6 +1,6 @@
 TARGET ?= forge
 INSTALL_DIR ?= $(HOME)/.local/bin
-TEST_ARGS ?= --hot-reload --frag=./shaders --frag-config=./shaders/shaders.cfg
+TEST_ARGS ?= --hot-reload --frag=./shaders --frag-config=./config/shaders.cfg
 SHELL := /bin/bash
 
 .PHONY: build

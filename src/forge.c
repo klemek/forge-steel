@@ -74,6 +74,7 @@ static void loop(Window *window, ShaderProgram program, bool hr,
   context = window_get_context(window);
 
   context.fps = compute_fps(window, timer);
+  context.tempo = 120.0f; // TODO need tempo here
 
   shaders_apply(program, context);
 
