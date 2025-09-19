@@ -195,6 +195,11 @@ bool magic_trigger(vec3 B, float i)
     return magic_b(B, i).x > 0;
 }
 
+bool magic_trigger(float i)
+{
+    return magic_b(i).x > 0;
+}
+
 float magic(vec2 F, vec3 B, float i, int m)
 {
     vec2 f = magic_f(F, B, i);
@@ -1055,8 +1060,8 @@ subroutine(src_stage_sub) vec4 src_7(vec2 vUV, const float seed)
 
     float zoom = magic(seed + 10);
     vec2 charset = magic_f(seed + 20);
-    vec3 charset_ctrl = magic_b(seed + 30);
-    float char_delta = magic(seed + 40);
+    vec3 charset_ctrl = magic_b(seed + 20);
+    float char_delta = magic(seed + 30);
 
     // logic
 
@@ -1108,7 +1113,7 @@ subroutine(src_stage_sub) vec4 src_8(vec2 vUV, const float seed)
     float zoom = magic(seed + 10);
     float sentence = magic_reverse(seed + 20);
     float h_delta = magic(seed + 30);
-    vec3 h_delta_b = magic_b(seed + 40);
+    vec3 h_delta_b = magic_b(seed + 30);
 
     // logic
 
@@ -1259,68 +1264,71 @@ subroutine uniform fx_stage_sub fx_stage;
 // FX 1 : thru
 subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
 {
-    // TODO tmp
-    return texture(previous, vUV);
+    // start
+
+	vec2 uv0 = vUV.st;
+
+    // controls
+
+    float fx = magic(seed);
+
+    float hue = magic(seed + 10);
+    float saturation = magic(seed + 20);
+    float light = magic(seed + 30);
+
+    // logic
+
+    vec3 c0 = texture(previous, uv0).xyz;
+    vec3 c = c0;
+    c = shift3(c, hue);
+    c *= 1 + saturation;
+    c = mix(c + light * 2.0, c - (1 - light) * 2.0, step(0.5, light));
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // FX 2 : feedback + shift
+vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, const float seed)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float fx = magic(seed);
+
+    float zoom = magic(seed + 10);
+    float x_shift = magic(seed + 20);
+    float y_shift = magic(seed + 30);
+
+    // logic
+    
+    vec3 c0 = texture(src0, uv0).xyz;
+    
+    vec2 uv2 = uv1;
+    uv2 = mix(uv2 * (1 + zoom * 2), uv2 * (zoom), step(0.5, zoom));
+    uv2 += vec2(x_shift * ratio, y_shift) * 2;
+    vec3 c = reframe(src1, uv2).xyz;
+
+    return vec4(mix(c0, c, fx), 1.0);
+}
+
 subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
 {
-    // TODO tmp
-    return gauss(previous, vUV);
+    return fx_shift(vUV, previous, feedback, seed);
 }
 
-// FX 3 : colorize
+// FX 3 : shift
 subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
 {
-    // TODO tmp
-    return texture(previous, vUV);
+    return fx_shift(vUV, previous, previous, seed);
 }
 
-// FX 4 : quantize
+// FX 4 : colorize
 subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
-{
-    // TODO tmp
-    return texture(previous, vUV);
-}
-
-// FX 5 : dithering
-subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
-{
-    // TODO tmp
-    return texture(previous, vUV);
-}
-
-// FX 6 : tv
-subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
-{
-    // TODO tmp
-    return texture(previous, vUV);
-}
-
-// FX 7 : kaleidoscope
-subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
-{
-    // TODO tmp
-    return texture(previous, vUV);
-}
-
-// FX 8 : cp437
-subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
-{
-    // TODO tmp
-    return texture(previous, vUV);
-}
-
-// FX 9 : lens
-subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
-{
-    // TODO tmp
-    return texture(previous, vUV);
-}
-
-// TODO FX 10
-subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
 {
     // start
 
@@ -1328,9 +1336,240 @@ subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
+    float fx = magic(seed);
+
+    float c_black = magic(seed + 10);
+    bool c_black_trigger = magic_trigger(seed + 10);
+    float c_white = magic(seed + 20);
+    bool c_white_trigger = magic_trigger(seed + 20);
+    float delta = magic(seed + 30);
+
+    // logic
+
+    vec3 c0 = texture(previous, uv0).xyz;
+
+    float f = mean(c0);
+    float c_mix = mix(c_black, c_white, f) + delta;
+    vec3 c = mix(c_black_trigger ? col(c_mix) : vec3(0), c_white_trigger ? col(c_mix) : vec3(1), f);
+
+    return vec4(mix(c0, c, fx), 1.0);
+}
+
+// FX 5 : quantize
+subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float fx = magic(seed);
+
+    float pixel_size = magic(seed + 10);
+    float quantize = magic(seed + 20);
+    bool quantize_trigger = magic_trigger(seed + 20);
+    float blur = magic(seed + 30);
+
+    // logic
+
+    vec3 c0 = texture(previous, uv0).xyz;
+    
+    vec2 uv2 = uv1;
+    float pixel = (1 - pixel_size) * 250 + 25;
+    uv2 = round(uv2 * pixel) / pixel;
+    vec3 c = gauss(previous, uv2 * vec2(1 / ratio, 1)  + .5, 3, 0.005 * blur).xyz;
+    float colors = (1 - quantize) * 10 + 1;
+    if (quantize_trigger) {
+        c = round(c * colors) / colors;
+    }
+    // c = mix(c, 1 - c, step(noise_f(uv0 * 10 + vec2(iTime * 0.1, 0), 5), 0.5));
+
+    return vec4(mix(c0, c, fx), 1.0);
+}
+
+// FX 6 : dithering
+subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float fx = magic(seed);
+
+    float pixel_size = magic(seed + 10);
+    bool pixel_size_trigger = magic_trigger(seed + 10);
+    float quantize = magic(seed + 20);
+    bool quantize_trigger = magic_trigger(seed + 20);
+    float blur = magic(seed + 30);
+
+    // logic
+
+    vec3 c0 = texture(previous, uv0).xyz;
+
+    vec2 uv2 = uv1;
+    float k1 = pow(2, 10 - floor(pixel_size * 5));
+    float pixel = (1 - pixel_size) * 250 + 25;
+    if (pixel_size_trigger) {
+        uv2 = floor(uv2 * k1) / k1;
+    }
+    vec3 c = gauss(previous, uv2 * vec2(1 / ratio, 1)  + .5, 3, 0.005 * blur).xyz;
+    float k3 = pow(2, 5 - floor(quantize * 5));
+    if (quantize_trigger) {
+        c *= k3;
+        c = vec3(
+            mix(floor(c.x), ceil(c.x), dither(uv2 * k1, c.x - floor(c.x))),
+            mix(floor(c.y), ceil(c.y), dither(uv2 * k1, c.y - floor(c.y))),
+            mix(floor(c.z), ceil(c.z), dither(uv2 * k1, c.z - floor(c.z)))
+        );
+        c /= k3;
+    }
+
+    return vec4(mix(c0, c, fx), 1.0);
+}
+
+// FX 7 : tv
+subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float fx = magic(seed);
+
+    float lens_v = magic(seed + 10);
+    float horizontal_noise = magic(seed + 20);
+    float zoom = magic(seed + 30);
+
     // logic
     
-    return texture(previous, vUV);
+    vec3 c0 = texture(previous, uv0).xyz;
+    
+    vec2 uv2 = uv1;
+    float k1 = lens_v * 0.5;
+    uv2 *= 1 + zoom * 2;
+    uv2 = lens(uv2, -k1, k1);
+    float k = horizontal_noise;
+    vec3 c = vec3(
+        reframe_b(previous, uv2 + vec2((rand(uv0.y * 1000 + iTime) - 0.5) * k * 0.1)).x,
+        reframe_b(previous, uv2 + vec2((rand(uv0.y * 1100 + iTime) - 0.5) * k * 0.1)).y,
+        reframe_b(previous, uv2).z
+    );
+
+    return vec4(mix(c0, c, fx), 1.0);
+}
+
+// FX 8 : kaleidoscope
+subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float fx = magic(seed);
+
+    float axes = magic(seed + 10);
+    float axes_trigger = magic_b(seed + 10).x;
+    float rotation = magic(seed + 20);
+    float h_scroll = magic(seed + 30);
+
+    // logic
+
+    vec3 c0 = texture(previous, uv0).xyz;
+    
+    vec2 uv2 = uv1;
+    uv2 = mix(uv2, kal2(uv2 * rot(0.25), floor(axes * 9 + 1)) * vec2(1, -2) + vec2(0, -0.5), axes_trigger);    
+    uv2 *= rot(rotation);
+    uv2.x = (saw(uv2.x / ratio + 0.5 + h_scroll * 2) - 0.5) * ratio;
+    vec3 c = reframe(previous, uv2).xyz;
+
+    return vec4(mix(c0, c, fx), 1.0);
+}
+
+// FX 9 : cp437
+subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float fx = magic(seed);
+
+    float zoom = magic(seed + 10);
+    vec2 charset = magic_f(seed + 20);
+    vec3 charset_ctrl = magic_b(seed + 20);
+    float char_delta = magic(seed + 30);
+    float t = magic(seed + 40); 
+
+    // logic
+
+    vec3 c0 = texture(previous, uv0).xyz;
+    
+    vec2 uv2 = uv1;
+    float k1 = 100 * (1 - zoom) + 10;
+    float inv_k = 1 / k1;
+    uv2 = floor(uv2 * k1) * inv_k;
+    int start_char = charset_ctrl.x > 0 ? charsets[int(charset.x * CHARSETS) * 2] : 0x01;
+    int char_span = int((charset_ctrl.x > 0 ? charsets[int(charset.x * CHARSETS) * 2 + 1] : 255));
+    char_span = int(char_span * max(1 - charset.y, 1 / (char_span * 0.75)));
+    ivec2 uv2i = ivec2(uv2 * k1);
+    int code = ((charset_ctrl.y < 1 || (uv2i.x % 2 ^ uv2i.y % 2) > 0) ? 1 : 0) * (start_char + int((rand(uv2i) + char_delta) * char_span) % char_span);
+    vec3 c = reframe(previous, uv2 + vec2(0, 0) * inv_k * 0.125).xyz * 0.2
+        + reframe(previous, uv2 + vec2(1, 0) * inv_k * 0.125).xyz * 0.2
+        + reframe(previous, uv2 + vec2(1, 1) * inv_k * 0.125).xyz * 0.2
+        + reframe(previous, uv2 + vec2(0, 1) * inv_k * 0.125).xyz * 0.2
+        + reframe(previous, uv2 + vec2(0.5, 0.5) * inv_k * 0.125).xyz * 0.2;
+    c = char(mod(uv1 * k1, 1), code) ? c : vec3(0);
+
+    return vec4(mix(c0, c, fx), 1.0);
+}
+
+// FX 10 : lens
+subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float fx = magic(seed);
+
+    float lens_v1 = magic(seed + 10);
+    float lens_v2 = magic(seed + 20);
+    float zoom = magic(seed + 30);
+    float k = magic(seed + 40);
+
+    // logic
+
+    vec3 c0 = texture(previous, uv0).xyz;
+    
+    vec2 uv2 = uv1;
+    uv2 *= 1 + zoom * 2;
+    uv2 = lens(uv2, -lens_v2 * 10, lens_v1 * 10);
+    vec3 c = reframe(previous, uv2).xyz;
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // TODO FX 11
@@ -1339,12 +1578,19 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
     // start
 
 	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
 
+    float fx = magic(seed);
+
     // logic
     
-    return texture(previous, vUV);
+    vec3 c0 = texture(previous, uv0).xyz;
+    vec3 c = c0;
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // TODO FX 12
@@ -1353,12 +1599,19 @@ subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feed
     // start
 
 	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
 
+    float fx = magic(seed);
+
     // logic
     
-    return texture(previous, vUV);
+    vec3 c0 = texture(previous, uv0).xyz;
+    vec3 c = c0;
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // TODO FX 13
@@ -1367,12 +1620,19 @@ subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feed
     // start
 
 	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
 
+    float fx = magic(seed);
+
     // logic
     
-    return texture(previous, vUV);
+    vec3 c0 = texture(previous, uv0).xyz;
+    vec3 c = c0;
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // TODO FX 14
@@ -1381,12 +1641,19 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
     // start
 
 	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
 
+    float fx = magic(seed);
+
     // logic
 
-    return texture(previous, vUV);
+    vec3 c0 = texture(previous, uv0).xyz;
+    vec3 c = c0;
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // TODO FX 15
@@ -1395,12 +1662,19 @@ subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feed
     // start
 
 	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
 
+    float fx = magic(seed);
+
     // logic
     
-    return texture(previous, vUV);
+    vec3 c0 = texture(previous, uv0).xyz;
+    vec3 c = c0;
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // TODO FX 16
@@ -1409,12 +1683,19 @@ subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feed
     // start
 
 	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
 
+    float fx = magic(seed);
+
     // logic
 
-    return texture(previous, vUV);
+    vec3 c0 = texture(previous, uv0).xyz;
+    vec3 c = c0;
+
+    return vec4(mix(c0, c, fx), 1.0);
 }
 
 // 7. mix

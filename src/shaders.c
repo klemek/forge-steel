@@ -340,5 +340,5 @@ void shaders_apply(ShaderProgram program, Context context) {
     }
   }
 
-  use_program(program, program.frag_monitor_index, true, context);
+  use_program(program, program.frag_output_index, true, context);
 }
