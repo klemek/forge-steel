@@ -114,7 +114,7 @@ make -f Makefile.dev release-arch
     - [x] subroutines config
   - [x] demo mode
   - [x] random seed injected into shaders
-  - [ ] internal texture size for speed
+  - [x] internal texture size for speed
   - [ ] pass state as uniform
   - [ ] debug shader (and in monitor)
   - [ ] Clean code and fix things

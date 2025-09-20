@@ -20,7 +20,9 @@ static void print_help(int status_code) {
        "[-s=SCREEN] "
        "[-f=DIR_PATH] "
        "[-fc=CFG_PATH] "
+       "[-is=SIZE] "
        "[-t=TEMPO] "
+       "[--monitor] "
        "[--demo] "
        "\n\n"
        "Fusion Of Real-time Generative Effects.\n\n"
@@ -33,6 +35,7 @@ static void print_help(int status_code) {
        "  -fc, --frag-config    fragment shaders config file (default: TODO)\n"
        "  -is, --internal-size  internal texture height (default: 720)\n"
        "  -t, --tempo           base tempo (default: 60)\n"
+       "  -m, --monitor             output monitor\n"
        "  --demo                demonstration mode\n");
   exit(status_code);
 }
@@ -77,6 +80,7 @@ Parameters args_parse(int argc, char **argv) {
   params.frag_config_path = 0;
   params.internal_size = 720;
   params.base_tempo = 60.0f;
+  params.monitor = false;
   params.demo = false;
 
   for (i = 1; i < argc; i++) {
@@ -99,6 +103,8 @@ Parameters args_parse(int argc, char **argv) {
       params.base_tempo = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
       params.internal_size = (float)parse_uint(arg, value);
+    } else if (is_arg(arg, "--monitor")) {
+      params.monitor = true;
     } else if (is_arg(arg, "--demo")) {
       params.demo = true;
     } else {

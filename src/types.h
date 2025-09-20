@@ -10,13 +10,14 @@
 #define TYPES_H
 
 typedef struct Parameters {
+  bool hot_reload;
   unsigned char screen;
   char *frag_path;
   char *frag_config_path;
-  bool hot_reload;
-  float base_tempo;
-  bool demo;
   unsigned int internal_size;
+  float base_tempo;
+  bool monitor;
+  bool demo;
 } Parameters;
 
 typedef struct Vertex {
@@ -81,6 +82,7 @@ typedef struct Context {
   unsigned int *sub_state;
   bool demo;
   unsigned int *seeds;
+  bool monitor;
 } Context;
 
 typedef struct Timer {

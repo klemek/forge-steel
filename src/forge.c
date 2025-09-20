@@ -50,6 +50,7 @@ static void init_context(ShaderProgram program, Context *context,
 
   context->tempo = params.base_tempo;
   context->demo = params.demo;
+  context->monitor = params.monitor;
 
   size = program.frag_count * program.sub_type_count;
   context->sub_state = malloc(size * sizeof(unsigned int));
