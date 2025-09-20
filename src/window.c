@@ -25,11 +25,6 @@ static void init_glfw(void (*error_callback)(int, const char *)) {
     exit(EXIT_FAILURE);
   }
 
-  // Context related hints
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
   log_success("[GLFS] Initialized...");
 }
 
@@ -51,9 +46,9 @@ static GLFWmonitor *get_monitor(unsigned char monitor_index) {
   return monitors[monitor_index];
 }
 
-static GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
-                                 void (*key_callback)(Window *, int, int, int,
-                                                      int)) {
+static GLFWwindow *
+create_window(GLFWmonitor *monitor, char *title, Window *shared_context,
+              void (*key_callback)(Window *, int, int, int, int)) {
   GLFWwindow *window;
 
   log_info("[GLFW] Creating window...");
@@ -64,8 +59,13 @@ static GLFWwindow *create_window(GLFWmonitor *monitor, char *title,
   glfwWindowHint(GLFW_CENTER_CURSOR, GLFW_FALSE);
   glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_FALSE);
 
+  // Context related hints
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
   // create fullscreen window in selected monitor
-  window = glfwCreateWindow(1, 1, title, monitor, NULL);
+  window = glfwCreateWindow(1, 1, title, monitor, shared_context);
 
   // handle window creation fail
   if (window == NULL) {
@@ -93,17 +93,19 @@ static void use_window(GLFWwindow *window) {
   glfwSwapInterval(1);
 }
 
+void window_startup(void (*error_callback)(int, const char *)) {
+  init_glfw(error_callback);
+}
+
 Window *window_init(char *title, unsigned char monitor_index, bool windowed,
-                    void (*error_callback)(int, const char *),
+                    Window *shared_context,
                     void (*key_callback)(Window *, int, int, int, int)) {
   GLFWwindow *window;
   GLFWmonitor *monitor;
 
-  init_glfw(error_callback);
-
   monitor = windowed ? NULL : get_monitor(monitor_index);
 
-  window = create_window(monitor, title, key_callback);
+  window = create_window(monitor, title, shared_context, key_callback);
 
   use_window(window);
 
@@ -114,17 +116,24 @@ void window_update_title(Window *window, char *title) {
   glfwSetWindowTitle(window, title);
 }
 
+void window_use(Window *window) {
+  glfwMakeContextCurrent(window);
+  gladLoadGL(glfwGetProcAddress);
+}
+
 void window_refresh(Window *window) {
   // swap front and back buffers
   glfwSwapBuffers(window);
-  // listen to mouse and keyboard events
-  glfwPollEvents();
 }
 
-void window_get_context(Window *window, Context *context) {
+void window_events() { glfwPollEvents(); }
+
+void window_get_context(Window *window, Context *context, bool with_time) {
   glfwGetFramebufferSize(window, &context->width, &context->height);
 
-  context->time = glfwGetTime();
+  if (with_time) {
+    context->time = glfwGetTime();
+  }
 }
 
 void window_close(Window *window, bool hard) {

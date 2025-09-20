@@ -46,6 +46,9 @@ static void init_textures(ShaderProgram *program, Context context) {
     // selects which texture unit subsequent texture state calls will affect
     glActiveTexture(GL_TEXTURE0 + i);
 
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+
     glBindTexture(GL_TEXTURE_2D, program->textures[i]);
 
     // define texture image as empty
@@ -381,7 +384,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void shaders_apply(ShaderProgram program, Context context) {
+void shaders_compute(ShaderProgram program, Context context, bool monitor) {
   unsigned int i;
 
   update_viewport(program, context);
@@ -393,7 +396,6 @@ void shaders_apply(ShaderProgram program, Context context) {
   }
 
   use_program(program,
-              context.monitor ? program.frag_monitor_index
-                              : program.frag_output_index,
+              monitor ? program.frag_monitor_index : program.frag_output_index,
               true, context);
 }

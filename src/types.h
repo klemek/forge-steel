@@ -12,11 +12,12 @@
 typedef struct Parameters {
   bool hot_reload;
   unsigned char screen;
+  unsigned char monitor_screen;
+  bool monitor;
   char *frag_path;
   char *frag_config_path;
   unsigned int internal_size;
   float base_tempo;
-  bool monitor;
   bool demo;
   bool windowed;
 } Parameters;

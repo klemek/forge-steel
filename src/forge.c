@@ -16,15 +16,22 @@
 
 static Context context;
 static ShaderProgram program;
+static ShaderProgram program_monitor;
 
-static unsigned int compute_fps(Window *window, Timer *timer) {
+static unsigned int compute_fps(Window *window_out, Window *window_monitor,
+                                Timer *timer) {
   static double fps;
   char title[100];
 
   if (timer_inc(timer)) {
     fps = timer_reset(timer);
     sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
-    window_update_title(window, title);
+    window_update_title(window_out, title);
+
+    if (window_monitor != NULL) {
+      sprintf(title, PACKAGE " " VERSION " (monitor) - %.0ffps", fps);
+      window_update_title(window_monitor, title);
+    }
   }
 
   return (unsigned int)round(fps);
@@ -88,20 +95,35 @@ static void hot_reload(File *common_shader_code, File *fragment_shaders) {
   }
 }
 
-static void loop(Window *window, bool hr, File *common_shader_code,
-                 File *fragment_shaders, Timer *timer) {
+static void loop(Window *window_out, Window *window_monitor, bool hr,
+                 File *common_shader_code, File *fragment_shaders,
+                 Timer *timer) {
 
   if (hr) {
     hot_reload(common_shader_code, fragment_shaders);
   }
 
-  window_get_context(window, &context);
+  context.fps = compute_fps(window_out, window_monitor, timer);
 
-  context.fps = compute_fps(window, timer);
+  window_get_context(window_out, &context, true);
 
-  shaders_apply(program, context);
+  window_use(window_out);
 
-  window_refresh(window);
+  shaders_compute(program, context, false);
+
+  window_refresh(window_out);
+
+  if (window_monitor != NULL) {
+    window_get_context(window_monitor, &context, false);
+
+    window_use(window_monitor);
+
+    shaders_compute(program_monitor, context, true);
+
+    window_refresh(window_monitor);
+  }
+
+  window_events();
 }
 
 File read_fragment_shader_file(char *frag_path, unsigned int i) {
@@ -170,7 +192,8 @@ void forge_run(Parameters params) {
   unsigned int frag_count;
   File *fragment_shaders;
   File common_shader_code;
-  Window *window;
+  Window *window_out;
+  Window *window_monitor;
   Timer timer;
   ConfigFile shader_config;
 
@@ -183,19 +206,36 @@ void forge_run(Parameters params) {
   init_files(params.frag_path, &common_shader_code, fragment_shaders,
              frag_count);
 
-  window = window_init(PACKAGE " " VERSION, params.screen, params.windowed,
-                       error_callback, key_callback);
+  window_startup(error_callback);
 
-  window_get_context(window, &context);
+  window_out = window_init(PACKAGE " " VERSION, params.screen, params.windowed,
+                           NULL, key_callback);
+
+  window_get_context(window_out, &context, true);
 
   context.internal_size = params.internal_size;
 
   program = shaders_init(fragment_shaders, shader_config, context);
 
+  if (params.monitor) {
+    window_monitor =
+        window_init(PACKAGE " " VERSION " (monitor)", params.monitor_screen,
+                    params.windowed, window_out, key_callback);
+
+    window_get_context(window_monitor, &context, false);
+
+    program_monitor = shaders_init(fragment_shaders, shader_config, context);
+  } else {
+    window_monitor = NULL;
+  }
+
   init_context(params);
 
   if (program.error) {
-    window_close(window, true);
+    window_close(window_out, true);
+    if (window_monitor != NULL) {
+      window_close(window_monitor, true);
+    }
     exit(EXIT_FAILURE);
   }
 
@@ -203,16 +243,20 @@ void forge_run(Parameters params) {
 
   log_success("Initialized");
 
-  while (!window_should_close(window)) {
-    loop(window, params.hot_reload, &common_shader_code, fragment_shaders,
-         &timer);
+  while (!window_should_close(window_out) &&
+         (window_monitor == NULL || !window_should_close(window_monitor))) {
+    loop(window_out, window_monitor, params.hot_reload, &common_shader_code,
+         fragment_shaders, &timer);
   }
 
   free_files(&common_shader_code, fragment_shaders, frag_count);
 
   config_file_free(shader_config);
 
-  window_close(window, true);
+  window_close(window_out, true);
+  if (window_monitor != NULL) {
+    window_close(window_monitor, true);
+  }
 
   free_context();
 }

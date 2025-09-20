@@ -18,11 +18,11 @@ static void print_help(int status_code) {
        "[-v] "
        "[-hr] "
        "[-s=SCREEN] "
+       "[-m=SCREEN] "
        "[-f=DIR_PATH] "
        "[-fc=CFG_PATH] "
        "[-is=SIZE] "
        "[-t=TEMPO] "
-       "[-m] "
        "[--demo] "
        "[-w] "
        "\n\n"
@@ -32,11 +32,11 @@ static void print_help(int status_code) {
        "  -v, --version         print version\n"
        "  -hr, --hot-reload     hot reload of shaders scripts\n"
        "  -s, --screen          output screen number (default: primary)\n"
+       "  -m, --monitor         monitor screen number (default: none)\n"
        "  -f, --frag            fragment shaders directory (default: TODO)\n"
        "  -fc, --frag-config    fragment shaders config file (default: TODO)\n"
        "  -is, --internal-size  internal texture height (default: 720)\n"
        "  -t, --tempo           base tempo (default: 60)\n"
-       "  -m, --monitor             output monitor\n"
        "  --demo                demonstration mode\n"
        "  -w, --windowed        not fullscreen\n");
   exit(status_code);
@@ -78,11 +78,12 @@ Parameters args_parse(int argc, char **argv) {
 
   params.hot_reload = false;
   params.screen = 0;
+  params.monitor_screen = 0;
+  params.monitor = false;
   params.frag_path = 0;
   params.frag_config_path = 0;
   params.internal_size = 720;
   params.base_tempo = 60.0f;
-  params.monitor = false;
   params.demo = false;
   params.windowed = false;
 
@@ -105,9 +106,10 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
       params.base_tempo = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
-      params.internal_size = (float)parse_uint(arg, value);
-    } else if (is_arg(arg, "--monitor")) {
+      params.internal_size = parse_uint(arg, value);
+    } else if (is_arg(arg, "-m") || is_arg(arg, "--monitor")) {
       params.monitor = true;
+      params.monitor_screen = parse_uint(arg, value);
     } else if (is_arg(arg, "--demo")) {
       params.demo = true;
     } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
@@ -119,6 +121,12 @@ Parameters args_parse(int argc, char **argv) {
 
   if (params.frag_path == 0) {
     log_error("required argument -f/--frag");
+    exit(EXIT_FAILURE);
+  }
+
+  if (params.monitor && params.monitor_screen == params.screen &&
+      !params.windowed) {
+    log_error("monitor screen cannot be the same as output screen");
     exit(EXIT_FAILURE);
   }
 

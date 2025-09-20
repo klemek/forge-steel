@@ -3,15 +3,21 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+void window_startup(void (*error_callback)(int, const char *));
+
 Window *window_init(char *title, unsigned char monitor_index, bool windowed,
-                    void (*error_callback)(int, const char *),
+                    Window *shared_context,
                     void (*key_callback)(Window *, int, int, int, int));
 
 void window_update_title(Window *window, char *title);
 
+void window_use(Window *window);
+
 void window_refresh(Window *window);
 
-void window_get_context(Window *window, Context *context);
+void window_events();
+
+void window_get_context(Window *window, Context *context, bool with_time);
 
 void window_close(Window *window, bool hard);
 
