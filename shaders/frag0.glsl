@@ -21,6 +21,13 @@ uniform int seed6;
 uniform int seed7;
 uniform int seed8;
 
+uniform int state1_1;
+uniform int state2_1;
+uniform int state3_2;
+uniform int state4_2;
+uniform int state5_3;
+uniform int state6_2;
+
 // 2. textures
 // ---------------
 
@@ -166,8 +173,8 @@ float cosTime(float k)
 vec2 magic_f(vec2 F, vec3 B, float i)
 {
     return vec2(
-        mix(F.x, randTime(i + 1), B.z + iDemo),
-        mix(F.y, randTime(i + 2), B.z + iDemo)
+        mix(F.x, randTime(i + 1), min(1, B.z + iDemo)),
+        mix(F.y, randTime(i + 2), min(1, B.z + iDemo))
     );
 }
 
@@ -179,8 +186,8 @@ vec2 magic_f(float i)
 vec3 magic_b(vec3 B, float i)
 {
     return vec3(
-        mix(B.x, step(0.2, randTime(i + 3)), B.z + iDemo),
-        mix(B.y, step(0.5, randTime(i + 4)), B.z + iDemo),
+        mix(B.x, step(0.2, randTime(i + 3)), min(1, B.z + iDemo)),
+        mix(B.y, step(0.5, randTime(i + 4)), min(1, B.z + iDemo)),
         min(1, B.z + iDemo)
     );
 }
@@ -810,7 +817,7 @@ int read(sampler2D tex, vec2 uv, float k, int d, float t)
     float inv_k = 1 / k;
     vec2 tex_uv = floor(uv * k) * inv_k;
     tex_uv += vec2(d % 2, floor(d * 0.5)) * 0.5 * inv_k;
-    return // TODO threshold
+    return
         ((mean(reframe(tex, tex_uv + vec2(0, 3) * inv_k * 0.125)) > t) ? 1 : 0) + 
         ((mean(reframe(tex, tex_uv + vec2(0, 2) * inv_k * 0.125)) > t) ? 2 : 0) +
         ((mean(reframe(tex, tex_uv + vec2(0, 1) * inv_k * 0.125)) > t) ? 4 : 0) +
@@ -1237,13 +1244,89 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     float ratio = iResolution.x / iResolution.y;
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
-    // controls
+    // inputs
+
+    int selected = 0; // TODO debug selected
+    int page = 0; // TODO debug page
+    int selected_src = 0; // TODO debug selected
+    int selected_fx = 0; // TODO debug selected
+    int selected_srca = state1_1;
+    int selected_srcb = state2_1;
+    int selected_fxa = state3_2;
+    int selected_fxb = state4_2;
+    int selected_mfx = state6_2;
+    float fxa_value = magic(seed3);
+    float fxb_value = magic(seed4);
+    float mfx_value = magic(seed6);
+    float mix_value = magic(seed5);
+    int mix_type = state5_3 % 2;
 
     // logic
 
-    // TODO tmp
+    vec2 uv2 = uv1;
+
+    uv2 *= 10;
+    uv2.x -= 0.5;
+    uv2.y += 0.5;
+
+    // base frame
+    float f = 
+        h_rect(uv2, vec2(-5, -2), vec2(1), 0.1) +
+        h_rect(uv2, vec2(-2, -2), vec2(1), 0.1) +
+        rect(uv2, vec2(-3.5, -2), vec2(0.5, 0.1)) +
+        h_rect(uv2, vec2(-5, 2), vec2(1), 0.1) +
+        h_rect(uv2, vec2(-2, 2), vec2(1), 0.1) +
+        rect(uv2, vec2(-3.5, 2), vec2(0.5, 0.1)) +
+        h_rect(uv2, vec2(2, 0), vec2(1), 0.1) +
+        h_rect(uv2, vec2(5, 0), vec2(1), 0.1) +
+        rect(uv2, vec2(3.5, 0), vec2(0.5, 0.1)) +
+        rect(uv2, vec2(0.55, -2), vec2(1.5, 0.1)) +
+        rect(uv2, vec2(2, -1.55), vec2(0.1, 0.55)) +
+        rect(uv2, vec2(0.55, 2), vec2(1.5, 0.1)) +
+        rect(uv2, vec2(2, 1.55), vec2(0.1, 0.55)) +
+        rect(uv2, vec2(7.5, 0), vec2(1.5, 0.1)) +
+        h_rect(uv2, vec2(-9, 5.1), vec2(1), 0.1);
+
+    // show selected src/fx
+    f += char_at(uv2, vec2(-5.4, 1.45), hex_chars[selected_srca]);
+    f += char_at(uv2, vec2(-5.4, -2.55), hex_chars[selected_srcb]);
+    f += char_at(uv2, vec2(-2.4, 1.45), hex_chars[selected_fxa]);
+    f += char_at(uv2, vec2(4.6, -0.55), hex_chars[selected_fxb]);
+    f += char_at(uv2, vec2(-2.4, -2.55), hex_chars[selected_mfx]);
+
+    // show current selected
+    f += selected == 0 ? h_rect(uv2, vec2(-5, 2), vec2(1.2), 0.1) : 0;
+    f += selected == 1 ? h_rect(uv2, vec2(-5, -2), vec2(1.2), 0.1) : 0;
+    f += selected == 2 ? h_rect(uv2, vec2(-2, 2), vec2(1.2), 0.1) : 0;
+    f += selected == 3 ? h_rect(uv2, vec2(5, 0), vec2(1.2), 0.1) : 0;
+    f += selected == 4 ? h_rect(uv2, vec2(-2, -2), vec2(1.2), 0.1) : 0;
+
+    // show selected src/fx
+    f += selected_src == 0 ? h_rect(uv2, vec2(-5, 0.8), vec2(1, 0), 0.1) : 0;
+    f += selected_src == 1 ? h_rect(uv2, vec2(-5, -3.2), vec2(1, 0), 0.1) : 0;
+    f += selected_fx == 2 ? h_rect(uv2, vec2(-2, 0.8), vec2(1.2, 0), 0.1) : 0;
+    f += selected_fx == 3 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
+    f += selected_fx == 4 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
+
+    // show inputs / feedback
+    f += (selected_srca == 5 || selected_srca == 10) ? rect(uv2, vec2(-8, 2), vec2(2, 0.1)) : 0;
+    f += (selected_srca == 0 || selected_srca % 5 != 0 && selected_srca >= 8) ? rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 4), vec2(7, 0.1)) + rect(uv2, vec2(-7, 3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, 2), vec2(0.1, 2.1)) : 0;
+    f += (selected_srcb == 5 || selected_srcb == 10) ? rect(uv2, vec2(-8, -2), vec2(2, 0.1)) : 0;
+    f += (selected_srcb == 0 || selected_srcb % 5 != 0 && selected_srcb >= 8) ? rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1)) : 0;
+
+    // show page
+    f += char_at(uv2, vec2(-9.2, 4.3), hex_chars[page]);
+
+    // show fx values
+    f = mix(f, 1 - f, rect(uv2, vec2(-2, 1.1 + 0.9 * fxa_value), vec2(0.9, 0.9 * fxa_value)));
+    f = mix(f, 1 - f, rect(uv2, vec2(5, -0.9 + 0.9 * fxb_value), vec2(0.9, 0.9 * fxb_value)));
+    f = mix(f, 1 - f, rect(uv2, vec2(-2, -2.9 + 0.9 * mfx_value), vec2(0.9, 0.9 * mfx_value)));
+
+    // show mix
+    f += char_at(uv2, vec2(1.55, -0.6), mix_type > 0 ? 0x4B : 0x4D);
+    f = mix(f, 1 - f, rect(uv2, vec2(2, -0.9 + 0.9 * mix_value), vec2(0.9, 0.9 * mix_value)));
     
-    return texture(tex0, vUV);
+    return vec4(f);
 }
 
 // 6. effects
@@ -1706,7 +1789,7 @@ subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, int s
 
     // controls
 
-    float mix_src = magic(seed + 10);
+    float mix_src = magic(seed);
 
     // logic
 
@@ -1725,7 +1808,7 @@ subroutine(mix_stage_sub) vec4 mix_2(vec2 vUV, sampler2D ta, sampler2D tb, int s
 
     // controls
 
-    float mix_src = magic(seed + 10);
+    float mix_src = magic(seed);
 
     // logic
     

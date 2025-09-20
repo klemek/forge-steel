@@ -141,6 +141,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   char *tex_prefix;
   char *sub_prefix;
   char *seed_prefix;
+  char *state_prefix;
 
   program->programs[i] = glCreateProgram();
 
@@ -171,6 +172,18 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
     sprintf(name, "%s%d", seed_prefix, j + 1);
     program->iseed_locations[i * program->frag_count + j] =
         glGetUniformLocation(program->programs[i], name);
+  }
+
+  state_prefix =
+      config_file_get_str(shader_config, "UNIFORM_STATE_PREFIX", "state");
+  for (j = 0; j < program->frag_count; j++) {
+    for (k = 0; k < program->sub_type_count; k++) {
+      sprintf(name, "%s%d_%d", state_prefix, j + 1, k + 1);
+      program
+          ->istate_locations[i * program->frag_count * program->sub_type_count +
+                             j * program->sub_type_count + k] =
+          glGetUniformLocation(program->programs[i], name);
+    }
   }
 
   for (j = 0; j < program->sub_type_count; j++) {
@@ -217,6 +230,8 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   program->idemo_locations = malloc(program->frag_count * sizeof(GLuint));
   program->iseed_locations =
       malloc(program->frag_count * program->frag_count * sizeof(GLuint));
+  program->istate_locations = malloc(program->frag_count * program->frag_count *
+                                     program->sub_type_count * sizeof(GLuint));
   program->vpos_locations = malloc(program->frag_count * sizeof(GLuint));
   program->textures_locations =
       malloc(program->frag_count * program->tex_count * sizeof(GLuint));
@@ -335,12 +350,19 @@ static void use_program(ShaderProgram program, int i, bool output,
                 (const GLint)context.seeds[j]);
   }
 
-  // set subroutines for fragment
+  // set subroutines for fragment and update state uniforms
   for (j = 0; j < program.sub_type_count; j++) {
     k = context.sub_state[i * program.sub_type_count + j];
     subroutines[j] = program.sub_locations[i * program.sub_type_count *
                                                program.sub_variant_count +
                                            j * program.sub_variant_count + k];
+    for (k = 0; k < program.frag_count; k++) {
+      glUniform1i(
+          program.istate_locations[i * program.frag_count *
+                                       program.sub_type_count +
+                                   k * program.sub_type_count + j],
+          (const GLint)context.sub_state[k * program.sub_type_count + j]);
+    }
   }
 
   glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program.sub_type_count,

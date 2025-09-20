@@ -60,6 +60,7 @@ typedef struct ShaderProgram {
   GLuint *ires_locations;
   GLuint *idemo_locations;
   GLuint *iseed_locations;
+  GLuint *istate_locations;
 
   GLuint *vpos_locations;
 
