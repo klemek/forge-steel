@@ -1129,7 +1129,7 @@ subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed)
 {
     // start
 
-	vec2 uv0 = vUV.st;
+    vec2 uv0 = vUV.st;
     float ratio = iResolution.x / iResolution.y;
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
@@ -1137,16 +1137,7 @@ subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed)
 
     // logic
     
-    const int text[5] = {0x66, 0x70, 0x73, 0x00, 0x00};
-    vec2 uv2 = uv1 * 20;
-
-    float v = 0;
-
-    v += write_int(uv2, vec2(0.5, 0.5), iFPS, 3);
-
-    v += write_5(uv2, vec2(4.0, 0.5), text);
-
-    return vec4(v);
+    return texture(tex0, vUV);
 }
 
 // TODO SRC 10
@@ -1285,7 +1276,7 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
         rect(uv2, vec2(0.55, 2), vec2(1.5, 0.1)) +
         rect(uv2, vec2(2, 1.55), vec2(0.1, 0.55)) +
         rect(uv2, vec2(7.5, 0), vec2(1.5, 0.1)) +
-        h_rect(uv2, vec2(-9, 5.1), vec2(1), 0.1);
+        h_rect(uv2, vec2(-9, -3.9), vec2(1), 0.1);
 
     // show selected src/fx
     f += char_at(uv2, vec2(-5.4, 1.45), hex_chars[selected_srca]);
@@ -1315,7 +1306,7 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     f += (selected_srcb == 0 || selected_srcb % 5 != 0 && selected_srcb >= 8) ? rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1)) : 0;
 
     // show page
-    f += char_at(uv2, vec2(-9.2, 4.3), hex_chars[page]);
+    f += char_at(uv2, vec2(-9.2, -4.3), hex_chars[page]);
 
     // show fx values
     f = mix(f, 1 - f, rect(uv2, vec2(-2, 1.1 + 0.9 * fxa_value), vec2(0.9, 0.9 * fxa_value)));

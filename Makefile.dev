@@ -1,6 +1,6 @@
 TARGET ?= forge
 INSTALL_DIR ?= $(HOME)/.local/bin
-TEST_ARGS ?= --hot-reload --frag=./shaders --frag-config=./config/shaders.cfg --demo --monitor --internal-size=480
+TEST_ARGS ?= --frag=./shaders --frag-config=./config/shaders.cfg --monitor --internal-size=480
 SHELL := /bin/bash
 
 .PHONY: build
@@ -18,8 +18,13 @@ build:
 		-DGLFW_INCLUDE_NONE \
 		-o build/$(TARGET)
 
+.PHONY: run
 run: build
-	./build/$(TARGET) $(TEST_ARGS)
+	./build/$(TARGET) $(TEST_ARGS) --hot-reload
+
+.PHONY: demo
+demo: build
+	./build/$(TARGET) $(TEST_ARGS) --demo
 
 .PHONY: install
 install: build

@@ -299,9 +299,6 @@ static void update_viewport(ShaderProgram program, Context context) {
   // viewport changed
   if (context.width != program.last_width ||
       context.height != program.last_height) {
-    // update viewport
-    glViewport(0, 0, context.width, context.height);
-
     // clean and resize all textures
     for (i = 0; i < program.tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
@@ -327,12 +324,19 @@ static void use_program(ShaderProgram program, int i, bool output,
   glUseProgram(program.programs[i]);
 
   if (output) {
+    glViewport(0, 0, context.width, context.height);
+
     // use default framebuffer (output)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // clear buffer
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
+    glViewport(
+        0, 0,
+        (int)(context.internal_size * (float)context.width / context.height),
+        context.internal_size);
+
     // use memory framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);

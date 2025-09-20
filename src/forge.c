@@ -54,12 +54,10 @@ static void init_context(ShaderProgram program, Context *context,
 
   size = program.frag_count * program.sub_type_count;
   context->sub_state = malloc(size * sizeof(unsigned int));
-  memset(context->sub_state, 0, sizeof(&context->sub_state));
 
-  if (params.demo) {
-    for (i = 0; i < size; i++) {
-      context->sub_state[i] = rand_uint(program.sub_variant_count);
-    }
+  for (i = 0; i < size; i++) {
+    context->sub_state[i] =
+        params.demo ? rand_uint(program.sub_variant_count) : 0;
   }
 
   context->seeds = malloc(program.frag_count * sizeof(unsigned int));

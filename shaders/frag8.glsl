@@ -9,7 +9,7 @@ float s(vec2 uv, float x0, float y0) {
 step(-y0 - 1, -uv.y);
 }
 
-const int texts[8][5] = {
+const int texts[11][5] = {
     {0x49, 0x4E, 0x20, 0x41, 0x00}, // IN A
     {0x49, 0x4E, 0x20, 0x42, 0x00}, // IN B
     {0x53, 0x52, 0x43, 0x20, 0x41}, // SRC A
@@ -18,6 +18,9 @@ const int texts[8][5] = {
     {0x46, 0x58, 0x20, 0x42, 0x00}, // FX B
     {0x41, 0x2B, 0x42, 0x00, 0x00}, // A+B
     {0x4D, 0x46, 0x58, 0x00, 0x00}, // MFX
+    {0x46, 0x50, 0x53, 0x00, 0x00}, // FPS
+    {0x54, 0x45, 0x4D, 0x50, 0x4F}, // TEMPO
+    {0x54, 0x49, 0x4D, 0x45, 0x00}, // TIME
 };
 
 void main() {
@@ -50,6 +53,15 @@ void main() {
     t += write_5(uv3, vec2(19,-12), texts[5]);
     t += write_5(uv3, vec2(-17,8), texts[6]);
     t += write_5(uv3, vec2(19,8), texts[7]);
+
+    t += write_5(uv3, vec2(-23,8), texts[8]);
+    t += write_int(uv3, vec2(-27,8), iFPS, 3);
+    
+    t += write_5(uv3, vec2(-23,6), texts[9]);
+    t += write_int(uv3, vec2(-27,6), int(iTempo), 3);
+
+    t += write_5(uv3, vec2(-23,4), texts[10]);
+    t += write_int(uv3, vec2(-29,4), int(iTime), 5);
 
     fragColor = mix(c, 1 - c, t);
 }
