@@ -3,7 +3,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-Window *window_init(char *title, unsigned char monitor_index,
+Window *window_init(char *title, unsigned char monitor_index, bool windowed,
                     void (*error_callback)(int, const char *),
                     void (*key_callback)(Window *, int, int, int, int));
 

@@ -22,8 +22,9 @@ static void print_help(int status_code) {
        "[-fc=CFG_PATH] "
        "[-is=SIZE] "
        "[-t=TEMPO] "
-       "[--monitor] "
+       "[-m] "
        "[--demo] "
+       "[-w] "
        "\n\n"
        "Fusion Of Real-time Generative Effects.\n\n"
        "options:\n"
@@ -36,7 +37,8 @@ static void print_help(int status_code) {
        "  -is, --internal-size  internal texture height (default: 720)\n"
        "  -t, --tempo           base tempo (default: 60)\n"
        "  -m, --monitor             output monitor\n"
-       "  --demo                demonstration mode\n");
+       "  --demo                demonstration mode\n"
+       "  -w, --windowed        not fullscreen\n");
   exit(status_code);
 }
 
@@ -82,6 +84,7 @@ Parameters args_parse(int argc, char **argv) {
   params.base_tempo = 60.0f;
   params.monitor = false;
   params.demo = false;
+  params.windowed = false;
 
   for (i = 1; i < argc; i++) {
     arg = argv[i];
@@ -107,6 +110,8 @@ Parameters args_parse(int argc, char **argv) {
       params.monitor = true;
     } else if (is_arg(arg, "--demo")) {
       params.demo = true;
+    } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
+      params.windowed = true;
     } else {
       invalid_arg(arg);
     }

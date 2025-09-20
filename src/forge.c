@@ -169,8 +169,8 @@ void forge_run(Parameters params) {
   init_files(params.frag_path, &common_shader_code, fragment_shaders,
              frag_count);
 
-  window = window_init(PACKAGE " " VERSION, params.screen, error_callback,
-                       key_callback);
+  window = window_init(PACKAGE " " VERSION, params.screen, params.windowed,
+                       error_callback, key_callback);
 
   window_get_context(window, &context);
 

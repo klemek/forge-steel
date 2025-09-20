@@ -805,8 +805,6 @@ float write_int(vec2 uv, vec2 pos, int value, int magnitude)
         if (i == 0 || value >= m) {
             d += char_at(uv, pos + vec2(magnitude - i - 1, 0), int(0x30 + (value % (m * 10)) / m));
             m *= 10;
-        } else {
-            break;
         }
     }
     return d;
@@ -1254,11 +1252,19 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
 
     // logic
 
+    const int texts[3][5] = {
+        {0x46, 0x50, 0x53, 0x00, 0x00}, // FPS
+        {0x54, 0x45, 0x4D, 0x50, 0x4F}, // TEMPO
+        {0x54, 0x49, 0x4D, 0x45, 0x00}, // TIME
+    };
+
     vec2 uv2 = uv1;
 
     uv2 *= 10;
     uv2.x -= 0.5;
     uv2.y += 0.5;
+
+    vec2 uv3 = uv1 * 30;
 
     // base frame
     float f = 
@@ -1316,7 +1322,32 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     // show mix
     f += char_at(uv2, vec2(1.55, -0.6), mix_type > 0 ? 0x4B : 0x4D);
     f = mix(f, 1 - f, rect(uv2, vec2(2, -0.9 + 0.9 * mix_value), vec2(0.9, 0.9 * mix_value)));
+
+    // show debug info
+    float v = 0;
+    float x = 0;
+
+    x = -15;
+    f += write_5(uv3, vec2(x,13), texts[0]);
+    f += write_int(uv3, vec2(x - 4,13), iFPS, 3);
+    v = min(1, iFPS/60.0);
+    f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
+    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
     
+    x = 0;
+    f += write_5(uv3, vec2(x,13), texts[1]);
+    f += write_int(uv3, vec2(x - 4,13), int(iTempo), 3);
+    v = modTime(1);
+    f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
+    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
+
+    x = 15;
+    f += write_5(uv3, vec2(x,13), texts[2]);
+    f += write_int(uv3, vec2(x - 6,13), int(iTime), 5);
+    v = fract(iTime);
+    f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
+    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
+
     return vec4(f);
 }
 

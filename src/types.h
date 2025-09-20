@@ -18,6 +18,7 @@ typedef struct Parameters {
   float base_tempo;
   bool monitor;
   bool demo;
+  bool windowed;
 } Parameters;
 
 typedef struct Vertex {

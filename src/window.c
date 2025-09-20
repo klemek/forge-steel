@@ -93,7 +93,7 @@ static void use_window(GLFWwindow *window) {
   glfwSwapInterval(1);
 }
 
-Window *window_init(char *title, unsigned char monitor_index,
+Window *window_init(char *title, unsigned char monitor_index, bool windowed,
                     void (*error_callback)(int, const char *),
                     void (*key_callback)(Window *, int, int, int, int)) {
   GLFWwindow *window;
@@ -101,7 +101,7 @@ Window *window_init(char *title, unsigned char monitor_index,
 
   init_glfw(error_callback);
 
-  monitor = get_monitor(monitor_index);
+  monitor = windowed ? NULL : get_monitor(monitor_index);
 
   window = create_window(monitor, title, key_callback);
 
