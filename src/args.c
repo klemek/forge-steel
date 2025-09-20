@@ -30,7 +30,7 @@ static void print_help(int status_code) {
        "  -s, --screen        output screen number (default: primary)\n"
        "  -f, --frag          fragment shaders directory (default: TODO)\n"
        "  -fc, --frag-config  fragment shaders config file (default: TODO)\n"
-       "  -t, --tempo         base tempo (default: 120)\n"
+       "  -t, --tempo         base tempo (default: 60)\n"
        "  --demo              demonstration mode\n");
   exit(status_code);
 }
@@ -84,7 +84,7 @@ Parameters args_parse(int argc, char **argv) {
   params.frag_path = 0;
   params.frag_config_path = 0;
   params.hot_reload = false;
-  params.base_tempo = 120.0f;
+  params.base_tempo = 60.0f;
   params.demo = false;
 
   for (i = 1; i < argc; i++) {

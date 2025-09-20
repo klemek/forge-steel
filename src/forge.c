@@ -8,6 +8,7 @@
 #include "file.h"
 #include "forge.h"
 #include "logs.h"
+#include "rand.h"
 #include "shaders.h"
 #include "timer.h"
 #include "types.h"
@@ -44,19 +45,20 @@ static unsigned int compute_fps(Window *window, Timer *timer) {
 static void init_context(ShaderProgram program, Context *context,
                          Parameters params) {
   int size;
+  int i;
+
   context->tempo = params.base_tempo;
   context->demo = params.demo;
 
-  // TODO temporary state
-  size = program.frag_count * program.sub_type_count * sizeof(unsigned int);
-  context->sub_state = malloc(size);
-  memset(context->sub_state, 0, size);
-  context->sub_state[program.sub_type_count * 0 + 0] = 1;
-  context->sub_state[program.sub_type_count * 1 + 0] = 1;
-  context->sub_state[program.sub_type_count * 2 + 1] = 1;
-  context->sub_state[program.sub_type_count * 3 + 1] = 3;
-  context->sub_state[program.sub_type_count * 5 + 1] = 6;
-  // TODO fix here ??
+  size = program.frag_count * program.sub_type_count;
+  context->sub_state = malloc(size * sizeof(unsigned int));
+  memset(context->sub_state, 0, sizeof(&context->sub_state));
+
+  if (params.demo) {
+    for (i = 0; i < size; i++) {
+      context->sub_state[i] = rand_uint(program.sub_variant_count);
+    }
+  }
 }
 
 static void hot_reload(ShaderProgram program, File *common_shader_code,
@@ -162,9 +164,9 @@ void forge_run(Parameters params) {
 
   window_get_context(window, &context);
 
-  init_context(program, &context, params);
-
   program = shaders_init(fragment_shaders, shader_config, context);
+
+  init_context(program, &context, params);
 
   if (program.error) {
     window_close(window, true);

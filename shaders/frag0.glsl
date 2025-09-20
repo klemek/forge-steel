@@ -129,7 +129,7 @@ float divider(float k, int m)
 
 float modTime(float k, int m, float k2)
 {
-    return k * (m * 2  - 1) < 1 ? 0 : mod(divider(k, m) * iTime * iTempo * k2 / 120, 1);
+    return k * (m * 2  - 1) < 1 ? 0 : mod(divider(k, m) * iTime * iTempo * k2 / 240, 1);
 }
 
 float modTime(float k, int m)
@@ -1166,13 +1166,13 @@ subroutine(src_stage_sub) vec4 src_10(vec2 vUV, const float seed)
 
     // logic
     
-    return vec4(0.0);
+    return texture(tex0, vUV);
 }
 
 // SRC 11 : video in 2 + thru
 subroutine(src_stage_sub) vec4 src_11(vec2 vUV, const float seed)
 {
-    return src_thru(vUV, tex2, 938);
+    return src_thru(vUV, tex2, seed);
 }
 
 // TODO SRC 12
@@ -1188,7 +1188,7 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, const float seed)
 
     // logic
     
-    return vec4(0.0);
+    return texture(tex0, vUV);
 }
 
 // TODO SRC 13
@@ -1204,7 +1204,7 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, const float seed)
 
     // logic
     
-    return vec4(0.0);
+    return texture(tex0, vUV);
 }
 
 // TODO SRC 14
@@ -1220,7 +1220,7 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, const float seed)
 
     // logic
     
-    return vec4(0.0);
+    return texture(tex0, vUV);
 }
 
 // TODO SRC 15
@@ -1236,7 +1236,7 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, const float seed)
 
     // logic
     
-    return vec4(0.0);
+    return texture(tex0, vUV);
 }
 
 // SRC 16 : debug
@@ -1254,7 +1254,7 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, const float seed)
 
     // TODO tmp
     
-    return vec4(0.0);
+    return texture(tex0, vUV);
 }
 
 // 6. effects
@@ -1746,4 +1746,76 @@ subroutine(mix_stage_sub) vec4 mix_2(vec2 vUV, sampler2D ta, sampler2D tb, const
     float k = mean(color_a);
 
     return mix(color_b, color_a, step(mix_src, k));
+}
+
+// alternate mix 1 / 2 for random selection
+
+subroutine(mix_stage_sub) vec4 mix_3(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_1(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_4(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_2(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_5(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_1(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_6(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_2(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_7(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_1(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_8(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_2(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_9(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_1(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_10(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_2(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_11(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_1(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_12(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_2(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_13(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_1(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_14(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_2(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_15(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_1(vUV, ta, tb, seed);
+}
+
+subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+{
+    return mix_2(vUV, ta, tb, seed);
 }

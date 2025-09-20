@@ -112,6 +112,9 @@ make -f Makefile.dev release-arch
     - [x] uniform config
     - [x] fragment config
     - [x] subroutines config
+  - [x] demo mode
+  - [ ] random seed injected into shaders
+  - [ ] internal texture size for speed
   - [ ] Clean code and fix things
 - [ ] Midi
   - [ ] Read Midi events
