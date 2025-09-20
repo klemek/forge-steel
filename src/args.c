@@ -19,6 +19,7 @@ static void print_help(int status_code) {
        "[-hr] "
        "[-s=SCREEN] "
        "[-m=SCREEN] "
+       "[-mo] "
        "[-f=DIR_PATH] "
        "[-fc=CFG_PATH] "
        "[-is=SIZE] "
@@ -33,6 +34,7 @@ static void print_help(int status_code) {
        "  -hr, --hot-reload     hot reload of shaders scripts\n"
        "  -s, --screen          output screen number (default: primary)\n"
        "  -m, --monitor         monitor screen number (default: none)\n"
+       "  -mo, --monitor-only   no output screen\n"
        "  -f, --frag            fragment shaders directory (default: TODO)\n"
        "  -fc, --frag-config    fragment shaders config file (default: TODO)\n"
        "  -is, --internal-size  internal texture height (default: 720)\n"
@@ -77,9 +79,10 @@ Parameters args_parse(int argc, char **argv) {
   char *value;
 
   params.hot_reload = false;
-  params.screen = 0;
-  params.monitor_screen = 0;
+  params.output = true;
+  params.output_screen = 0;
   params.monitor = false;
+  params.monitor_screen = 0;
   params.frag_path = 0;
   params.frag_config_path = 0;
   params.internal_size = 720;
@@ -98,7 +101,7 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-hr") || is_arg(arg, "--hot-reload")) {
       params.hot_reload = true;
     } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
-      params.screen = parse_uint(arg, value);
+      params.output_screen = parse_uint(arg, value);
     } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {
       params.frag_path = value;
     } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
@@ -110,6 +113,9 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-m") || is_arg(arg, "--monitor")) {
       params.monitor = true;
       params.monitor_screen = parse_uint(arg, value);
+    } else if (is_arg(arg, "-mo") || is_arg(arg, "--monitor-only")) {
+      params.output = false;
+      params.monitor = true;
     } else if (is_arg(arg, "--demo")) {
       params.demo = true;
     } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
@@ -124,8 +130,8 @@ Parameters args_parse(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  if (params.monitor && params.monitor_screen == params.screen &&
-      !params.windowed) {
+  if (params.monitor && params.output &&
+      params.monitor_screen == params.output_screen && !params.windowed) {
     log_error("monitor screen cannot be the same as output screen");
     exit(EXIT_FAILURE);
   }

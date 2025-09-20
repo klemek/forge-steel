@@ -116,11 +116,6 @@ void window_update_title(Window *window, char *title) {
   glfwSetWindowTitle(window, title);
 }
 
-void window_use(Window *window) {
-  glfwMakeContextCurrent(window);
-  gladLoadGL(glfwGetProcAddress);
-}
-
 void window_refresh(Window *window) {
   // swap front and back buffers
   glfwSwapBuffers(window);
@@ -128,12 +123,12 @@ void window_refresh(Window *window) {
 
 void window_events() { glfwPollEvents(); }
 
-void window_get_context(Window *window, Context *context, bool with_time) {
-  glfwGetFramebufferSize(window, &context->width, &context->height);
+double window_get_time() { return glfwGetTime(); }
 
-  if (with_time) {
-    context->time = glfwGetTime();
-  }
+void window_use(Window *window, Context *context) {
+  glfwMakeContextCurrent(window);
+  gladLoadGL(glfwGetProcAddress);
+  glfwGetFramebufferSize(window, &context->width, &context->height);
 }
 
 void window_close(Window *window, bool hard) {

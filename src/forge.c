@@ -17,16 +17,20 @@
 static Context context;
 static ShaderProgram program;
 static ShaderProgram program_monitor;
+static Window *window_output;
+static Window *window_monitor;
 
-static unsigned int compute_fps(Window *window_out, Window *window_monitor,
-                                Timer *timer) {
+static unsigned int compute_fps(Timer *timer) {
   static double fps;
   char title[100];
 
   if (timer_inc(timer)) {
     fps = timer_reset(timer);
-    sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
-    window_update_title(window_out, title);
+
+    if (window_output != NULL) {
+      sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
+      window_update_title(window_output, title);
+    }
 
     if (window_monitor != NULL) {
       sprintf(title, PACKAGE " " VERSION " (monitor) - %.0ffps", fps);
@@ -39,21 +43,31 @@ static unsigned int compute_fps(Window *window_out, Window *window_monitor,
 
 static void randomize_context_state() {
   unsigned int i;
+  unsigned int size;
+  unsigned int variants;
 
-  for (i = 0; i < program.frag_count * program.sub_type_count; i++) {
-    context.sub_state[i] = rand_uint(program.sub_variant_count);
+  size = window_output != NULL
+             ? program.frag_count * program.sub_type_count
+             : program_monitor.frag_count * program_monitor.sub_type_count;
+
+  variants = window_output != NULL ? program.sub_variant_count
+                                   : program_monitor.sub_variant_count;
+
+  for (i = 0; i < size; i++) {
+    context.sub_state[i] = rand_uint(variants);
   }
 }
 static void init_context(Parameters params) {
-
-  int size;
-  int i;
+  unsigned int size;
+  unsigned int i;
 
   context.tempo = params.base_tempo;
   context.demo = params.demo;
   context.monitor = params.monitor;
 
-  size = program.frag_count * program.sub_type_count;
+  size = window_output != NULL
+             ? program.frag_count * program.sub_type_count
+             : program_monitor.frag_count * program_monitor.sub_type_count;
   context.sub_state = malloc(size * sizeof(unsigned int));
 
   for (i = 0; i < size; i++) {
@@ -64,8 +78,10 @@ static void init_context(Parameters params) {
     randomize_context_state();
   }
 
-  context.seeds = malloc(program.frag_count * sizeof(unsigned int));
-  for (i = 0; i < (int)program.frag_count; i++) {
+  size =
+      window_output != NULL ? program.frag_count : program_monitor.frag_count;
+  context.seeds = malloc(size * sizeof(unsigned int));
+  for (i = 0; i < size; i++) {
     context.seeds[i] = rand_uint(1000);
   }
 }
@@ -77,46 +93,56 @@ static void free_context() {
 
 static void hot_reload(File *common_shader_code, File *fragment_shaders) {
   unsigned int i;
+  unsigned int frag_count;
   bool force_update;
 
   force_update = false;
+
+  frag_count =
+      window_output != NULL ? program.frag_count : program_monitor.frag_count;
 
   if (file_should_update(*common_shader_code)) {
     file_update(common_shader_code);
     force_update = true;
   }
 
-  for (i = 0; i < program.frag_count; i++) {
+  for (i = 0; i < frag_count; i++) {
     if (force_update || file_should_update(fragment_shaders[i])) {
       file_update(&fragment_shaders[i]);
       file_prepend(&fragment_shaders[i], *common_shader_code);
-      shaders_update(program, fragment_shaders, i);
+
+      if (window_output != NULL) {
+        shaders_update(program, fragment_shaders, i);
+      }
+
+      if (window_monitor != NULL) {
+        shaders_update(program_monitor, fragment_shaders, i);
+      }
     }
   }
 }
 
-static void loop(Window *window_out, Window *window_monitor, bool hr,
-                 File *common_shader_code, File *fragment_shaders,
+static void loop(bool hr, File *common_shader_code, File *fragment_shaders,
                  Timer *timer) {
 
   if (hr) {
     hot_reload(common_shader_code, fragment_shaders);
   }
 
-  context.fps = compute_fps(window_out, window_monitor, timer);
+  context.fps = compute_fps(timer);
 
-  window_get_context(window_out, &context, true);
+  context.time = window_get_time();
 
-  window_use(window_out);
+  if (window_output != NULL) {
+    window_use(window_output, &context);
 
-  shaders_compute(program, context, false);
+    shaders_compute(program, context, false);
 
-  window_refresh(window_out);
+    window_refresh(window_output);
+  }
 
   if (window_monitor != NULL) {
-    window_get_context(window_monitor, &context, false);
-
-    window_use(window_monitor);
+    window_use(window_monitor, &context);
 
     shaders_compute(program_monitor, context, true);
 
@@ -192,8 +218,6 @@ void forge_run(Parameters params) {
   unsigned int frag_count;
   File *fragment_shaders;
   File common_shader_code;
-  Window *window_out;
-  Window *window_monitor;
   Timer timer;
   ConfigFile shader_config;
 
@@ -208,21 +232,25 @@ void forge_run(Parameters params) {
 
   window_startup(error_callback);
 
-  window_out = window_init(PACKAGE " " VERSION, params.screen, params.windowed,
-                           NULL, key_callback);
-
-  window_get_context(window_out, &context, true);
-
   context.internal_size = params.internal_size;
 
-  program = shaders_init(fragment_shaders, shader_config, context);
+  if (params.output) {
+    window_output = window_init(PACKAGE " " VERSION, params.output_screen,
+                                params.windowed, NULL, key_callback);
+
+    window_use(window_output, &context);
+
+    program = shaders_init(fragment_shaders, shader_config, context);
+  } else {
+    window_output = NULL;
+  }
 
   if (params.monitor) {
     window_monitor =
         window_init(PACKAGE " " VERSION " (monitor)", params.monitor_screen,
-                    params.windowed, window_out, key_callback);
+                    params.windowed, window_output, key_callback);
 
-    window_get_context(window_monitor, &context, false);
+    window_use(window_monitor, &context);
 
     program_monitor = shaders_init(fragment_shaders, shader_config, context);
   } else {
@@ -231,8 +259,11 @@ void forge_run(Parameters params) {
 
   init_context(params);
 
-  if (program.error) {
-    window_close(window_out, true);
+  if ((window_output != NULL && program.error) ||
+      (window_monitor != NULL && program_monitor.error)) {
+    if (window_output != NULL) {
+      window_close(window_output, true);
+    }
     if (window_monitor != NULL) {
       window_close(window_monitor, true);
     }
@@ -243,17 +274,18 @@ void forge_run(Parameters params) {
 
   log_success("Initialized");
 
-  while (!window_should_close(window_out) &&
+  while ((window_output == NULL || !window_should_close(window_output)) &&
          (window_monitor == NULL || !window_should_close(window_monitor))) {
-    loop(window_out, window_monitor, params.hot_reload, &common_shader_code,
-         fragment_shaders, &timer);
+    loop(params.hot_reload, &common_shader_code, fragment_shaders, &timer);
   }
 
   free_files(&common_shader_code, fragment_shaders, frag_count);
 
   config_file_free(shader_config);
 
-  window_close(window_out, true);
+  if (window_output != NULL) {
+    window_close(window_output, true);
+  }
   if (window_monitor != NULL) {
     window_close(window_monitor, true);
   }

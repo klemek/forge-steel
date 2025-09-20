@@ -11,9 +11,10 @@
 
 typedef struct Parameters {
   bool hot_reload;
-  unsigned char screen;
-  unsigned char monitor_screen;
+  bool output;
+  unsigned char output_screen;
   bool monitor;
+  unsigned char monitor_screen;
   char *frag_path;
   char *frag_config_path;
   unsigned int internal_size;

@@ -11,13 +11,13 @@ Window *window_init(char *title, unsigned char monitor_index, bool windowed,
 
 void window_update_title(Window *window, char *title);
 
-void window_use(Window *window);
+double window_get_time();
+
+void window_use(Window *window, Context *context);
 
 void window_refresh(Window *window);
 
 void window_events();
-
-void window_get_context(Window *window, Context *context, bool with_time);
 
 void window_close(Window *window, bool hard);
 

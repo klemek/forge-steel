@@ -131,9 +131,9 @@ make -f Makefile.dev release-arch
   - [ ] Fixed camera video
   - [ ] Video mapping config file
   - [ ] Clean code and fix things
-- [ ] Monitor screen
-  - [ ] 2nd window
+- [x] Monitor screen
+  - [x] 2nd window
   - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
-  - [ ] Clean code and fix things
+  - [x] Clean code and fix things
 - [ ] Packaging & install
   - [ ] Clone "shaders" and config in system path at setup
