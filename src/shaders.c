@@ -138,6 +138,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   char name[32];
   char *tex_prefix;
   char *sub_prefix;
+  char *seed_prefix;
 
   program->programs[i] = glCreateProgram();
 
@@ -161,6 +162,14 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   program->idemo_locations[i] = glGetUniformLocation(
       program->programs[i],
       config_file_get_str(shader_config, "UNIFORM_DEMO", "iDemo"));
+
+  seed_prefix =
+      config_file_get_str(shader_config, "UNIFORM_SEED_PREFIX", "seed");
+  for (j = 0; j < program->frag_count; j++) {
+    sprintf(name, "%s%d", seed_prefix, j + 1);
+    program->iseed_locations[i * program->frag_count + j] =
+        glGetUniformLocation(program->programs[i], name);
+  }
 
   for (j = 0; j < program->sub_type_count; j++) {
     sprintf(name, "SUB_%d_PREFIX", j + 1);
@@ -204,6 +213,8 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   program->ifps_locations = malloc(program->frag_count * sizeof(GLuint));
   program->ires_locations = malloc(program->frag_count * sizeof(GLuint));
   program->idemo_locations = malloc(program->frag_count * sizeof(GLuint));
+  program->iseed_locations =
+      malloc(program->frag_count * program->frag_count * sizeof(GLuint));
   program->vpos_locations = malloc(program->frag_count * sizeof(GLuint));
   program->textures_locations =
       malloc(program->frag_count * program->tex_count * sizeof(GLuint));
@@ -313,6 +324,12 @@ static void use_program(ShaderProgram program, int i, bool output,
   glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
   glUniform1i(program.idemo_locations[i], (const GLint)(context.demo ? 1 : 0));
   glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
+
+  // set seeds uniforms
+  for (j = 0; j < program.frag_count; j++) {
+    glUniform1i(program.iseed_locations[i * program.frag_count + j],
+                (const GLint)context.seeds[j]);
+  }
 
   // set subroutines for fragment
   for (j = 0; j < program.sub_type_count; j++) {

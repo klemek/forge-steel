@@ -12,6 +12,15 @@ uniform int iFPS;
 uniform vec2 iResolution;
 uniform int iDemo;
 
+uniform int seed1;
+uniform int seed2;
+uniform int seed3;
+uniform int seed4;
+uniform int seed5;
+uniform int seed6;
+uniform int seed7;
+uniform int seed8;
+
 // 2. textures
 // ---------------
 
@@ -121,45 +130,35 @@ float randTime(float seed){
     return rand(seed + mod(floor(iTime * iTempo / 240), 1000));
 }
 
-float divider(float k, int m)
+float divider(float x)
 {
-    // 2 -> 0, 0.5, 1, 2 | 3 -> 0, 0.25, 0.5, 1, 2, 4
-    return k * (m * 2 - 1) < 1 ? 0 : pow(2, floor(k * (m * 2 - 1)) - m);
+    if (x < 0.1) return 0;
+    if (x < 0.2) return 0.125;
+    if (x < 0.3) return 0.25;
+    if (x < 0.4) return 0.5;
+    if (x < 0.6) return 1;
+    if (x < 0.8) return 2;
+    return 4;
 }
 
-float modTime(float k, int m, float k2)
+float modTime(float k, float k2)
 {
-    return k * (m * 2  - 1) < 1 ? 0 : mod(divider(k, m) * iTime * iTempo * k2 / 240, 1);
-}
-
-float modTime(float k, int m)
-{
-    return modTime(k, m, 1.0);
+    return mod(divider(k) * iTime * iTempo * k2 / 240, 1);
 }
 
 float modTime(float k)
 {
-    return modTime(k, 2);
-}
-
-float sinTime(float k, int m)
-{
-    return sin(modTime(k, m, 0.5) * 2 * PI);
+    return modTime(k, 1.0);
 }
 
 float sinTime(float k)
 {
-    return sinTime(k, 2);
-}
-
-float cosTime(float k, int m)
-{
-    return cos(modTime(k, m, 0.5) * 2 * PI);
+    return sin(modTime(k, 0.5) * 2 * PI);
 }
 
 float cosTime(float k)
 {
-    return cosTime(k, 2);
+    return cos(modTime(k, 0.5) * 2 * PI);
 }
 
 // MAGIC
@@ -201,17 +200,12 @@ bool magic_trigger(float i)
     return magic_b(i).x > 0;
 }
 
-float magic(vec2 F, vec3 B, float i, int m)
+float magic(vec2 F, vec3 B, float i)
 {
     vec2 f = magic_f(F, B, i);
     vec3 b = magic_b(B, i);
 
-    return mix(0, f.x * mix(1 - modTime(f.y, m), cosTime(f.y, m) * 0.5 + 0.5, b.y), b.x);
-}
-
-float magic(vec2 F, vec3 B, float i)
-{
-    return magic(F, B, i, 4);
+    return mix(0, f.x * mix(1 - modTime(f.y), cosTime(f.y) * 0.5 + 0.5, b.y), b.x);
 }
 
 float magic(float i)
@@ -219,17 +213,12 @@ float magic(float i)
     return magic(vec2(0), vec3(0, 0, 1), i);
 }
 
-float magic_reverse(vec2 F, vec3 B, float i, int m)
+float magic_reverse(vec2 F, vec3 B, float i)
 {
     vec2 f = magic_f(F, B, i);
     vec3 b = magic_b(B, i);
 
-    return mix(0, f.x * mix(1 - modTime(f.y, m), modTime(f.y, m), b.y), b.x);
-}
-
-float magic_reverse(vec2 F, vec3 B, float i)
-{
-    return magic_reverse(F, B, i, 4);
+    return mix(0, f.x * mix(1 - modTime(f.y), modTime(f.y), b.y), b.x);
 }
 
 float magic_reverse(float i)
@@ -877,11 +866,11 @@ int guess_char(sampler2D tex, vec2 uv, float k, float t)
 // 5. generators
 // -------------
 
-subroutine vec4 src_stage_sub(vec2 vUV, const float seed);
+subroutine vec4 src_stage_sub(vec2 vUV, int seed);
 
 subroutine uniform src_stage_sub src_stage;
 
-vec4 src_thru(vec2 vUV, sampler2D tex, const float seed)
+vec4 src_thru(vec2 vUV, sampler2D tex, int seed)
 {
     // start
 
@@ -908,13 +897,13 @@ vec4 src_thru(vec2 vUV, sampler2D tex, const float seed)
 }
 
 // SRC 1: feedback + thru
-subroutine(src_stage_sub) vec4 src_1(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_1(vec2 vUV, int seed)
 {
     return src_thru(vUV, tex0, seed);
 }
 
 // SRC 2 : lines
-subroutine(src_stage_sub) vec4 src_2(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed)
 {
     // start
 
@@ -941,7 +930,7 @@ subroutine(src_stage_sub) vec4 src_2(vec2 vUV, const float seed)
 }
 
 // SRC 3 : dots
-subroutine(src_stage_sub) vec4 src_3(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed)
 {
     // start
 
@@ -970,7 +959,7 @@ subroutine(src_stage_sub) vec4 src_3(vec2 vUV, const float seed)
 }
 
 // SRC 4 : waves
-subroutine(src_stage_sub) vec4 src_4(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed)
 {
     // start
 
@@ -1013,7 +1002,7 @@ subroutine(src_stage_sub) vec4 src_4(vec2 vUV, const float seed)
 }
 
 // SRC 5 : noise
-subroutine(src_stage_sub) vec4 src_5(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed)
 {
     // start
 
@@ -1043,13 +1032,13 @@ subroutine(src_stage_sub) vec4 src_5(vec2 vUV, const float seed)
 }
 
 // SRC 6 : video in 1 + thru
-subroutine(src_stage_sub) vec4 src_6(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_6(vec2 vUV, int seed)
 {
     return src_thru(vUV, tex1, seed);
 }
 
 // SRC 7 : cp437
-subroutine(src_stage_sub) vec4 src_7(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_7(vec2 vUV, int seed)
 {
     // start
 
@@ -1101,7 +1090,7 @@ const int lengths[SENTENCE_COUNT] = {
     5, 17, 13, 13, 13, 17, 8, 8, 11, 19
 };
 
-subroutine(src_stage_sub) vec4 src_8(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed)
 {
     // start
 
@@ -1129,7 +1118,7 @@ subroutine(src_stage_sub) vec4 src_8(vec2 vUV, const float seed)
 }
 
 // TODO SRC 9
-subroutine(src_stage_sub) vec4 src_9(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed)
 {
     // start
 
@@ -1154,7 +1143,7 @@ subroutine(src_stage_sub) vec4 src_9(vec2 vUV, const float seed)
 }
 
 // TODO SRC 10
-subroutine(src_stage_sub) vec4 src_10(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed)
 {
     // start
 
@@ -1170,13 +1159,13 @@ subroutine(src_stage_sub) vec4 src_10(vec2 vUV, const float seed)
 }
 
 // SRC 11 : video in 2 + thru
-subroutine(src_stage_sub) vec4 src_11(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed)
 {
     return src_thru(vUV, tex2, seed);
 }
 
 // TODO SRC 12
-subroutine(src_stage_sub) vec4 src_12(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed)
 {
     // start
 
@@ -1192,7 +1181,7 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, const float seed)
 }
 
 // TODO SRC 13
-subroutine(src_stage_sub) vec4 src_13(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed)
 {
     // start
 
@@ -1208,7 +1197,7 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, const float seed)
 }
 
 // TODO SRC 14
-subroutine(src_stage_sub) vec4 src_14(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed)
 {
     // start
 
@@ -1224,7 +1213,7 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, const float seed)
 }
 
 // TODO SRC 15
-subroutine(src_stage_sub) vec4 src_15(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed)
 {
     // start
 
@@ -1240,7 +1229,7 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, const float seed)
 }
 
 // SRC 16 : debug
-subroutine(src_stage_sub) vec4 src_16(vec2 vUV, const float seed)
+subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
 {
     // start
 
@@ -1260,12 +1249,12 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, const float seed)
 // 6. effects
 // ----------
 
-subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed);
+subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback, int seed);
 
 subroutine uniform fx_stage_sub fx_stage;
 
 // FX 1 : thru
-subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1291,7 +1280,7 @@ subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 2 : feedback + shift
-vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, const float seed)
+vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed)
 {
     // start
 
@@ -1319,19 +1308,19 @@ vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, const float seed)
     return vec4(mix(c0, c, fx), 1.0);
 }
 
-subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     return fx_shift(vUV, previous, feedback, seed);
 }
 
 // FX 3 : shift
-subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     return fx_shift(vUV, previous, previous, seed);
 }
 
 // FX 4 : colorize
-subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1359,7 +1348,7 @@ subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 5 : quantize
-subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1394,7 +1383,7 @@ subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 6 : dithering
-subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1438,7 +1427,7 @@ subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 7 : tv
-subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1473,7 +1462,7 @@ subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 8 : kaleidoscope
-subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1504,7 +1493,7 @@ subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 9 : cp437
-subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1546,7 +1535,7 @@ subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 10 : lens
-subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1576,7 +1565,7 @@ subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 11
-subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1597,7 +1586,7 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 12
-subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1618,7 +1607,7 @@ subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 13
-subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1639,7 +1628,7 @@ subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 14
-subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1660,7 +1649,7 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 15
-subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1681,7 +1670,7 @@ subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 16
-subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feedback, const float seed)
+subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
 {
     // start
 
@@ -1704,12 +1693,12 @@ subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feed
 // 7. mix
 // ----------
 
-subroutine vec4 mix_stage_sub(vec2 vUV, sampler2D tex_a, sampler2D tex_a, const float seed);
+subroutine vec4 mix_stage_sub(vec2 vUV, sampler2D tex_a, sampler2D tex_a, int seed);
 
 subroutine uniform mix_stage_sub mix_stage;
 
 // MIX 1 : mix
-subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     // start
 
@@ -1728,7 +1717,7 @@ subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, const
 }
 
 // MIX 2 : luminance key
-subroutine(mix_stage_sub) vec4 mix_2(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_2(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     // start
 
@@ -1750,72 +1739,72 @@ subroutine(mix_stage_sub) vec4 mix_2(vec2 vUV, sampler2D ta, sampler2D tb, const
 
 // alternate mix 1 / 2 for random selection
 
-subroutine(mix_stage_sub) vec4 mix_3(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_3(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_1(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_4(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_4(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_2(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_5(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_5(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_1(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_6(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_6(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_2(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_7(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_7(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_1(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_8(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_8(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_2(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_9(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_9(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_1(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_10(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_10(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_2(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_11(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_11(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_1(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_12(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_12(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_2(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_13(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_13(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_1(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_14(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_14(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_2(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_15(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_15(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_1(vUV, ta, tb, seed);
 }
 
-subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, const float seed)
+subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
 {
     return mix_2(vUV, ta, tb, seed);
 }

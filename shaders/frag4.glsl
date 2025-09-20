@@ -7,8 +7,6 @@
 in vec2 vUV;
 out vec4 fragColor;
 
-const float seed = 559;
-
 void main() {
-    fragColor = fx_stage(vUV, tex5, tex6, seed);
+    fragColor = fx_stage(vUV, tex5, tex6, seed4);
 }

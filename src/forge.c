@@ -44,6 +44,7 @@ static unsigned int compute_fps(Window *window, Timer *timer) {
 
 static void init_context(ShaderProgram program, Context *context,
                          Parameters params) {
+
   int size;
   int i;
 
@@ -59,6 +60,16 @@ static void init_context(ShaderProgram program, Context *context,
       context->sub_state[i] = rand_uint(program.sub_variant_count);
     }
   }
+
+  context->seeds = malloc(program.frag_count * sizeof(unsigned int));
+  for (i = 0; i < (int)program.frag_count; i++) {
+    context->seeds[i] = rand_uint(1000);
+  }
+}
+
+static void free_context(Context context) {
+  free(context.sub_state);
+  free(context.seeds);
 }
 
 static void hot_reload(ShaderProgram program, File *common_shader_code,
@@ -188,5 +199,5 @@ void forge_run(Parameters params) {
 
   window_close(window, true);
 
-  free(context.sub_state);
+  free_context(context);
 }

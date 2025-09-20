@@ -57,6 +57,7 @@ typedef struct ShaderProgram {
   GLuint *ifps_locations;
   GLuint *ires_locations;
   GLuint *idemo_locations;
+  GLuint *iseed_locations;
 
   GLuint *vpos_locations;
 
@@ -77,6 +78,7 @@ typedef struct Context {
   float tempo;
   unsigned int *sub_state;
   bool demo;
+  unsigned int *seeds;
 } Context;
 
 typedef struct Timer {
