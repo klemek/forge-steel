@@ -159,7 +159,6 @@ static void key_callback(Window *window, int key,
     window_close(window, false);
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
-    log_debug("R");
     randomize_context_state();
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
