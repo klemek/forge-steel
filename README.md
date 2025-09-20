@@ -50,16 +50,19 @@ make install
 ## CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-f=FRAG_PATH] 
+usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-f=DIR_PATH] [-fc=CFG_PATH] [-t=TEMPO] [--demo] 
 
 Fusion Of Real-time Generative Effects.
 
 options:
-  -h, --help         show this help message and exit
-  -v, --version      print version
-  -hr, --hot-reload  hot reload of shaders scripts
-  -s, --screen       output screen number (default: primary)
-  -f, --frag         fragment shader path (default: TODO)
+  -h, --help          show this help message and exit
+  -v, --version       print version
+  -hr, --hot-reload   hot reload of shaders scripts
+  -s, --screen        output screen number (default: primary)
+  -f, --frag          fragment shaders directory (default: TODO)
+  -fc, --frag-config  fragment shaders config file (default: TODO)
+  -t, --tempo         base tempo (default: 120)
+  --demo              demonstration mode
 ```
 
 ## Release guide
@@ -99,7 +102,7 @@ make -f Makefile.dev release-arch
   - [x] Select screen as argument / config
   - [x] fps in window title
   - [x] Clean code
-- [x] Multi-stage shaders
+- [ ] Multi-stage shaders
   - [x] Test 2 stages with render to texture
   - [x] 2 in 2 fx 1 mix 1 fx layout
   - [x] Include common code
@@ -109,7 +112,7 @@ make -f Makefile.dev release-arch
     - [x] uniform config
     - [x] fragment config
     - [x] subroutines config
-  - [x] Clean code
+  - [ ] Clean code and fix things
 - [ ] Midi
   - [ ] Read Midi events
   - [ ] Read midi mapping config file
@@ -117,14 +120,14 @@ make -f Makefile.dev release-arch
   - [ ] Save midi state
   - [ ] State machine with A/B switch
   - [ ] Tap-tempo feature
-  - [ ] Clean code
+  - [ ] Clean code and fix things
 - [ ] Video input
   - [ ] Fixed camera video
   - [ ] Video mapping config file
-  - [ ] Clean code
+  - [ ] Clean code and fix things
 - [ ] Monitor screen
   - [ ] 2nd window
-  - [ ] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
-  - [ ] Clean code
+  - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
+  - [ ] Clean code and fix things
 - [ ] Packaging & install
   - [ ] Clone "shaders" and config in system path at setup

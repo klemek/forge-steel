@@ -158,6 +158,9 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   program->ires_locations[i] = glGetUniformLocation(
       program->programs[i],
       config_file_get_str(shader_config, "UNIFORM_RESOLUTION", "iResolution"));
+  program->idemo_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(shader_config, "UNIFORM_DEMO", "iDemo"));
 
   for (j = 0; j < program->sub_type_count; j++) {
     sprintf(name, "SUB_%d_PREFIX", j + 1);
@@ -200,6 +203,7 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   program->itempo_locations = malloc(program->frag_count * sizeof(GLuint));
   program->ifps_locations = malloc(program->frag_count * sizeof(GLuint));
   program->ires_locations = malloc(program->frag_count * sizeof(GLuint));
+  program->idemo_locations = malloc(program->frag_count * sizeof(GLuint));
   program->vpos_locations = malloc(program->frag_count * sizeof(GLuint));
   program->textures_locations =
       malloc(program->frag_count * program->tex_count * sizeof(GLuint));
@@ -307,6 +311,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
   glUniform1f(program.itempo_locations[i], (const GLfloat)context.tempo);
   glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
+  glUniform1i(program.idemo_locations[i], (const GLint)(context.demo ? 1 : 0));
   glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
 
   // set subroutines for fragment
@@ -340,5 +345,5 @@ void shaders_apply(ShaderProgram program, Context context) {
     }
   }
 
-  use_program(program, program.frag_output_index, true, context);
+  use_program(program, program.frag_monitor_index, true, context);
 }

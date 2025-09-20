@@ -121,14 +121,10 @@ void window_refresh(Window *window) {
   glfwPollEvents();
 }
 
-Context window_get_context(Window *window) {
-  Context context;
+void window_get_context(Window *window, Context *context) {
+  glfwGetFramebufferSize(window, &context->width, &context->height);
 
-  glfwGetFramebufferSize(window, &context.width, &context.height);
-
-  context.time = glfwGetTime();
-
-  return context;
+  context->time = glfwGetTime();
 }
 
 void window_close(Window *window, bool hard) {

@@ -10,6 +10,7 @@ uniform float iTime;
 uniform float iTempo;
 uniform int iFPS;
 uniform vec2 iResolution;
+uniform int iDemo;
 
 // 2. textures
 // ---------------
@@ -166,8 +167,8 @@ float cosTime(float k)
 vec2 magic_f(vec2 F, vec3 B, float i)
 {
     return vec2(
-        mix(F.x, randTime(i + 1), B.z),
-        mix(F.y, randTime(i + 2), B.z)
+        mix(F.x, randTime(i + 1), B.z + iDemo),
+        mix(F.y, randTime(i + 2), B.z + iDemo)
     );
 }
 
@@ -179,9 +180,9 @@ vec2 magic_f(float i)
 vec3 magic_b(vec3 B, float i)
 {
     return vec3(
-        mix(B.x, step(0.2, randTime(i + 3)), B.z),
-        mix(B.y, step(0.5, randTime(i + 4)), B.z),
-        B.z
+        mix(B.x, step(0.2, randTime(i + 3)), B.z + iDemo),
+        mix(B.y, step(0.5, randTime(i + 4)), B.z + iDemo),
+        min(1, B.z + iDemo)
     );
 }
 
@@ -1250,6 +1251,8 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, const float seed)
     // controls
 
     // logic
+
+    // TODO tmp
     
     return vec4(0.0);
 }

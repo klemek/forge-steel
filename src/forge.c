@@ -41,6 +41,24 @@ static unsigned int compute_fps(Window *window, Timer *timer) {
   return (unsigned int)round(fps);
 }
 
+static void init_context(ShaderProgram program, Context *context,
+                         Parameters params) {
+  int size;
+  context->tempo = params.base_tempo;
+  context->demo = params.demo;
+
+  // TODO temporary state
+  size = program.frag_count * program.sub_type_count * sizeof(unsigned int);
+  context->sub_state = malloc(size);
+  memset(context->sub_state, 0, size);
+  context->sub_state[program.sub_type_count * 0 + 0] = 1;
+  context->sub_state[program.sub_type_count * 1 + 0] = 1;
+  context->sub_state[program.sub_type_count * 2 + 1] = 1;
+  context->sub_state[program.sub_type_count * 3 + 1] = 3;
+  context->sub_state[program.sub_type_count * 5 + 1] = 6;
+  // TODO fix here ??
+}
+
 static void hot_reload(ShaderProgram program, File *common_shader_code,
                        File *fragment_shaders) {
   unsigned int i;
@@ -63,35 +81,20 @@ static void hot_reload(ShaderProgram program, File *common_shader_code,
 }
 
 static void loop(Window *window, ShaderProgram program, bool hr,
-                 File *common_shader_code, File *fragment_shaders,
-                 Timer *timer) {
-  Context context;
-  int size;
+                 File *common_shader_code, File *fragment_shaders, Timer *timer,
+                 Context *context) {
 
   if (hr) {
     hot_reload(program, common_shader_code, fragment_shaders);
   }
 
-  context = window_get_context(window);
+  window_get_context(window, context);
 
-  context.fps = compute_fps(window, timer);
-  context.tempo = 120.0f; // TODO need tempo here
+  context->fps = compute_fps(window, timer);
 
-  // TODO temporary state
-  size = program.frag_count * program.sub_type_count * sizeof(unsigned int);
-  context.sub_state = malloc(size);
-  memset(context.sub_state, 0, size);
-  context.sub_state[program.sub_type_count * 0 + 0] = 1;
-  context.sub_state[program.sub_type_count * 1 + 0] = 6;
-  context.sub_state[program.sub_type_count * 2 + 1] = 1;
-  context.sub_state[program.sub_type_count * 3 + 1] = 3;
-  context.sub_state[program.sub_type_count * 5 + 1] = 6;
-
-  shaders_apply(program, context);
+  shaders_apply(program, *context);
 
   window_refresh(window);
-
-  free(context.sub_state);
 }
 
 File read_fragment_shader_file(char *frag_path, unsigned int i) {
@@ -157,7 +160,9 @@ void forge_run(Parameters params) {
   window = window_init(PACKAGE " " VERSION, params.screen, error_callback,
                        key_callback);
 
-  context = window_get_context(window);
+  window_get_context(window, &context);
+
+  init_context(program, &context, params);
 
   program = shaders_init(fragment_shaders, shader_config, context);
 
@@ -172,7 +177,7 @@ void forge_run(Parameters params) {
 
   while (!window_should_close(window)) {
     loop(window, program, params.hot_reload, &common_shader_code,
-         fragment_shaders, &timer);
+         fragment_shaders, &timer, &context);
   }
 
   free_files(&common_shader_code, fragment_shaders, frag_count);
@@ -180,4 +185,6 @@ void forge_run(Parameters params) {
   config_file_free(shader_config);
 
   window_close(window, true);
+
+  free(context.sub_state);
 }

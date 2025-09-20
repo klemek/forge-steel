@@ -19,6 +19,8 @@ static void print_help(int status_code) {
        "[-s=SCREEN] "
        "[-f=DIR_PATH] "
        "[-fc=CFG_PATH] "
+       "[-t=TEMPO] "
+       "[--demo] "
        "\n\n"
        "Fusion Of Real-time Generative Effects.\n\n"
        "options:\n"
@@ -27,7 +29,9 @@ static void print_help(int status_code) {
        "  -hr, --hot-reload   hot reload of shaders scripts\n"
        "  -s, --screen        output screen number (default: primary)\n"
        "  -f, --frag          fragment shaders directory (default: TODO)\n"
-       "  -fc, --frag-config  fragment shaders config file (default: TODO)\n");
+       "  -fc, --frag-config  fragment shaders config file (default: TODO)\n"
+       "  -t, --tempo         base tempo (default: 120)\n"
+       "  --demo              demonstration mode\n");
   exit(status_code);
 }
 
@@ -59,6 +63,17 @@ static unsigned char parse_uchar(char *arg, char *value) {
   return (unsigned char)tmp_value;
 }
 
+static unsigned short parse_ushort(char *arg, char *value) {
+  if (!string_is_number(value)) {
+    invalid_value(arg, value);
+  }
+  unsigned long long tmp_value = (unsigned long long)atoll(value);
+  if (tmp_value >= 65536) {
+    invalid_value(arg, value);
+  }
+  return (unsigned short)tmp_value;
+}
+
 Parameters args_parse(int argc, char **argv) {
   Parameters params;
   int i;
@@ -69,6 +84,8 @@ Parameters args_parse(int argc, char **argv) {
   params.frag_path = 0;
   params.frag_config_path = 0;
   params.hot_reload = false;
+  params.base_tempo = 120.0f;
+  params.demo = false;
 
   for (i = 1; i < argc; i++) {
     arg = argv[i];
@@ -86,6 +103,10 @@ Parameters args_parse(int argc, char **argv) {
       params.frag_path = value;
     } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
       params.frag_config_path = value;
+    } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
+      params.base_tempo = (float)parse_ushort(arg, value);
+    } else if (is_arg(arg, "--demo")) {
+      params.demo = true;
     } else {
       invalid_arg(arg);
     }

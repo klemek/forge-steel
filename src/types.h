@@ -14,6 +14,8 @@ typedef struct Parameters {
   char *frag_path;
   char *frag_config_path;
   bool hot_reload;
+  float base_tempo;
+  bool demo;
 } Parameters;
 
 typedef struct Vertex {
@@ -54,6 +56,7 @@ typedef struct ShaderProgram {
   GLuint *itempo_locations;
   GLuint *ifps_locations;
   GLuint *ires_locations;
+  GLuint *idemo_locations;
 
   GLuint *vpos_locations;
 
@@ -73,6 +76,7 @@ typedef struct Context {
   unsigned int fps;
   float tempo;
   unsigned int *sub_state;
+  bool demo;
 } Context;
 
 typedef struct Timer {

@@ -11,7 +11,7 @@ void window_update_title(Window *window, char *title);
 
 void window_refresh(Window *window);
 
-Context window_get_context(Window *window);
+void window_get_context(Window *window, Context *context);
 
 void window_close(Window *window, bool hard);
 
