@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,14 +25,15 @@ static void print_help(int status_code) {
        "\n\n"
        "Fusion Of Real-time Generative Effects.\n\n"
        "options:\n"
-       "  -h, --help          show this help message and exit\n"
-       "  -v, --version       print version\n"
-       "  -hr, --hot-reload   hot reload of shaders scripts\n"
-       "  -s, --screen        output screen number (default: primary)\n"
-       "  -f, --frag          fragment shaders directory (default: TODO)\n"
-       "  -fc, --frag-config  fragment shaders config file (default: TODO)\n"
-       "  -t, --tempo         base tempo (default: 60)\n"
-       "  --demo              demonstration mode\n");
+       "  -h, --help            show this help message and exit\n"
+       "  -v, --version         print version\n"
+       "  -hr, --hot-reload     hot reload of shaders scripts\n"
+       "  -s, --screen          output screen number (default: primary)\n"
+       "  -f, --frag            fragment shaders directory (default: TODO)\n"
+       "  -fc, --frag-config    fragment shaders config file (default: TODO)\n"
+       "  -is, --internal-size  internal texture height (default: 720)\n"
+       "  -t, --tempo           base tempo (default: 60)\n"
+       "  --demo                demonstration mode\n");
   exit(status_code);
 }
 
@@ -52,26 +54,15 @@ static char *split_arg_value(char *arg) {
   return strtok(NULL, "=");
 }
 
-static unsigned char parse_uchar(char *arg, char *value) {
+static unsigned int parse_uint(char *arg, char *value) {
   if (!string_is_number(value)) {
     invalid_value(arg, value);
   }
   unsigned long long tmp_value = (unsigned long long)atoll(value);
-  if (tmp_value >= 256) {
+  if (tmp_value >= UINT_MAX) {
     invalid_value(arg, value);
   }
-  return (unsigned char)tmp_value;
-}
-
-static unsigned short parse_ushort(char *arg, char *value) {
-  if (!string_is_number(value)) {
-    invalid_value(arg, value);
-  }
-  unsigned long long tmp_value = (unsigned long long)atoll(value);
-  if (tmp_value >= 65536) {
-    invalid_value(arg, value);
-  }
-  return (unsigned short)tmp_value;
+  return (unsigned int)tmp_value;
 }
 
 Parameters args_parse(int argc, char **argv) {
@@ -80,10 +71,11 @@ Parameters args_parse(int argc, char **argv) {
   char *arg;
   char *value;
 
+  params.hot_reload = false;
   params.screen = 0;
   params.frag_path = 0;
   params.frag_config_path = 0;
-  params.hot_reload = false;
+  params.internal_size = 720;
   params.base_tempo = 60.0f;
   params.demo = false;
 
@@ -98,13 +90,15 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-hr") || is_arg(arg, "--hot-reload")) {
       params.hot_reload = true;
     } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
-      params.screen = parse_uchar(arg, value);
+      params.screen = parse_uint(arg, value);
     } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {
       params.frag_path = value;
     } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
       params.frag_config_path = value;
     } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
-      params.base_tempo = (float)parse_ushort(arg, value);
+      params.base_tempo = (float)parse_uint(arg, value);
+    } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
+      params.internal_size = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "--demo")) {
       params.demo = true;
     } else {

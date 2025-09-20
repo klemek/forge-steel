@@ -115,6 +115,8 @@ make -f Makefile.dev release-arch
   - [x] demo mode
   - [x] random seed injected into shaders
   - [ ] internal texture size for speed
+  - [ ] pass state as uniform
+  - [ ] debug shader (and in monitor)
   - [ ] Clean code and fix things
 - [ ] Midi
   - [ ] Read Midi events

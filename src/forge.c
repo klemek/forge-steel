@@ -175,6 +175,8 @@ void forge_run(Parameters params) {
 
   window_get_context(window, &context);
 
+  context.internal_size = params.internal_size;
+
   program = shaders_init(fragment_shaders, shader_config, context);
 
   init_context(program, &context, params);

@@ -49,8 +49,10 @@ static void init_textures(ShaderProgram *program, Context context) {
     glBindTexture(GL_TEXTURE_2D, program->textures[i]);
 
     // define texture image as empty
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.width, context.height, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, GL_RGB,
+        (int)(context.internal_size * (float)context.width / context.height),
+        context.internal_size, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // setup mipmap context
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -288,8 +290,10 @@ static void update_viewport(ShaderProgram program, Context context) {
     // clean and resize all textures
     for (i = 0; i < program.tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.width, context.height, 0,
-                   GL_RGB, GL_UNSIGNED_BYTE, 0);
+      glTexImage2D(
+          GL_TEXTURE_2D, 0, GL_RGB,
+          (int)(context.internal_size * (float)context.width / context.height),
+          context.internal_size, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
   }
 }
@@ -362,5 +366,5 @@ void shaders_apply(ShaderProgram program, Context context) {
     }
   }
 
-  use_program(program, program.frag_output_index, true, context);
+  use_program(program, program.frag_monitor_index, true, context);
 }

@@ -16,6 +16,7 @@ typedef struct Parameters {
   bool hot_reload;
   float base_tempo;
   bool demo;
+  unsigned int internal_size;
 } Parameters;
 
 typedef struct Vertex {
@@ -73,6 +74,7 @@ typedef GLFWwindow Window;
 typedef struct Context {
   int width;
   int height;
+  unsigned int internal_size;
   double time;
   unsigned int fps;
   float tempo;
