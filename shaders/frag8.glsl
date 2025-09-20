@@ -40,16 +40,25 @@ void main() {
     c += s(uv2,1,0) * texture(tex5, uv2);
     c += s(uv2,2,0) * texture(tex6, uv2);
 
+    float f = 0;
     float t = 0;
 
+    f += rect(uv3, vec2(-51, 28.5), vec2(2.1, 0.7));
     t += write_5(uv3, vec2(-53,28), texts[0]);
+    f += rect(uv3, vec2(-51, -11.5), vec2(2.1, 0.7));
     t += write_5(uv3, vec2(-53,-12), texts[1]);
+    f += rect(uv3, vec2(-14.5, 28.5), vec2(2.6, 0.7));
     t += write_5(uv3, vec2(-17,28), texts[2]);
+    f += rect(uv3, vec2(-14.5, -11.5), vec2(2.6, 0.7));
     t += write_5(uv3, vec2(-17,-12), texts[3]);
+    f += rect(uv3, vec2(21, 28.5), vec2(2.1, 0.7));
     t += write_5(uv3, vec2(19,28), texts[4]);
+    f += rect(uv3, vec2(21, -11.5), vec2(2.1, 0.7));
     t += write_5(uv3, vec2(19,-12), texts[5]);
+    f += rect(uv3, vec2(-15.5, 8.5), vec2(1.6, 0.7));
     t += write_5(uv3, vec2(-17,8), texts[6]);
+    f += rect(uv3, vec2(20.5, 8.5), vec2(1.6, 0.7));
     t += write_5(uv3, vec2(19,8), texts[7]);
 
-    fragColor = mix(c, 1 - c, t);
+    fragColor = mix(c, vec4(f - t), f);
 }

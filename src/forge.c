@@ -14,20 +14,8 @@
 #include "types.h"
 #include "window.h"
 
-static void error_callback(int error, const char *description) {
-  log_error("[GLFW] %d: %s", error, description);
-  window_close(0, true);
-  exit(EXIT_FAILURE);
-}
-
-static void key_callback(Window *window, int key,
-                         __attribute__((unused)) int scancode, int action,
-                         __attribute__((unused)) int mods) {
-  // close window on escape key
-  if (window_escape_key(key, action)) {
-    window_close(window, false);
-  }
-}
+static Context context;
+static ShaderProgram program;
 
 static unsigned int compute_fps(Window *window, Timer *timer) {
   static double fps;
@@ -42,37 +30,45 @@ static unsigned int compute_fps(Window *window, Timer *timer) {
   return (unsigned int)round(fps);
 }
 
-static void init_context(ShaderProgram program, Context *context,
-                         Parameters params) {
+static void randomize_context_state() {
+  unsigned int i;
+
+  for (i = 0; i < program.frag_count * program.sub_type_count; i++) {
+    context.sub_state[i] = rand_uint(program.sub_variant_count);
+  }
+}
+static void init_context(Parameters params) {
 
   int size;
   int i;
 
-  context->tempo = params.base_tempo;
-  context->demo = params.demo;
-  context->monitor = params.monitor;
+  context.tempo = params.base_tempo;
+  context.demo = params.demo;
+  context.monitor = params.monitor;
 
   size = program.frag_count * program.sub_type_count;
-  context->sub_state = malloc(size * sizeof(unsigned int));
+  context.sub_state = malloc(size * sizeof(unsigned int));
 
   for (i = 0; i < size; i++) {
-    context->sub_state[i] =
-        params.demo ? rand_uint(program.sub_variant_count) : 0;
+    context.sub_state[i] = 0;
   }
 
-  context->seeds = malloc(program.frag_count * sizeof(unsigned int));
+  if (params.demo) {
+    randomize_context_state();
+  }
+
+  context.seeds = malloc(program.frag_count * sizeof(unsigned int));
   for (i = 0; i < (int)program.frag_count; i++) {
-    context->seeds[i] = rand_uint(1000);
+    context.seeds[i] = rand_uint(1000);
   }
 }
 
-static void free_context(Context context) {
+static void free_context() {
   free(context.sub_state);
   free(context.seeds);
 }
 
-static void hot_reload(ShaderProgram program, File *common_shader_code,
-                       File *fragment_shaders) {
+static void hot_reload(File *common_shader_code, File *fragment_shaders) {
   unsigned int i;
   bool force_update;
 
@@ -92,19 +88,18 @@ static void hot_reload(ShaderProgram program, File *common_shader_code,
   }
 }
 
-static void loop(Window *window, ShaderProgram program, bool hr,
-                 File *common_shader_code, File *fragment_shaders, Timer *timer,
-                 Context *context) {
+static void loop(Window *window, bool hr, File *common_shader_code,
+                 File *fragment_shaders, Timer *timer) {
 
   if (hr) {
-    hot_reload(program, common_shader_code, fragment_shaders);
+    hot_reload(common_shader_code, fragment_shaders);
   }
 
-  window_get_context(window, context);
+  window_get_context(window, &context);
 
-  context->fps = compute_fps(window, timer);
+  context.fps = compute_fps(window, timer);
 
-  shaders_apply(program, *context);
+  shaders_apply(program, context);
 
   window_refresh(window);
 }
@@ -150,14 +145,34 @@ static void free_files(File *common_shader_code, File *fragment_shaders,
   file_free(common_shader_code, true);
 }
 
+static void error_callback(int error, const char *description) {
+  log_error("[GLFW] %d: %s", error, description);
+  window_close(0, true);
+  exit(EXIT_FAILURE);
+}
+
+static void key_callback(Window *window, int key,
+                         __attribute__((unused)) int scancode, int action,
+                         __attribute__((unused)) int mods) {
+  if (window_escape_key(key, action)) {
+    // close window on escape key
+    window_close(window, false);
+  } else if (window_char_key(key, action, 82)) {
+    // R: randomize
+    log_debug("R");
+    randomize_context_state();
+  } else if (window_char_key(key, action, 68)) {
+    // D: demo on/off
+    context.demo = !context.demo;
+  }
+}
+
 void forge_run(Parameters params) {
   unsigned int frag_count;
   File *fragment_shaders;
   File common_shader_code;
-  ShaderProgram program;
   Window *window;
   Timer timer;
-  Context context;
   ConfigFile shader_config;
 
   shader_config = config_file_read(params.frag_config_path, false);
@@ -178,7 +193,7 @@ void forge_run(Parameters params) {
 
   program = shaders_init(fragment_shaders, shader_config, context);
 
-  init_context(program, &context, params);
+  init_context(params);
 
   if (program.error) {
     window_close(window, true);
@@ -190,8 +205,8 @@ void forge_run(Parameters params) {
   log_success("Initialized");
 
   while (!window_should_close(window)) {
-    loop(window, program, params.hot_reload, &common_shader_code,
-         fragment_shaders, &timer, &context);
+    loop(window, params.hot_reload, &common_shader_code, fragment_shaders,
+         &timer);
   }
 
   free_files(&common_shader_code, fragment_shaders, frag_count);
@@ -200,5 +215,5 @@ void forge_run(Parameters params) {
 
   window_close(window, true);
 
-  free_context(context);
+  free_context();
 }

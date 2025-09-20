@@ -19,4 +19,6 @@ bool window_should_close(Window *window);
 
 bool window_escape_key(int key, int action);
 
+bool window_char_key(int key, int action, const int char_code);
+
 #endif /* WINDOW_H */

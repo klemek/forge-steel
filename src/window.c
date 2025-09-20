@@ -144,3 +144,7 @@ bool window_should_close(Window *window) {
 bool window_escape_key(int key, int action) {
   return key == GLFW_KEY_ESCAPE && action == GLFW_PRESS;
 }
+
+bool window_char_key(int key, int action, const int char_code) {
+  return key == char_code && action == GLFW_PRESS;
+}

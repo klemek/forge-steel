@@ -102,7 +102,7 @@ make -f Makefile.dev release-arch
   - [x] Select screen as argument / config
   - [x] fps in window title
   - [x] Clean code
-- [ ] Multi-stage shaders
+- [x] Multi-stage shaders
   - [x] Test 2 stages with render to texture
   - [x] 2 in 2 fx 1 mix 1 fx layout
   - [x] Include common code
@@ -117,8 +117,8 @@ make -f Makefile.dev release-arch
   - [x] internal texture size for speed
   - [x] pass state as uniform
   - [x] debug shader (and in monitor)
-  - [ ] random mode / demo mode with R/D key
-  - [ ] Clean code and fix things
+  - [x] random mode / demo mode with R/D key
+  - [x] Clean code and fix things
 - [ ] Midi
   - [ ] Read Midi events
   - [ ] Read midi mapping config file
