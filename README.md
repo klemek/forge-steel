@@ -117,6 +117,7 @@ make -f Makefile.dev release-arch
   - [x] internal texture size for speed
   - [x] pass state as uniform
   - [x] debug shader (and in monitor)
+  - [ ] random mode / demo mode with R/D key
   - [ ] Clean code and fix things
 - [ ] Midi
   - [ ] Read Midi events

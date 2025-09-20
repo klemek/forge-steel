@@ -1252,10 +1252,12 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
 
     // logic
 
-    const int texts[3][5] = {
+    const int texts[5][5] = {
         {0x46, 0x50, 0x53, 0x00, 0x00}, // FPS
         {0x54, 0x45, 0x4D, 0x50, 0x4F}, // TEMPO
         {0x54, 0x49, 0x4D, 0x45, 0x00}, // TIME
+        {0x44, 0x45, 0x4D, 0x4F, 0x00}, // DEMO
+        {0x4E, 0x49, 0x56, 0x45, 0x00}, // LIVE
     };
 
     vec2 uv2 = uv1;
@@ -1347,6 +1349,8 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     v = fract(iTime);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
+
+    f += write_5(uv3, vec2(-2,-15), iDemo > 0 ? texts[3] : texts[4]);
 
     return vec4(f);
 }
