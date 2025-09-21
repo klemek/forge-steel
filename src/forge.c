@@ -150,7 +150,7 @@ static void init_devices(char *video_in[MAX_VIDEO], unsigned int video_count) {
   devices = malloc(video_count * sizeof(VideoDevice));
 
   for (i = 0; i < video_count; i++) {
-    devices[i] = video_init(video_in[i], 640, 480); // TODO define in args
+    devices[i] = video_init(video_in[i], 320, 240); // TODO define in args
   }
 }
 

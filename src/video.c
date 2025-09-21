@@ -8,6 +8,47 @@
 #include "types.h"
 #include "video.h"
 
+static void ioctl_error(VideoDevice *device, const char *operation,
+                        const char *default_msg) {
+  if (errno == EINVAL) {
+    log_warn("(%s) %s -> EINVAL: %s", device->name, operation, default_msg);
+  } else if (errno == EAGAIN) {
+    log_warn("(%s) %s -> EAGAIN: device state invalid", operation,
+             device->name);
+  } else if (errno == EBADF) {
+    log_warn("(%s) %s -> EBADF: file descriptor invalid", operation,
+             device->name);
+  } else if (errno == EBUSY) {
+    log_warn("(%s) %s -> EBUSY: device is busy", device->name, operation);
+  } else if (errno == EFAULT) {
+    log_warn("(%s) %s -> EFAULT: invalid pointer", device->name, operation);
+  } else if (errno == ENODEV) {
+    log_warn("(%s) %s -> ENODEV: device not found", device->name, operation);
+  } else if (errno == ENOMEM) {
+    log_warn("(%s) %s -> ENOMEM: not enough memory", device->name, operation);
+  } else if (errno == ENOTTY) {
+    log_warn("(%s) %s -> ENOTTY: ioctl not supported by file descriptor",
+             device->name, operation);
+  } else if (errno == ENOSPC) {
+    log_warn("(%s) %s -> ENOSPC: USB bandwidth error", device->name, operation);
+  } else if (errno == EPERM) {
+    log_warn("(%s) %s -> EPERM: permission denied", device->name, operation);
+  } else if (errno == EIO) {
+    log_warn("(%s) %s -> EIO: I/O error", device->name, operation);
+  } else if (errno == ENXIO) {
+    log_warn("(%s) %s -> ENXIO: no device exists", device->name, operation);
+  } else if (errno == EPIPE) {
+    log_warn("(%s) %s -> EPIPE: pipeline error", device->name, operation);
+  } else if (errno == ENOLINK) {
+    log_warn("(%s) %s -> ENOLINK: pipeline configuration invalid for Media "
+             "Controller interface",
+             device->name, operation);
+  } else {
+    log_error("(%s) %s unknown error %d", device->name, operation, errno);
+  }
+  device->error = true;
+}
+
 static VideoDevice open_device(char *name) {
   VideoDevice device;
 
@@ -30,12 +71,7 @@ static bool check_device_caps(VideoDevice *device) {
   memset(&cap, 0, sizeof(cap));
 
   if (ioctl(device->fd, VIDIOC_QUERYCAP, &cap) == -1) {
-    if (EINVAL == errno) {
-      log_warn("(%s) Not a V4L2 device", device->name);
-    } else {
-      log_error("(%s) VIDIOC_QUERYCAP unkown error", device->name);
-    }
-    device->error = true;
+    ioctl_error(device, "VIDIOC_QUERYCAP", "Not a V4L2 device");
     return false;
   }
 
@@ -67,8 +103,7 @@ static bool set_device_format(VideoDevice *device, unsigned int preferred_width,
   fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
   if (ioctl(device->fd, VIDIOC_S_FMT, &fmt) == -1) {
-    log_warn("(%s) Format set failed", device->name);
-    device->error = true;
+    ioctl_error(device, "VIDIOC_S_FMT", "Requested buffer type not supported");
     return false;
   }
 
@@ -96,13 +131,8 @@ static bool request_buffers(VideoDevice *device) {
   reqbuf.count = 1;
 
   if (ioctl(device->fd, VIDIOC_REQBUFS, &reqbuf) == -1) {
-    if (errno == EINVAL) {
-      log_info("(%s) Video capturing or DMABUF streaming is not supported",
-               device->name);
-    } else {
-      log_error("(%s) VIDIOC_REQBUFS unkown error", device->name);
-    }
-    device->error = true;
+    ioctl_error(device, "VIDIOC_REQBUFS",
+                "Buffer type or I/O method not supported");
     return false;
   }
 
@@ -123,8 +153,9 @@ static bool export_buffer(VideoDevice *device) {
   expbuf.flags = O_RDONLY;
 
   if (ioctl(device->fd, VIDIOC_EXPBUF, &expbuf) == -1) {
-    log_error("(%s) VIDIOC_EXPBUF error", device->name);
-    device->error = true;
+    ioctl_error(
+        device, "VIDIOC_EXPBUF",
+        "A queue is not in MMAP mode or DMABUF exporting is not supported");
     return false;
   }
 
@@ -137,8 +168,9 @@ static const enum v4l2_buf_type buf_type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 static bool open_stream(VideoDevice *device) {
   if (ioctl(device->fd, VIDIOC_STREAMON, &buf_type) == -1) {
-    log_error("(%s) VIDIOC_STREAMON error", device->name);
-    device->error = true;
+    ioctl_error(
+        device, "VIDIOC_STREAMON",
+        "Buffer type not supported or no buffer allocated or enqueued yet");
     return false;
   }
 
@@ -177,9 +209,9 @@ VideoDevice video_init(char *name, unsigned int preferred_width,
     return device;
   }
 
-  if (!request_buffers(&device)) {
-    return device;
-  }
+  // if (!request_buffers(&device)) {
+  //   return device;
+  // }
 
   if (!export_buffer(&device)) {
     return device;
@@ -196,14 +228,16 @@ VideoDevice video_init(char *name, unsigned int preferred_width,
 
 bool video_read(VideoDevice *device) {
   if (ioctl(device->fd, VIDIOC_DQBUF, &device->buf) == -1) {
-    log_warn("(%s) Video error", device->name);
-    device->error = true;
+    ioctl_error(device, "VIDIOC_DQBUF",
+                "buffer type not supported or no buffer allocated or the index "
+                "is out of bounds");
     return false;
   }
 
   if (ioctl(device->fd, VIDIOC_QBUF, &device->buf) == -1) {
-    log_warn("(%s) Video error", device->name);
-    device->error = true;
+    ioctl_error(device, "VIDIOC_QBUF",
+                "buffer type not supported or no buffer allocated or the index "
+                "is out of bounds");
     return false;
   }
 
