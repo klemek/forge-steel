@@ -35,8 +35,7 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-static void init_textures(ShaderProgram *program, Context context,
-                          unsigned int downscaling) {
+static void init_textures(ShaderProgram *program, Context context) {
   unsigned int i;
 
   program->textures = malloc(program->tex_count * sizeof(GLuint));
@@ -47,23 +46,30 @@ static void init_textures(ShaderProgram *program, Context context,
     // selects which texture unit subsequent texture state calls will affect
     glActiveTexture(GL_TEXTURE0 + i);
 
+    glBindTexture(GL_TEXTURE_2D, program->textures[i]);
+
+    glEnable(GL_TEXTURE_2D);
+
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 
-    glBindTexture(GL_TEXTURE_2D, program->textures[i]);
-
     // define texture image as empty
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                 (int)((context.internal_size / downscaling) *
-                       (float)context.width / (context.height)),
-                 context.internal_size / downscaling, 0, GL_RGB,
-                 GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, GL_RGB,
+        (int)(context.internal_size * (float)context.width / (context.height)),
+        context.internal_size, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // setup mipmap context
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  }
+}
 
-    log_success("Texture %d initialized", i);
+static void rebind_textures(ShaderProgram *program) {
+  unsigned int i;
+  for (i = 0; i < program->tex_count; i++) {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, program->textures[i]);
   }
 }
 
@@ -105,15 +111,33 @@ static void init_framebuffers(ShaderProgram *program,
   return;
 }
 
-static void init_vertices(ShaderProgram *program) {
+static void init_vertices(ShaderProgram *program, bool rebind) {
+  unsigned int i;
+
   // create vertex buffer and setup vertices
-  glGenBuffers(1, &program->vertex_buffer);
+  if (!rebind) {
+    glGenBuffers(1, &program->vertex_buffer);
+  }
   glBindBuffer(GL_ARRAY_BUFFER, program->vertex_buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   // create vertex array
-  glGenVertexArrays(1, &program->vertex_array);
-  glBindVertexArray(program->vertex_array);
+  if (!rebind) {
+    glGenVertexArrays(1, &program->vertex_array[0]);
+    glBindVertexArray(program->vertex_array[0]);
+  } else {
+    glGenVertexArrays(1, &program->vertex_array[1]);
+    glBindVertexArray(program->vertex_array[1]);
+  }
+
+  for (i = 0; i < program->frag_count; i++) {
+    // enable attribute pointer
+    glEnableVertexAttribArray(program->vpos_locations[i]);
+    // specify the location and data format of the array of generic vertex
+    // attributes to use when rendering
+    glVertexAttribPointer(program->vpos_locations[i], 2, GL_FLOAT, GL_FALSE,
+                          sizeof(Vertex), (void *)offsetof(Vertex, pos));
+  }
 }
 
 static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
@@ -147,7 +171,6 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   char *sub_prefix;
   char *seed_prefix;
   char *state_prefix;
-
   program->programs[i] = glCreateProgram();
 
   glAttachShader(program->programs[i], program->vertex_shader);
@@ -214,12 +237,6 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   // create attribute pointer
   program->vpos_locations[i] =
       glGetAttribLocation(program->programs[i], "vPos");
-  // enable attribute pointer
-  glEnableVertexAttribArray(program->vpos_locations[i]);
-  // specify the location and data format of the array of generic vertex
-  // attributes to use when rendering
-  glVertexAttribPointer(program->vpos_locations[i], 2, GL_FLOAT, GL_FALSE,
-                        sizeof(Vertex), (void *)offsetof(Vertex, pos));
 
   log_success("Program %d initialized", i + 1);
 }
@@ -250,36 +267,41 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
 }
 
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context, unsigned int downscaling) {
+                           Context context, ShaderProgram *previous) {
   ShaderProgram program;
 
-  program.error = false;
-  program.last_width = context.width;
-  program.last_height = context.height;
-  program.tex_count = config_file_get_int(shader_config, "TEX_COUNT", 9);
-  program.frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
-  program.frag_output_index =
-      config_file_get_int(shader_config, "FRAG_OUTPUT", 1) - 1;
-  program.frag_monitor_index =
-      config_file_get_int(shader_config, "FRAG_MONITOR", 1) - 1;
-  program.sub_type_count =
-      config_file_get_int(shader_config, "SUB_TYPE_COUNT", 0);
-  program.sub_variant_count =
-      config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 1);
+  if (previous == NULL) {
+    program.error = false;
+    program.last_width = context.width;
+    program.last_height = context.height;
+    program.tex_count = config_file_get_int(shader_config, "TEX_COUNT", 9);
+    program.frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
+    program.frag_output_index =
+        config_file_get_int(shader_config, "FRAG_OUTPUT", 1) - 1;
+    program.frag_monitor_index =
+        config_file_get_int(shader_config, "FRAG_MONITOR", 1) - 1;
+    program.sub_type_count =
+        config_file_get_int(shader_config, "SUB_TYPE_COUNT", 0);
+    program.sub_variant_count =
+        config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 1);
 
-  init_textures(&program, context, downscaling);
+    init_shaders(&program, fragment_shaders);
 
-  init_framebuffers(&program, shader_config);
+    if (program.error) {
+      return program;
+    }
 
-  init_shaders(&program, fragment_shaders);
+    init_textures(&program, context);
 
-  if (program.error) {
-    return program;
+    init_framebuffers(&program, shader_config);
+
+    init_programs(&program, shader_config);
+
+  } else {
+    program = *previous;
   }
 
-  init_vertices(&program);
-
-  init_programs(&program, shader_config);
+  init_vertices(&program, previous != NULL);
 
   return program;
 }
@@ -298,8 +320,7 @@ void shaders_update(ShaderProgram program, File *fragment_shaders,
   }
 }
 
-static void update_viewport(ShaderProgram program, Context context,
-                            unsigned int downscaling) {
+static void update_viewport(ShaderProgram program, Context context) {
   unsigned int i;
 
   // viewport changed
@@ -309,16 +330,15 @@ static void update_viewport(ShaderProgram program, Context context,
     for (i = 0; i < program.tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                   (int)((context.internal_size / downscaling) *
-                         (float)context.width / (context.height)),
-                   (int)(float)context.internal_size / downscaling, 0, GL_RGB,
-                   GL_UNSIGNED_BYTE, 0);
+                   (int)(context.internal_size * (float)context.width /
+                         (context.height)),
+                   context.internal_size, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
   }
 }
 
 static void use_program(ShaderProgram program, int i, bool output,
-                        Context context, unsigned int downscaling) {
+                        Context context) {
   unsigned int j, k;
   GLuint *subroutines;
   vec2 resolution;
@@ -339,10 +359,10 @@ static void use_program(ShaderProgram program, int i, bool output,
     // clear buffer
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
-    glViewport(0, 0,
-               (int)((context.internal_size / downscaling) *
-                     (float)context.width / (context.height)),
-               (int)(float)context.internal_size / downscaling);
+    glViewport(
+        0, 0,
+        (int)(context.internal_size * (float)context.width / (context.height)),
+        context.internal_size);
 
     // use memory framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
@@ -389,18 +409,26 @@ static void use_program(ShaderProgram program, int i, bool output,
 }
 
 void shaders_compute(ShaderProgram program, Context context, bool monitor,
-                     unsigned int downscaling) {
+                     bool output_only) {
   unsigned int i;
 
-  update_viewport(program, context, downscaling);
+  if (!output_only) {
+    glBindVertexArray(program.vertex_array[0]);
 
-  for (i = 0; i < program.frag_count; i++) {
-    if (i != program.frag_output_index && i != program.frag_monitor_index) {
-      use_program(program, i, false, context, downscaling);
+    update_viewport(program, context);
+
+    for (i = 0; i < program.frag_count; i++) {
+      if (i != program.frag_output_index && i != program.frag_monitor_index) {
+        use_program(program, i, false, context);
+      }
     }
+  } else {
+    glBindVertexArray(program.vertex_array[1]);
+
+    rebind_textures(&program);
   }
 
   use_program(program,
               monitor ? program.frag_monitor_index : program.frag_output_index,
-              true, context, downscaling);
+              true, context);
 }

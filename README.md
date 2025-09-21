@@ -140,5 +140,6 @@ make -f Makefile.dev release-arch
   - [x] 2nd window
   - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
   - [x] Clean code and fix things
+  - [x] Share openGL state between monitor and screen
 - [ ] Packaging & install
   - [ ] Clone "shaders" and config in system path at setup

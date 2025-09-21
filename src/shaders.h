@@ -4,12 +4,12 @@
 #define SHADERS_H
 
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context, unsigned int downscaling);
+                           Context context, ShaderProgram *shared_program);
 
 void shaders_update(ShaderProgram program, File *fragment_shaders,
                     unsigned int i);
 
 void shaders_compute(ShaderProgram program, Context context, bool monitor,
-                     unsigned int downscaling);
+                     bool output_only);
 
 #endif /* SHADERS_H */

@@ -1,6 +1,6 @@
 TARGET ?= forge
 INSTALL_DIR ?= $(HOME)/.local/bin
-TEST_ARGS ?= --frag=./shaders --frag-config=./config/shaders.cfg --tempo=30
+TEST_ARGS ?= --frag=./shaders --monitor=1 --frag-config=./config/shaders.cfg --tempo=30
 SHELL := /bin/bash
 
 .PHONY: build
@@ -20,7 +20,7 @@ build:
 
 .PHONY: run
 run: build
-	./build/$(TARGET) $(TEST_ARGS) --monitor-only --hot-reload
+	./build/$(TARGET) $(TEST_ARGS) --monitor-only --internal-size=240 --hot-reload
 
 .PHONY: demo
 demo: build

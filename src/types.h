@@ -18,7 +18,6 @@ typedef struct Parameters {
   char *frag_path;
   char *frag_config_path;
   unsigned int internal_size;
-  unsigned int monitor_factor;
   float base_tempo;
   bool demo;
   bool windowed;
@@ -44,7 +43,7 @@ typedef struct ShaderProgram {
   GLuint vertex_shader;
 
   GLuint vertex_buffer;
-  GLuint vertex_array;
+  GLuint vertex_array[2];
 
   unsigned int tex_count;
   GLuint *textures;
