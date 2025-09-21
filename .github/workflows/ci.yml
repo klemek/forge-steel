@@ -16,7 +16,7 @@ jobs:
       - name: install libs
         run: sudo apt install -y libglfw3-dev libgl-dev
       - name: gcc
-        run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lglfw -lGL -lm -Iinclude hashmap.c/hashmap.c -DGLFW_INCLUDE_NONE
+        run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lglfw -lGL -lm -Iinclude hashmap.c/hashmap.c -DGLFW_INCLUDE_NONE -DGLFW_EXPOSE_NATIVE_EGL -DGLFW_NATIVE_INCLUDE_NONE
 
   build-release:
     needs: lint
