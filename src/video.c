@@ -194,14 +194,30 @@ VideoDevice video_init(char *name, unsigned int preferred_width,
   return device;
 }
 
-void video_read(VideoDevice device) {
-  ioctl(device.fd, VIDIOC_DQBUF, &device.buf);
-  ioctl(device.fd, VIDIOC_QBUF, &device.buf);
-  // TODO check for error and close
+bool video_read(VideoDevice *device) {
+  if (ioctl(device->fd, VIDIOC_DQBUF, &device->buf) == -1) {
+    log_warn("(%s) Video error", device->name);
+    device->error = true;
+    return false;
+  }
+
+  if (ioctl(device->fd, VIDIOC_QBUF, &device->buf) == -1) {
+    log_warn("(%s) Video error", device->name);
+    device->error = true;
+    return false;
+  }
+
+  return true;
 }
 
 void video_free(VideoDevice device) {
-  close_stream(device);
-  close(device.exp_fd);
-  close(device.fd);
+  if (!device.error) {
+    close_stream(device);
+  }
+  if (device.exp_fd != -1) {
+    close(device.exp_fd);
+  }
+  if (device.fd != -1) {
+    close(device.fd);
+  }
 }

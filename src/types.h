@@ -8,21 +8,25 @@
 #include <sys/time.h>
 #include <time.h>
 
+#include "config.h"
+
 #ifndef TYPES_H
 #define TYPES_H
 
 typedef struct Parameters {
   bool hot_reload;
   bool output;
-  unsigned char output_screen;
+  unsigned int output_screen;
   bool monitor;
-  unsigned char monitor_screen;
+  unsigned int monitor_screen;
   char *frag_path;
   char *frag_config_path;
   unsigned int internal_size;
   float base_tempo;
   bool demo;
   bool windowed;
+  char *video_in[MAX_VIDEO];
+  unsigned int video_count;
 } Parameters;
 
 typedef struct Vertex {
@@ -75,6 +79,7 @@ typedef struct ShaderProgram {
   unsigned int sub_variant_count;
   GLuint *sub_locations;
 
+  unsigned int in_count;
   EGLDisplay egl_display;
 } ShaderProgram;
 

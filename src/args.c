@@ -23,6 +23,7 @@ static void print_help(int status_code) {
       "[-mo] "
       "[-f=DIR_PATH] "
       "[-fc=CFG_PATH] "
+      "[-v=FILE] "
       "[-is=SIZE] "
       "[-t=TEMPO] "
       "[--demo] "
@@ -39,6 +40,7 @@ static void print_help(int status_code) {
       "  -f, --frag                fragment shaders directory (default: TODO)\n"
       "  -fc, --frag-config        fragment shaders config file (default: "
       "TODO)\n"
+      "  -v, --video-in            path to video device (multiple allowed)\n"
       "  -is, --internal-size      internal texture height (default: 720)\n"
       "(default: "
       "3)\n"
@@ -93,6 +95,7 @@ Parameters args_parse(int argc, char **argv) {
   params.base_tempo = 60.0f;
   params.demo = false;
   params.windowed = false;
+  params.video_count = 0;
 
   for (i = 1; i < argc; i++) {
     arg = argv[i];
@@ -110,6 +113,8 @@ Parameters args_parse(int argc, char **argv) {
       params.frag_path = value;
     } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
       params.frag_config_path = value;
+    } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
+      params.video_in[params.video_count++] = value;
     } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
       params.base_tempo = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {

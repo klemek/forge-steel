@@ -133,7 +133,8 @@ make -f Makefile.dev release-arch
   - [ ] Tap-tempo feature
   - [ ] Clean code and fix things
 - [ ] Video input
-  - [ ] Fixed camera video
+  - [x] Fixed camera video
+  - [ ] Pass video info to shaders
   - [ ] Sub process video reading
   - [ ] Shader based format mapping
   - [ ] Video mapping config file

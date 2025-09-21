@@ -4,7 +4,8 @@
 #define SHADERS_H
 
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context, ShaderProgram *shared_program);
+                           Context context, VideoDevice *devices,
+                           unsigned int device_count, ShaderProgram *previous);
 
 void shaders_update(ShaderProgram program, File *fragment_shaders,
                     unsigned int i);

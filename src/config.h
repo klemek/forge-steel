@@ -9,4 +9,8 @@
 #define VERSION "(dev)"
 #endif /* VERSION */
 
+#ifndef MAX_VIDEO
+#define MAX_VIDEO 256
+#endif
+
 #endif /* CONFIG_H */

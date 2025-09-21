@@ -12,19 +12,25 @@
 #include "shaders.h"
 #include "timer.h"
 #include "types.h"
+#include "video.h"
 #include "window.h"
 
 static Context context;
 static ShaderProgram program;
 static Window *window_output;
 static Window *window_monitor;
+static VideoDevice *devices;
+static File *fragment_shaders;
+static File common_shader_code;
+static Timer timer;
+static ConfigFile shader_config;
 
-static unsigned int compute_fps(Timer *timer) {
+static unsigned int compute_fps() {
   static double fps;
   char title[100];
 
-  if (timer_inc(timer)) {
-    fps = timer_reset(timer);
+  if (timer_inc(&timer)) {
+    fps = timer_reset(&timer);
 
     if (window_output != NULL) {
       sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
@@ -76,54 +82,25 @@ static void free_context() {
   free(context.seeds);
 }
 
-static void hot_reload(File *common_shader_code, File *fragment_shaders) {
+static void hot_reload() {
   unsigned int i;
   bool force_update;
 
   force_update = false;
 
-  if (file_should_update(*common_shader_code)) {
-    file_update(common_shader_code);
+  if (file_should_update(common_shader_code)) {
+    file_update(&common_shader_code);
     force_update = true;
   }
 
   for (i = 0; i < program.frag_count; i++) {
     if (force_update || file_should_update(fragment_shaders[i])) {
       file_update(&fragment_shaders[i]);
-      file_prepend(&fragment_shaders[i], *common_shader_code);
+      file_prepend(&fragment_shaders[i], common_shader_code);
 
       shaders_update(program, fragment_shaders, i);
     }
   }
-}
-
-static void loop(bool hr, File *common_shader_code, File *fragment_shaders,
-                 Timer *timer) {
-  if (hr) {
-    hot_reload(common_shader_code, fragment_shaders);
-  }
-
-  context.fps = compute_fps(timer);
-
-  context.time = window_get_time();
-
-  if (window_output != NULL) {
-    window_use(window_output, &context);
-
-    shaders_compute(program, context, false, false);
-
-    window_refresh(window_output);
-  }
-
-  if (window_monitor != NULL) {
-    window_use(window_monitor, &context);
-
-    shaders_compute(program, context, true, window_output != NULL);
-
-    window_refresh(window_monitor);
-  }
-
-  window_events();
 }
 
 File read_fragment_shader_file(char *frag_path, unsigned int i) {
@@ -141,30 +118,64 @@ File read_fragment_shader_file(char *frag_path, unsigned int i) {
   return fragment_shader;
 }
 
-static void init_files(char *frag_path, File *common_shader_code,
-                       File *fragment_shaders, unsigned int frag_count) {
+static void init_files(char *frag_path, unsigned int frag_count) {
   unsigned int i;
+
+  fragment_shaders = malloc(frag_count * sizeof(File));
 
   for (i = 0; i < frag_count + 1; i++) {
     if (i == 0) {
-      (*common_shader_code) = read_fragment_shader_file(frag_path, i);
+      common_shader_code = read_fragment_shader_file(frag_path, i);
     } else {
       fragment_shaders[i - 1] = read_fragment_shader_file(frag_path, i);
 
-      file_prepend(&fragment_shaders[i - 1], *common_shader_code);
+      file_prepend(&fragment_shaders[i - 1], common_shader_code);
     }
   }
 }
 
-static void free_files(File *common_shader_code, File *fragment_shaders,
-                       unsigned int frag_count) {
+static void free_files(unsigned int frag_count) {
   unsigned int i;
 
   for (i = 0; i < frag_count; i++) {
     file_free(&fragment_shaders[i], true);
   }
 
-  file_free(common_shader_code, true);
+  file_free(&common_shader_code, true);
+}
+
+static void init_devices(char *video_in[MAX_VIDEO], unsigned int video_count) {
+  unsigned int i;
+
+  devices = malloc(video_count * sizeof(VideoDevice));
+
+  for (i = 0; i < video_count; i++) {
+    devices[i] = video_init(video_in[i], 640, 480); // TODO define in args
+  }
+}
+
+static void update_devices(unsigned int video_count) {
+  unsigned int i;
+
+  for (i = 0; i < video_count; i++) {
+    if (!devices[i].error) {
+      if (!video_read(&devices[i])) {
+        video_free(devices[i]); // TODO hot reload of video
+      }
+    }
+  }
+}
+
+static void free_devices(unsigned int video_count) {
+  unsigned int i;
+
+  for (i = 0; i < video_count; i++) {
+    shaders_free_video(program, devices[i]);
+
+    video_free(devices[i]);
+  }
+
+  free(devices);
 }
 
 static void error_callback(int error, const char *description) {
@@ -188,25 +199,50 @@ static void key_callback(Window *window, int key,
   }
 }
 
+static void loop(bool hr, unsigned int video_count) {
+  if (hr) {
+    hot_reload();
+  }
+
+  context.fps = compute_fps();
+
+  context.time = window_get_time();
+
+  update_devices(video_count);
+
+  if (window_output != NULL) {
+    window_use(window_output, &context);
+
+    shaders_compute(program, context, false, false);
+
+    window_refresh(window_output);
+  }
+
+  if (window_monitor != NULL) {
+    window_use(window_monitor, &context);
+
+    shaders_compute(program, context, true, window_output != NULL);
+
+    window_refresh(window_monitor);
+  }
+
+  window_events();
+}
+
 void forge_run(Parameters params) {
   unsigned int frag_count;
-  File *fragment_shaders;
-  File common_shader_code;
-  Timer timer;
-  ConfigFile shader_config;
 
   shader_config = config_file_read(params.frag_config_path, false);
 
   frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
 
-  fragment_shaders = malloc(frag_count * sizeof(File));
-
-  init_files(params.frag_path, &common_shader_code, fragment_shaders,
-             frag_count);
+  init_files(params.frag_path, frag_count);
 
   window_startup(error_callback);
 
   context.internal_size = params.internal_size;
+
+  init_devices(params.video_in, params.video_count);
 
   if (params.output) {
     window_output = window_init(PACKAGE " " VERSION, params.output_screen,
@@ -214,7 +250,8 @@ void forge_run(Parameters params) {
 
     window_use(window_output, &context);
 
-    program = shaders_init(fragment_shaders, shader_config, context, NULL);
+    program = shaders_init(fragment_shaders, shader_config, context, devices,
+                           params.video_count, NULL);
   } else {
     window_output = NULL;
   }
@@ -226,7 +263,8 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, &context);
 
-    program = shaders_init(fragment_shaders, shader_config, context,
+    program = shaders_init(fragment_shaders, shader_config, context, devices,
+                           params.video_count,
                            window_output != NULL ? &program : NULL);
   } else {
     window_monitor = NULL;
@@ -245,7 +283,7 @@ void forge_run(Parameters params) {
 
   while ((window_output == NULL || !window_should_close(window_output)) &&
          (window_monitor == NULL || !window_should_close(window_monitor))) {
-    loop(params.hot_reload, &common_shader_code, fragment_shaders, &timer);
+    loop(params.hot_reload, params.video_count);
   }
 
   shaders_free(program);
@@ -262,11 +300,13 @@ void forge_run(Parameters params) {
     shaders_free_window(program, params.output);
   }
 
+  free_devices(params.video_count);
+
   window_terminate();
 
   free_context();
 
-  free_files(&common_shader_code, fragment_shaders, frag_count);
+  free_files(frag_count);
 
   config_file_free(shader_config);
 }

@@ -99,11 +99,35 @@ static void link_video_to_texture(ShaderProgram *program, VideoDevice *device,
     return;
   }
 
+  glActiveTexture(GL_TEXTURE0 + texture_index);
+
+  glBindTexture(GL_TEXTURE_2D, program->textures[texture_index]);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, device->width, device->height, 0,
+               GL_RGB, GL_UNSIGNED_BYTE, 0);
+
   // https://registry.khronos.org/OpenGL/extensions/EXT/EXT_EGL_image_storage.txt
   glEGLImageTargetTextureStorageEXT(program->textures[texture_index],
                                     (GLeglImageOES)device->dma_image, NULL);
 
   log_success("Texture %d linked to %s", texture_index, device->name);
+}
+
+static void init_videos(ShaderProgram *program, ConfigFile shader_config,
+                        VideoDevice *devices, unsigned int device_count) {
+  unsigned int i;
+  unsigned tex_i;
+  char name[32];
+
+  for (i = 0; i < program->in_count; i++) {
+    if (i < device_count && !devices[i].error) {
+      sprintf(name, "IN_%d_OUT", i + 1);
+      tex_i = config_file_get_int(shader_config, name, 0);
+      link_video_to_texture(program, &devices[i], tex_i);
+    } else {
+      log_warn("Cannot link input %d", i + 1);
+    }
+  }
 }
 
 static void init_framebuffers(ShaderProgram *program,
@@ -320,7 +344,8 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
 }
 
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context, ShaderProgram *previous) {
+                           Context context, VideoDevice *devices,
+                           unsigned int device_count, ShaderProgram *previous) {
   ShaderProgram program;
 
   if (previous == NULL) {
@@ -335,8 +360,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
         config_file_get_int(shader_config, "FRAG_MONITOR", 1) - 1;
     program.sub_type_count =
         config_file_get_int(shader_config, "SUB_TYPE_COUNT", 0);
-    program.sub_variant_count =
-        config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 1);
+    program.in_count = config_file_get_int(shader_config, "IN_COUNT", 0);
 
     init_gl(&program);
 
@@ -347,6 +371,8 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
     }
 
     init_textures(&program, context);
+
+    init_videos(&program, shader_config, devices, device_count);
 
     init_framebuffers(&program, shader_config);
 
