@@ -123,8 +123,7 @@ static void hot_reload(File *common_shader_code, File *fragment_shaders) {
 }
 
 static void loop(bool hr, File *common_shader_code, File *fragment_shaders,
-                 Timer *timer) {
-
+                 unsigned int monitor_factor, Timer *timer) {
   if (hr) {
     hot_reload(common_shader_code, fragment_shaders);
   }
@@ -136,7 +135,7 @@ static void loop(bool hr, File *common_shader_code, File *fragment_shaders,
   if (window_output != NULL) {
     window_use(window_output, &context);
 
-    shaders_compute(program, context, false);
+    shaders_compute(program, context, false, 1);
 
     window_refresh(window_output);
   }
@@ -144,7 +143,7 @@ static void loop(bool hr, File *common_shader_code, File *fragment_shaders,
   if (window_monitor != NULL) {
     window_use(window_monitor, &context);
 
-    shaders_compute(program_monitor, context, true);
+    shaders_compute(program_monitor, context, true, monitor_factor);
 
     window_refresh(window_monitor);
   }
@@ -240,7 +239,7 @@ void forge_run(Parameters params) {
 
     window_use(window_output, &context);
 
-    program = shaders_init(fragment_shaders, shader_config, context);
+    program = shaders_init(fragment_shaders, shader_config, context, 1);
   } else {
     window_output = NULL;
   }
@@ -252,7 +251,8 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, &context);
 
-    program_monitor = shaders_init(fragment_shaders, shader_config, context);
+    program_monitor = shaders_init(fragment_shaders, shader_config, context,
+                                   params.monitor_factor);
   } else {
     window_monitor = NULL;
   }
@@ -276,7 +276,8 @@ void forge_run(Parameters params) {
 
   while ((window_output == NULL || !window_should_close(window_output)) &&
          (window_monitor == NULL || !window_should_close(window_monitor))) {
-    loop(params.hot_reload, &common_shader_code, fragment_shaders, &timer);
+    loop(params.hot_reload, &common_shader_code, fragment_shaders,
+         params.monitor_factor, &timer);
   }
 
   free_files(&common_shader_code, fragment_shaders, frag_count);

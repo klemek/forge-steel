@@ -11,36 +11,42 @@
 #include "types.h"
 
 static void print_help(int status_code) {
-  puts(PACKAGE
-       " " VERSION "\n\n"
-       "usage: " PACKAGE " "
-       "[-h] "
-       "[-v] "
-       "[-hr] "
-       "[-s=SCREEN] "
-       "[-m=SCREEN] "
-       "[-mo] "
-       "[-f=DIR_PATH] "
-       "[-fc=CFG_PATH] "
-       "[-is=SIZE] "
-       "[-t=TEMPO] "
-       "[--demo] "
-       "[-w] "
-       "\n\n"
-       "Fusion Of Real-time Generative Effects.\n\n"
-       "options:\n"
-       "  -h, --help            show this help message and exit\n"
-       "  -v, --version         print version\n"
-       "  -hr, --hot-reload     hot reload of shaders scripts\n"
-       "  -s, --screen          output screen number (default: primary)\n"
-       "  -m, --monitor         monitor screen number (default: none)\n"
-       "  -mo, --monitor-only   no output screen\n"
-       "  -f, --frag            fragment shaders directory (default: TODO)\n"
-       "  -fc, --frag-config    fragment shaders config file (default: TODO)\n"
-       "  -is, --internal-size  internal texture height (default: 720)\n"
-       "  -t, --tempo           base tempo (default: 60)\n"
-       "  --demo                demonstration mode\n"
-       "  -w, --windowed        not fullscreen\n");
+  puts(
+      PACKAGE
+      " " VERSION "\n\n"
+      "usage: " PACKAGE " "
+      "[-h] "
+      "[-v] "
+      "[-hr] "
+      "[-s=SCREEN] "
+      "[-m=SCREEN] "
+      "[-mo] "
+      "[-f=DIR_PATH] "
+      "[-fc=CFG_PATH] "
+      "[-is=SIZE] "
+      "[-mf=FACTOR] "
+      "[-t=TEMPO] "
+      "[--demo] "
+      "[-w] "
+      "\n\n"
+      "Fusion Of Real-time Generative Effects.\n\n"
+      "options:\n"
+      "  -h, --help                show this help message and exit\n"
+      "  -v, --version             print version\n"
+      "  -hr, --hot-reload         hot reload of shaders scripts\n"
+      "  -s, --screen              output screen number (default: primary)\n"
+      "  -m, --monitor             monitor screen number (default: none)\n"
+      "  -mo, --monitor-only       no output screen\n"
+      "  -f, --frag                fragment shaders directory (default: TODO)\n"
+      "  -fc, --frag-config        fragment shaders config file (default: "
+      "TODO)\n"
+      "  -is, --internal-size      internal texture height (default: 720)\n"
+      "  -mf, --monitor-factor     monitor internal texture downscale factor "
+      "(default: "
+      "3)\n"
+      "  -t, --tempo               base tempo (default: 60)\n"
+      "  --demo                    demonstration mode\n"
+      "  -w, --windowed            not fullscreen\n");
   exit(status_code);
 }
 
@@ -86,6 +92,7 @@ Parameters args_parse(int argc, char **argv) {
   params.frag_path = 0;
   params.frag_config_path = 0;
   params.internal_size = 720;
+  params.monitor_factor = 3;
   params.base_tempo = 60.0f;
   params.demo = false;
   params.windowed = false;
@@ -110,6 +117,8 @@ Parameters args_parse(int argc, char **argv) {
       params.base_tempo = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
       params.internal_size = parse_uint(arg, value);
+    } else if (is_arg(arg, "-mf") || is_arg(arg, "--monitor-factor")) {
+      params.monitor_factor = parse_uint(arg, value);
     } else if (is_arg(arg, "-m") || is_arg(arg, "--monitor")) {
       params.monitor = true;
       params.monitor_screen = parse_uint(arg, value);

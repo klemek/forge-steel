@@ -50,19 +50,24 @@ make install
 ## CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-f=DIR_PATH] [-fc=CFG_PATH] [-t=TEMPO] [--demo] 
+usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-fc=CFG_PATH] [-is=SIZE] [-mf=FACTOR] [-t=TEMPO] [--demo] [-w] 
 
 Fusion Of Real-time Generative Effects.
 
 options:
-  -h, --help          show this help message and exit
-  -v, --version       print version
-  -hr, --hot-reload   hot reload of shaders scripts
-  -s, --screen        output screen number (default: primary)
-  -f, --frag          fragment shaders directory (default: TODO)
-  -fc, --frag-config  fragment shaders config file (default: TODO)
-  -t, --tempo         base tempo (default: 120)
-  --demo              demonstration mode
+  -h, --help                show this help message and exit
+  -v, --version             print version
+  -hr, --hot-reload         hot reload of shaders scripts
+  -s, --screen              output screen number (default: primary)
+  -m, --monitor             monitor screen number (default: none)
+  -mo, --monitor-only       no output screen
+  -f, --frag                fragment shaders directory (default: TODO)
+  -fc, --frag-config        fragment shaders config file (default: TODO)
+  -is, --internal-size      internal texture height (default: 720)
+  -mf, --monitor-factor     monitor internal texture downscale factor (default: 3)
+  -t, --tempo               base tempo (default: 60)
+  --demo                    demonstration mode
+  -w, --windowed            not fullscreen
 ```
 
 ## Release guide

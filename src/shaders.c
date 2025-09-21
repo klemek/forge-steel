@@ -35,7 +35,8 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-static void init_textures(ShaderProgram *program, Context context) {
+static void init_textures(ShaderProgram *program, Context context,
+                          unsigned int downscaling) {
   unsigned int i;
 
   program->textures = malloc(program->tex_count * sizeof(GLuint));
@@ -52,10 +53,11 @@ static void init_textures(ShaderProgram *program, Context context) {
     glBindTexture(GL_TEXTURE_2D, program->textures[i]);
 
     // define texture image as empty
-    glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGB,
-        (int)(context.internal_size * (float)context.width / context.height),
-        context.internal_size, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 (int)((context.internal_size / downscaling) *
+                       (float)context.width / (context.height)),
+                 context.internal_size / downscaling, 0, GL_RGB,
+                 GL_UNSIGNED_BYTE, 0);
 
     // setup mipmap context
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -248,7 +250,7 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
 }
 
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context) {
+                           Context context, unsigned int downscaling) {
   ShaderProgram program;
 
   program.error = false;
@@ -265,7 +267,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
   program.sub_variant_count =
       config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 1);
 
-  init_textures(&program, context);
+  init_textures(&program, context, downscaling);
 
   init_framebuffers(&program, shader_config);
 
@@ -296,7 +298,8 @@ void shaders_update(ShaderProgram program, File *fragment_shaders,
   }
 }
 
-static void update_viewport(ShaderProgram program, Context context) {
+static void update_viewport(ShaderProgram program, Context context,
+                            unsigned int downscaling) {
   unsigned int i;
 
   // viewport changed
@@ -305,16 +308,17 @@ static void update_viewport(ShaderProgram program, Context context) {
     // clean and resize all textures
     for (i = 0; i < program.tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
-      glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_RGB,
-          (int)(context.internal_size * (float)context.width / context.height),
-          context.internal_size, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                   (int)((context.internal_size / downscaling) *
+                         (float)context.width / (context.height)),
+                   (int)(float)context.internal_size / downscaling, 0, GL_RGB,
+                   GL_UNSIGNED_BYTE, 0);
     }
   }
 }
 
 static void use_program(ShaderProgram program, int i, bool output,
-                        Context context) {
+                        Context context, unsigned int downscaling) {
   unsigned int j, k;
   GLuint *subroutines;
   vec2 resolution;
@@ -335,10 +339,10 @@ static void use_program(ShaderProgram program, int i, bool output,
     // clear buffer
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
-    glViewport(
-        0, 0,
-        (int)(context.internal_size * (float)context.width / context.height),
-        context.internal_size);
+    glViewport(0, 0,
+               (int)((context.internal_size / downscaling) *
+                     (float)context.width / (context.height)),
+               (int)(float)context.internal_size / downscaling);
 
     // use memory framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
@@ -384,18 +388,19 @@ static void use_program(ShaderProgram program, int i, bool output,
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void shaders_compute(ShaderProgram program, Context context, bool monitor) {
+void shaders_compute(ShaderProgram program, Context context, bool monitor,
+                     unsigned int downscaling) {
   unsigned int i;
 
-  update_viewport(program, context);
+  update_viewport(program, context, downscaling);
 
   for (i = 0; i < program.frag_count; i++) {
     if (i != program.frag_output_index && i != program.frag_monitor_index) {
-      use_program(program, i, false, context);
+      use_program(program, i, false, context, downscaling);
     }
   }
 
   use_program(program,
               monitor ? program.frag_monitor_index : program.frag_output_index,
-              true, context);
+              true, context, downscaling);
 }

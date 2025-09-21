@@ -89,8 +89,6 @@ static void use_window(GLFWwindow *window) {
   glfwMakeContextCurrent(window);
   // link GLAD and GLFW window
   gladLoadGL(glfwGetProcAddress);
-  // vsync
-  glfwSwapInterval(1);
 }
 
 void window_startup(void (*error_callback)(int, const char *)) {
