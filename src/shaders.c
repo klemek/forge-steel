@@ -94,8 +94,8 @@ static void link_video_to_texture(ShaderProgram *program, VideoDevice *device,
                                         (EGLClientBuffer)NULL, attrib_list);
 
   if (device->dma_image == EGL_NO_IMAGE_KHR) {
-    log_error("(%s) eglCreateImageKHR failed", device->name);
-    program->error = true;
+    log_error("(%s) eglCreateImageKHR failed %04x", device->name,
+              eglGetError());
     return;
   }
 

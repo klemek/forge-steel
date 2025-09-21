@@ -21,12 +21,12 @@ uniform int seed6;
 uniform int seed7;
 uniform int seed8;
 
-uniform int state1_1;
-uniform int state2_1;
-uniform int state3_2;
-uniform int state4_2;
-uniform int state5_3;
+uniform int state3_1;
+uniform int state4_1;
+uniform int state5_2;
 uniform int state6_2;
+uniform int state7_3;
+uniform int state8_2;
 
 // 2. textures
 // ---------------
@@ -40,6 +40,7 @@ uniform sampler2D tex5;
 uniform sampler2D tex6;
 uniform sampler2D tex7;
 uniform sampler2D tex8;
+uniform sampler2D tex9;
 
 // 3. definitions
 // --------------
@@ -1039,7 +1040,7 @@ subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed)
 // SRC 6 : video in 1 + thru
 subroutine(src_stage_sub) vec4 src_6(vec2 vUV, int seed)
 {
-    return src_thru(vUV, tex1, seed);
+    return src_thru(vUV, tex3, seed);
 }
 
 // SRC 7 : cp437
@@ -1157,7 +1158,7 @@ subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed)
 // SRC 11 : video in 2 + thru
 subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed)
 {
-    return src_thru(vUV, tex2, seed);
+    return src_thru(vUV, tex4, seed);
 }
 
 // TODO SRC 12
@@ -1239,16 +1240,16 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     int page = 0; // TODO debug page
     int selected_src = 0; // TODO debug selected
     int selected_fx = 0; // TODO debug selected
-    int selected_srca = state1_1;
-    int selected_srcb = state2_1;
-    int selected_fxa = state3_2;
-    int selected_fxb = state4_2;
-    int selected_mfx = state6_2;
-    float fxa_value = magic(seed3);
-    float fxb_value = magic(seed4);
-    float mfx_value = magic(seed6);
-    float mix_value = magic(seed5);
-    int mix_type = state5_3 % 2;
+    int selected_srca = state3_1;
+    int selected_srcb = state4_1;
+    int selected_fxa = state5_2;
+    int selected_fxb = state6_2;
+    int selected_mfx = state8_2;
+    float fxa_value = magic(seed5);
+    float fxb_value = magic(seed6);
+    float mfx_value = magic(seed8);
+    float mix_value = magic(seed7);
+    int mix_type = state7_3 % 2;
 
     // logic
 
@@ -1919,3 +1920,7 @@ subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, int 
 {
     return mix_2(vUV, ta, tb, seed);
 }
+
+// TODO temp
+
+const mat4x4 yuv_to_rgb = {{1,0,1.13983,0},{1,-0.39465,-0.5806,0},{1,2.03211,0,0},{0,0,0,1}};

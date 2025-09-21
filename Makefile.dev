@@ -1,6 +1,6 @@
 TARGET ?= forge
 INSTALL_DIR ?= $(HOME)/.local/bin
-TEST_ARGS ?= --frag=./shaders --frag-config=./config/shaders.cfg --video-in=/dev/video0 --tempo=30
+TEST_ARGS ?= --frag=./shaders --frag-config=./config/shaders.cfg --video-in=/dev/video2 --video-in=/dev/video9 --tempo=30
 SHELL := /bin/bash
 
 .PHONY: build

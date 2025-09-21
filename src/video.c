@@ -63,8 +63,8 @@ static bool set_device_format(VideoDevice *device, unsigned int preferred_width,
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   fmt.fmt.pix.width = preferred_width;
   fmt.fmt.pix.height = preferred_height;
-  fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_BGRX32;
-  fmt.fmt.pix.field = V4L2_FIELD_NONE;
+  fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+  fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
   if (ioctl(device->fd, VIDIOC_S_FMT, &fmt) == -1) {
     log_warn("(%s) Format set failed", device->name);

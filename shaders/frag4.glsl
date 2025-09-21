@@ -1,12 +1,10 @@
-// FX B
-// -------------
-// IN: 5 (SRC B)
-// IN: 6 (FX B)
-// OUT: 6 (A+B)
+// SRC B
+// -----------
+// OUT: 6 (FX B)
 
 in vec2 vUV;
 out vec4 fragColor;
 
 void main() {
-    fragColor = fx_stage(vUV, tex5, tex6, seed4);
+    fragColor = src_stage(vUV, seed4);
 }
