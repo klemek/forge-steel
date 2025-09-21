@@ -1,7 +1,9 @@
 #include <GLFW/glfw3.h>
+#include <glad/egl.h>
 #include <glad/gl.h>
 #include <hashmap.h>
 #include <linmath.h>
+#include <linux/videodev2.h>
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>
@@ -72,7 +74,22 @@ typedef struct ShaderProgram {
   unsigned int sub_type_count;
   unsigned int sub_variant_count;
   GLuint *sub_locations;
+
+  EGLDisplay egl_display;
 } ShaderProgram;
+
+typedef struct VideoDevice {
+  char *name;
+  bool error;
+  int fd;
+  int exp_fd;
+  unsigned int width;
+  unsigned int height;
+  unsigned int pixelformat;
+  unsigned int bytesperline;
+  struct v4l2_buffer buf;
+  EGLImageKHR dma_image;
+} VideoDevice;
 
 typedef GLFWwindow Window;
 

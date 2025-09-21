@@ -13,10 +13,13 @@ build:
 		src/*.h src/*.c \
 		-Iinclude \
 		hashmap.c/hashmap.c \
-		-lm -lGL -lglfw \
+		-lm -lGL -lglfw -ldrm \
 		-Wall -Wextra \
 		-DGLFW_INCLUDE_NONE \
-		-o build/$(TARGET)
+		-DGLFW_EXPOSE_NATIVE_EGL \
+		-DGLFW_NATIVE_INCLUDE_NONE \
+		-o build/$(TARGET) \
+		-g
 
 .PHONY: run
 run: build
@@ -33,8 +36,6 @@ install: build
 .PHONY: valgrind
 valgrind: build
 	valgrind \
-		--leak-check=full \
-		--track-fds=all \
 		--show-realloc-size-zero=no \
 		--undef-value-errors=no \
 		./build/$(TARGET) $(TEST_ARGS)

@@ -1,5 +1,3 @@
-#include <GLFW/glfw3.h>
-#include <glad/gl.h>
 #include <linmath.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -14,7 +12,24 @@
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 
-static void init_gl() { gladLoadGL(glfwGetProcAddress); }
+#define GLAD_EGL_IMPLEMENTATION
+#include <glad/egl.h>
+
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
+static void init_gl(ShaderProgram *program) {
+  gladLoadGL(glfwGetProcAddress);
+
+  program->egl_display = glfwGetEGLDisplay();
+  if (program->egl_display == EGL_NO_DISPLAY) {
+    log_error("error: glfwGetEGLDisplay no EGLDisplay returned");
+    program->error = true;
+    return;
+  }
+
+  gladLoadEGL(program->egl_display, glfwGetProcAddress);
+}
 
 static void init_textures(ShaderProgram *program, Context context) {
   unsigned int i;
@@ -56,6 +71,41 @@ static void rebind_textures(ShaderProgram *program) {
   }
 }
 
+static void link_video_to_texture(ShaderProgram *program, VideoDevice *device,
+                                  unsigned int texture_index) {
+  device->dma_image = EGL_NO_IMAGE_KHR;
+
+  const EGLint attrib_list[] = {EGL_WIDTH,
+                                device->width,
+                                EGL_HEIGHT,
+                                device->height,
+                                EGL_LINUX_DRM_FOURCC_EXT,
+                                device->pixelformat,
+                                EGL_DMA_BUF_PLANE0_FD_EXT,
+                                device->exp_fd,
+                                EGL_DMA_BUF_PLANE0_OFFSET_EXT,
+                                0,
+                                EGL_DMA_BUF_PLANE0_PITCH_EXT,
+                                device->bytesperline,
+                                EGL_NONE};
+
+  device->dma_image = eglCreateImageKHR(program->egl_display, EGL_NO_CONTEXT,
+                                        EGL_LINUX_DMA_BUF_EXT,
+                                        (EGLClientBuffer)NULL, attrib_list);
+
+  if (device->dma_image == EGL_NO_IMAGE_KHR) {
+    log_error("(%s) eglCreateImageKHR failed", device->name);
+    program->error = true;
+    return;
+  }
+
+  // https://registry.khronos.org/OpenGL/extensions/EXT/EXT_EGL_image_storage.txt
+  glEGLImageTargetTextureStorageEXT(program->textures[texture_index],
+                                    (GLeglImageOES)device->dma_image, NULL);
+
+  log_success("Texture %d linked to %s", texture_index, device->name);
+}
+
 static void init_framebuffers(ShaderProgram *program,
                               ConfigFile shader_config) {
   unsigned int i;
@@ -95,8 +145,6 @@ static void init_framebuffers(ShaderProgram *program,
 }
 
 static void init_vertices(ShaderProgram *program) {
-  unsigned int i;
-
   glGenBuffers(1, &program->vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, program->vertex_buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -290,7 +338,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
     program.sub_variant_count =
         config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 1);
 
-    init_gl();
+    init_gl(&program);
 
     init_shaders(&program, fragment_shaders);
 
@@ -305,6 +353,9 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
     init_programs(&program, shader_config);
 
     init_vertices(&program);
+
+    log_debug("Error after init: %04x",
+              glGetError()); // TODO check error at each step
   } else {
     program = *previous;
   }
@@ -455,4 +506,10 @@ void shaders_free(ShaderProgram program) {
 
 void shaders_free_window(ShaderProgram program, bool secondary) {
   glDeleteVertexArrays(1, &program.vertex_array[secondary ? 1 : 0]);
+}
+
+void shaders_free_video(ShaderProgram program, VideoDevice device) {
+  if (!device.error && device.dma_image != EGL_NO_IMAGE_KHR) {
+    eglDestroyImageKHR(program.egl_display, device.dma_image);
+  }
 }

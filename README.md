@@ -134,6 +134,8 @@ make -f Makefile.dev release-arch
   - [ ] Clean code and fix things
 - [ ] Video input
   - [ ] Fixed camera video
+  - [ ] Sub process video reading
+  - [ ] Shader based format mapping
   - [ ] Video mapping config file
   - [ ] Clean code and fix things
 - [x] Monitor screen
@@ -141,5 +143,6 @@ make -f Makefile.dev release-arch
   - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
   - [x] Clean code and fix things
   - [x] Share openGL state between monitor and screen
-- [ ] Packaging & install
+- [ ] Other
   - [ ] Clone "shaders" and config in system path at setup
+  - [ ] Find and fix opengl errors 0500 ?

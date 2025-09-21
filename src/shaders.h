@@ -16,4 +16,6 @@ void shaders_free(ShaderProgram program);
 
 void shaders_free_window(ShaderProgram program, bool secondary);
 
+void shaders_free_video(ShaderProgram program, VideoDevice device);
+
 #endif /* SHADERS_H */
