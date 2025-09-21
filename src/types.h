@@ -92,6 +92,7 @@ typedef struct VideoDevice {
   unsigned int height;
   unsigned int pixelformat;
   unsigned int bytesperline;
+  bool output;
   struct v4l2_buffer buf;
   EGLImageKHR dma_image;
 } VideoDevice;

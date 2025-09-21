@@ -94,6 +94,8 @@ static bool set_device_format(VideoDevice *device, unsigned int preferred_width,
                               unsigned int preferred_height) {
   struct v4l2_format fmt;
 
+  device->output = false;
+
   memset(&fmt, 0, sizeof(fmt));
 
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -103,8 +105,15 @@ static bool set_device_format(VideoDevice *device, unsigned int preferred_width,
   fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
   if (ioctl(device->fd, VIDIOC_S_FMT, &fmt) == -1) {
-    ioctl_error(device, "VIDIOC_S_FMT", "Requested buffer type not supported");
-    return false;
+    fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+
+    device->output = true;
+
+    if (ioctl(device->fd, VIDIOC_S_FMT, &fmt) == -1) {
+      ioctl_error(device, "VIDIOC_S_FMT",
+                  "Requested buffer type not supported");
+      return false;
+    }
   }
 
   device->width = fmt.fmt.pix.width;
@@ -126,7 +135,8 @@ static bool request_buffers(VideoDevice *device) {
 
   memset(&reqbuf, 0, sizeof(reqbuf));
 
-  reqbuf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  reqbuf.type =
+      device->output ? V4L2_BUF_TYPE_VIDEO_OUTPUT : V4L2_BUF_TYPE_VIDEO_CAPTURE;
   reqbuf.memory = V4L2_MEMORY_MMAP;
   reqbuf.count = 1;
 
@@ -148,8 +158,9 @@ static bool export_buffer(VideoDevice *device) {
 
   memset(&expbuf, 0, sizeof(expbuf));
 
-  expbuf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  expbuf.index = 0; /// '0' for one buffer
+  expbuf.type =
+      device->output ? V4L2_BUF_TYPE_VIDEO_OUTPUT : V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  expbuf.index = 0;
   expbuf.flags = O_RDONLY;
 
   if (ioctl(device->fd, VIDIOC_EXPBUF, &expbuf) == -1) {
@@ -180,7 +191,8 @@ static bool open_stream(VideoDevice *device) {
 static void create_image_buffer(VideoDevice *device) {
   memset(&device->buf, 0, sizeof(device->buf));
 
-  device->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  device->buf.type =
+      device->output ? V4L2_BUF_TYPE_VIDEO_OUTPUT : V4L2_BUF_TYPE_VIDEO_CAPTURE;
   device->buf.memory = V4L2_MEMORY_MMAP;
   device->buf.index = 0;
 
@@ -209,9 +221,9 @@ VideoDevice video_init(char *name, unsigned int preferred_width,
     return device;
   }
 
-  // if (!request_buffers(&device)) {
-  //   return device;
-  // }
+  if (!request_buffers(&device)) {
+    return device;
+  }
 
   if (!export_buffer(&device)) {
     return device;
