@@ -7,9 +7,6 @@
 #include "types.h"
 #include "window.h"
 
-#define GLAD_GL_IMPLEMENTATION
-#include <glad/gl.h>
-
 static void init_glfw(void (*error_callback)(int, const char *)) {
   log_info("[GLFW] Initializing...");
 
@@ -84,12 +81,7 @@ create_window(GLFWmonitor *monitor, char *title, Window *shared_context,
   return window;
 }
 
-static void use_window(GLFWwindow *window) {
-  // use current window
-  glfwMakeContextCurrent(window);
-  // link GLAD and GLFW window
-  gladLoadGL(glfwGetProcAddress);
-}
+static void use_window(GLFWwindow *window) { glfwMakeContextCurrent(window); }
 
 void window_startup(void (*error_callback)(int, const char *)) {
   init_glfw(error_callback);
@@ -125,7 +117,6 @@ double window_get_time() { return glfwGetTime(); }
 
 void window_use(Window *window, Context *context) {
   glfwMakeContextCurrent(window);
-  gladLoadGL(glfwGetProcAddress);
   glfwGetFramebufferSize(window, &context->width, &context->height);
 }
 

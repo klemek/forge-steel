@@ -1308,9 +1308,11 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     f += selected_fx == 4 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
 
     // show inputs / feedback
-    f += (selected_srca == 5 || selected_srca == 10) ? rect(uv2, vec2(-8, 2), vec2(2, 0.1)) : 0;
+    f += selected_srca == 5 ? rect(uv2, vec2(-8, 2), vec2(2, 0.1)) : 0;
+    f += selected_srca == 10 ? rect(uv2, vec2(-7, 2), vec2(1, 0.1)) + rect(uv2, vec2(-8, 0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-9, -1), vec2(1, 0.1)) : 0;
     f += (selected_srca == 0 || selected_srca % 5 != 0 && selected_srca >= 8) ? rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 4), vec2(7, 0.1)) + rect(uv2, vec2(-7, 3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, 2), vec2(0.1, 2.1)) : 0;
-    f += (selected_srcb == 5 || selected_srcb == 10) ? rect(uv2, vec2(-8, -2), vec2(2, 0.1)) : 0;
+    f += selected_srcb == 5 ? rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(-7, -0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-8.5, 1), vec2(1.5, 0.1)) : 0;
+    f += selected_srcb == 10 ? rect(uv2, vec2(-8, -2), vec2(2, 0.1)) : 0;
     f += (selected_srcb == 0 || selected_srcb % 5 != 0 && selected_srcb >= 8) ? rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1)) : 0;
 
     // show page

@@ -1,3 +1,4 @@
+#include <GLFW/glfw3.h>
 #include <glad/gl.h>
 #include <linmath.h>
 #include <stddef.h>
@@ -10,30 +11,10 @@
 #include "shaders.h"
 #include "types.h"
 
-static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
-  GLint status_params;
-  char log[1024];
+#define GLAD_GL_IMPLEMENTATION
+#include <glad/gl.h>
 
-  log_info("Compiling '%s'...", name);
-
-  // update shader source code
-  glShaderSource(shader_id, 1, (const GLchar **)&source_code, NULL);
-
-  // compile shader
-  glCompileShader(shader_id);
-
-  // get compilation status
-  glGetShaderiv(shader_id, GL_COMPILE_STATUS, &status_params);
-  glGetShaderInfoLog(shader_id, 1024, NULL, (GLchar *)&log);
-
-  if (status_params == GL_FALSE) {
-    log_error("Failed to compile\n%s", log);
-  } else {
-    log_success("Compilation successful");
-  }
-
-  return status_params == GL_TRUE;
-}
+static void init_gl() { gladLoadGL(glfwGetProcAddress); }
 
 static void init_textures(ShaderProgram *program, Context context) {
   unsigned int i;
@@ -62,6 +43,8 @@ static void init_textures(ShaderProgram *program, Context context) {
     // setup mipmap context
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    log_success("Texture %d initialized", i);
   }
 }
 
@@ -111,24 +94,21 @@ static void init_framebuffers(ShaderProgram *program,
   return;
 }
 
-static void init_vertices(ShaderProgram *program, bool rebind) {
+static void init_vertices(ShaderProgram *program) {
   unsigned int i;
 
-  // create vertex buffer and setup vertices
-  if (!rebind) {
-    glGenBuffers(1, &program->vertex_buffer);
-  }
+  glGenBuffers(1, &program->vertex_buffer);
   glBindBuffer(GL_ARRAY_BUFFER, program->vertex_buffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+}
 
-  // create vertex array
-  if (!rebind) {
-    glGenVertexArrays(1, &program->vertex_array[0]);
-    glBindVertexArray(program->vertex_array[0]);
-  } else {
-    glGenVertexArrays(1, &program->vertex_array[1]);
-    glBindVertexArray(program->vertex_array[1]);
-  }
+static void bind_vertices(ShaderProgram *program, unsigned int index) {
+  unsigned int i;
+
+  glBindBuffer(GL_ARRAY_BUFFER, program->vertex_buffer);
+
+  glGenVertexArrays(1, &program->vertex_array[index]);
+  glBindVertexArray(program->vertex_array[index]);
 
   for (i = 0; i < program->frag_count; i++) {
     // enable attribute pointer
@@ -138,6 +118,31 @@ static void init_vertices(ShaderProgram *program, bool rebind) {
     glVertexAttribPointer(program->vpos_locations[i], 2, GL_FLOAT, GL_FALSE,
                           sizeof(Vertex), (void *)offsetof(Vertex, pos));
   }
+}
+
+static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
+  GLint status_params;
+  char log[1024];
+
+  log_info("Compiling '%s'...", name);
+
+  // update shader source code
+  glShaderSource(shader_id, 1, (const GLchar **)&source_code, NULL);
+
+  // compile shader
+  glCompileShader(shader_id);
+
+  // get compilation status
+  glGetShaderiv(shader_id, GL_COMPILE_STATUS, &status_params);
+  glGetShaderInfoLog(shader_id, 1024, NULL, (GLchar *)&log);
+
+  if (status_params == GL_FALSE) {
+    log_error("Failed to compile\n%s", log);
+  } else {
+    log_success("Compilation successful");
+  }
+
+  return status_params == GL_TRUE;
 }
 
 static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
@@ -285,6 +290,8 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
     program.sub_variant_count =
         config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 1);
 
+    init_gl();
+
     init_shaders(&program, fragment_shaders);
 
     if (program.error) {
@@ -297,11 +304,12 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
 
     init_programs(&program, shader_config);
 
+    init_vertices(&program);
   } else {
     program = *previous;
   }
 
-  init_vertices(&program, previous != NULL);
+  bind_vertices(&program, previous != NULL ? 1 : 0);
 
   return program;
 }
