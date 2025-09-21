@@ -5,6 +5,8 @@
 
 void window_startup(void (*error_callback)(int, const char *));
 
+void window_terminate();
+
 Window *window_init(char *title, unsigned char monitor_index, bool windowed,
                     Window *shared_context,
                     void (*key_callback)(Window *, int, int, int, int));
@@ -19,7 +21,7 @@ void window_refresh(Window *window);
 
 void window_events();
 
-void window_close(Window *window, bool hard);
+void window_close(Window *window);
 
 bool window_should_close(Window *window);
 

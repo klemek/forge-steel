@@ -169,7 +169,7 @@ static void free_files(File *common_shader_code, File *fragment_shaders,
 
 static void error_callback(int error, const char *description) {
   log_error("[GLFW] %d: %s", error, description);
-  window_close(0, true);
+  window_terminate();
   exit(EXIT_FAILURE);
 }
 
@@ -178,7 +178,7 @@ static void key_callback(Window *window, int key,
                          __attribute__((unused)) int mods) {
   if (window_escape_key(key, action)) {
     // close window on escape key
-    window_close(window, false);
+    window_close(window);
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
     randomize_context_state();
@@ -235,12 +235,7 @@ void forge_run(Parameters params) {
   init_context(params);
 
   if (program.error) {
-    if (window_output != NULL) {
-      window_close(window_output, true);
-    }
-    if (window_monitor != NULL) {
-      window_close(window_monitor, true);
-    }
+    window_terminate();
     exit(EXIT_FAILURE);
   }
 
@@ -253,16 +248,25 @@ void forge_run(Parameters params) {
     loop(params.hot_reload, &common_shader_code, fragment_shaders, &timer);
   }
 
+  shaders_free(program);
+
+  if (window_output != NULL) {
+    window_use(window_output, &context);
+
+    shaders_free_window(program, false);
+  }
+
+  if (window_monitor != NULL) {
+    window_use(window_monitor, &context);
+
+    shaders_free_window(program, params.output);
+  }
+
+  window_terminate();
+
+  free_context();
+
   free_files(&common_shader_code, fragment_shaders, frag_count);
 
   config_file_free(shader_config);
-
-  if (window_output != NULL) {
-    window_close(window_output, true);
-  }
-  if (window_monitor != NULL) {
-    window_close(window_monitor, true);
-  }
-
-  free_context();
 }

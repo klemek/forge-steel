@@ -440,3 +440,19 @@ void shaders_compute(ShaderProgram program, Context context, bool monitor,
               monitor ? program.frag_monitor_index : program.frag_output_index,
               true, context);
 }
+
+void shaders_free(ShaderProgram program) {
+  unsigned int i;
+
+  for (i = 0; i < program.frag_count; i++) {
+    glDeleteProgram(program.programs[i]);
+  }
+
+  glDeleteFramebuffers(program.frag_count, program.frame_buffers);
+  glDeleteTextures(program.tex_count, program.textures);
+  glDeleteBuffers(1, &program.vertex_buffer);
+}
+
+void shaders_free_window(ShaderProgram program, bool secondary) {
+  glDeleteVertexArrays(1, &program.vertex_array[secondary ? 1 : 0]);
+}

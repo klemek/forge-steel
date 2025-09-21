@@ -12,4 +12,8 @@ void shaders_update(ShaderProgram program, File *fragment_shaders,
 void shaders_compute(ShaderProgram program, Context context, bool monitor,
                      bool output_only);
 
+void shaders_free(ShaderProgram program);
+
+void shaders_free_window(ShaderProgram program, bool secondary);
+
 #endif /* SHADERS_H */

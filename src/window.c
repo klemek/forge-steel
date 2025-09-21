@@ -87,6 +87,11 @@ void window_startup(void (*error_callback)(int, const char *)) {
   init_glfw(error_callback);
 }
 
+void window_terminate() {
+  log_info("[GLFW] Terminating library...");
+  glfwTerminate();
+}
+
 Window *window_init(char *title, unsigned char monitor_index, bool windowed,
                     Window *shared_context,
                     void (*key_callback)(Window *, int, int, int, int)) {
@@ -120,14 +125,9 @@ void window_use(Window *window, Context *context) {
   glfwGetFramebufferSize(window, &context->width, &context->height);
 }
 
-void window_close(Window *window, bool hard) {
-  if (hard) {
-    log_info("[GLFW] Terminating library...");
-    glfwTerminate();
-  } else {
-    log_info("[GLFW] Closing window...");
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-  }
+void window_close(Window *window) {
+  log_info("[GLFW] Closing window...");
+  glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
 bool window_should_close(Window *window) {
