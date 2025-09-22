@@ -3,10 +3,10 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-VideoDevice video_init(char *name, unsigned int preferred_height);
+VideoCapture video_init(char *name, unsigned int preferred_height);
 
-void video_background_read(VideoDevice *device, bool *stop);
+void video_background_read(VideoCapture *video_capture, bool *stop);
 
-void video_free(VideoDevice device);
+void video_free(VideoCapture video_capture);
 
 #endif /* VIDEO_H */

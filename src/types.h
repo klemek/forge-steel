@@ -85,7 +85,7 @@ typedef struct ShaderProgram {
   EGLDisplay egl_display;
 } ShaderProgram;
 
-typedef struct VideoDevice {
+typedef struct VideoCapture {
   char *name;
   bool error;
   int fd;
@@ -97,7 +97,7 @@ typedef struct VideoDevice {
   bool output;
   struct v4l2_buffer buf;
   EGLImageKHR dma_image;
-} VideoDevice;
+} VideoCapture;
 
 typedef GLFWwindow Window;
 
