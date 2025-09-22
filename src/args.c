@@ -96,7 +96,7 @@ Parameters args_parse(int argc, char **argv) {
   params.base_tempo = 60.0f;
   params.demo = false;
   params.windowed = false;
-  params.video_count = 0;
+  params.video_in_count = 0;
 
   for (i = 1; i < argc; i++) {
     arg = argv[i];
@@ -115,7 +115,7 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
       params.frag_config_path = value;
     } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
-      params.video_in[params.video_count++] = value;
+      params.video_in[params.video_in_count++] = value;
     } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
       params.base_tempo = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {

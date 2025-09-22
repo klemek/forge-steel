@@ -69,32 +69,30 @@ static void rebind_textures(ShaderProgram *program) {
   }
 }
 
-static void link_video_to_texture(ShaderProgram *program,
-                                  VideoCapture *video_capture,
+static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
                                   unsigned int texture_index) {
-  video_capture->dma_image = EGL_NO_IMAGE_KHR;
+  input->dma_image = EGL_NO_IMAGE_KHR;
 
   const EGLint attrib_list[] = {EGL_WIDTH,
-                                video_capture->width,
+                                input->width,
                                 EGL_HEIGHT,
-                                video_capture->height,
+                                input->height,
                                 EGL_LINUX_DRM_FOURCC_EXT,
-                                video_capture->pixelformat,
+                                input->pixelformat,
                                 EGL_DMA_BUF_PLANE0_FD_EXT,
-                                video_capture->exp_fd,
+                                input->exp_fd,
                                 EGL_DMA_BUF_PLANE0_OFFSET_EXT,
                                 0,
                                 EGL_DMA_BUF_PLANE0_PITCH_EXT,
-                                video_capture->bytesperline,
+                                input->bytesperline,
                                 EGL_NONE};
 
-  video_capture->dma_image = eglCreateImageKHR(
-      program->egl_display, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT,
-      (EGLClientBuffer)NULL, attrib_list);
+  input->dma_image = eglCreateImageKHR(program->egl_display, EGL_NO_CONTEXT,
+                                       EGL_LINUX_DMA_BUF_EXT,
+                                       (EGLClientBuffer)NULL, attrib_list);
 
-  if (video_capture->dma_image == EGL_NO_IMAGE_KHR) {
-    log_error("(%s) eglCreateImageKHR failed %04x", video_capture->name,
-              eglGetError());
+  if (input->dma_image == EGL_NO_IMAGE_KHR) {
+    log_error("(%s) eglCreateImageKHR failed %04x", input->name, eglGetError());
     return;
   }
 
@@ -102,28 +100,27 @@ static void link_video_to_texture(ShaderProgram *program,
 
   glBindTexture(GL_TEXTURE_2D, program->textures[texture_index]);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, video_capture->width,
-               video_capture->height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, input->width, input->height, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, 0);
 
   // https://registry.khronos.org/OpenGL/extensions/EXT/EXT_EGL_image_storage.txt
   glEGLImageTargetTextureStorageEXT(program->textures[texture_index],
-                                    (GLeglImageOES)video_capture->dma_image,
-                                    NULL);
+                                    (GLeglImageOES)input->dma_image, NULL);
 
-  log_info("Texture %d linked to %s", texture_index, video_capture->name);
+  log_info("Texture %d linked to %s", texture_index, input->name);
 }
 
-static void init_videos(ShaderProgram *program, ConfigFile shader_config,
-                        VideoCapture *video_captures, unsigned int count) {
+static void init_input(ShaderProgram *program, ConfigFile shader_config,
+                       VideoCapture *inputs, unsigned int input_count) {
   unsigned int i;
   unsigned tex_i;
   char name[32];
 
   for (i = 0; i < program->in_count; i++) {
-    if (i < count && !video_captures[i].error) {
+    if (i < input_count && !inputs[i].error) {
       sprintf(name, "IN_%d_OUT", i + 1);
       tex_i = config_file_get_int(shader_config, name, 0);
-      link_video_to_texture(program, &video_captures[i], tex_i);
+      link_input_to_texture(program, &inputs[i], tex_i);
     } else {
       log_warn("Cannot link input %d", i + 1);
     }
@@ -355,8 +352,8 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
 }
 
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context, VideoCapture *video_captures,
-                           unsigned int count, ShaderProgram *previous) {
+                           Context context, VideoCapture *inputs,
+                           unsigned int input_count, ShaderProgram *previous) {
   ShaderProgram program;
 
   if (previous == NULL) {
@@ -385,7 +382,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
 
     init_textures(&program, context);
 
-    init_videos(&program, shader_config, video_captures, count);
+    init_input(&program, shader_config, inputs, input_count);
 
     init_framebuffers(&program, shader_config);
 
@@ -550,8 +547,8 @@ void shaders_free_window(ShaderProgram program, bool secondary) {
   glDeleteVertexArrays(1, &program.vertex_array[secondary ? 1 : 0]);
 }
 
-void shaders_free_video(ShaderProgram program, VideoCapture video_capture) {
-  if (!video_capture.error && video_capture.dma_image != EGL_NO_IMAGE_KHR) {
-    eglDestroyImageKHR(program.egl_display, video_capture.dma_image);
+void shaders_free_input(ShaderProgram program, VideoCapture input) {
+  if (!input.error && input.dma_image != EGL_NO_IMAGE_KHR) {
+    eglDestroyImageKHR(program.egl_display, input.dma_image);
   }
 }

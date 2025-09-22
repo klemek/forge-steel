@@ -26,7 +26,7 @@ typedef struct Parameters {
   bool demo;
   bool windowed;
   char *video_in[MAX_VIDEO];
-  unsigned int video_count;
+  unsigned int video_in_count;
 } Parameters;
 
 typedef struct Vertex {
@@ -113,6 +113,8 @@ typedef struct Context {
   bool demo;
   unsigned int *seeds;
   bool monitor;
+  unsigned int *input_widths;
+  unsigned int *input_heights;
 } Context;
 
 typedef struct Timer {

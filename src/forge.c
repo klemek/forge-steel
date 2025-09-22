@@ -19,7 +19,7 @@ static Context context;
 static ShaderProgram program;
 static Window *window_output;
 static Window *window_monitor;
-static VideoCapture *video_captures;
+static VideoCapture *inputs;
 static File *fragment_shaders;
 static File common_shader_code;
 static Timer timer;
@@ -145,15 +145,14 @@ static void free_files(unsigned int frag_count) {
   file_free(&common_shader_code, true);
 }
 
-static void init_video_captures(char *video_in[MAX_VIDEO],
-                                unsigned int video_count,
-                                unsigned int internal_size) {
+static void init_inputs(char *video_in[MAX_VIDEO], unsigned int input_count,
+                        unsigned int internal_size) {
   unsigned int i;
 
-  video_captures = malloc(video_count * sizeof(VideoCapture));
+  inputs = malloc(input_count * sizeof(VideoCapture));
 
-  for (i = 0; i < video_count; i++) {
-    video_captures[i] = video_init(video_in[i], internal_size);
+  for (i = 0; i < input_count; i++) {
+    inputs[i] = video_init(video_in[i], internal_size);
   }
 }
 
@@ -161,8 +160,8 @@ static void start_video_captures(unsigned int video_count) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
-    if (!video_captures[i].error) {
-      video_background_read(&video_captures[i], &stop);
+    if (!inputs[i].error) {
+      video_background_read(&inputs[i], &stop);
     }
   }
 }
@@ -171,12 +170,12 @@ static void free_video_captures(unsigned int video_count) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
-    shaders_free_video(program, video_captures[i]);
+    shaders_free_input(program, inputs[i]);
 
-    video_free(video_captures[i]);
+    video_free(inputs[i]);
   }
 
-  free(video_captures);
+  free(inputs);
 }
 
 static void error_callback(int error, const char *description) {
@@ -244,8 +243,7 @@ void forge_run(Parameters params) {
 
   context.internal_height = params.internal_size;
 
-  init_video_captures(params.video_in, params.video_count,
-                      params.internal_size);
+  init_inputs(params.video_in, params.video_in_count, params.internal_size);
 
   if (params.output) {
     window_output = window_init(PACKAGE " " VERSION, params.output_screen,
@@ -253,8 +251,8 @@ void forge_run(Parameters params) {
 
     window_use(window_output, &context);
 
-    program = shaders_init(fragment_shaders, shader_config, context,
-                           video_captures, params.video_count, NULL);
+    program = shaders_init(fragment_shaders, shader_config, context, inputs,
+                           params.video_in_count, NULL);
   } else {
     window_output = NULL;
   }
@@ -266,8 +264,8 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, &context);
 
-    program = shaders_init(fragment_shaders, shader_config, context,
-                           video_captures, params.video_count,
+    program = shaders_init(fragment_shaders, shader_config, context, inputs,
+                           params.video_in_count,
                            window_output != NULL ? &program : NULL);
   } else {
     window_monitor = NULL;
@@ -282,7 +280,7 @@ void forge_run(Parameters params) {
 
   timer = timer_init(30);
 
-  start_video_captures(params.video_count);
+  start_video_captures(params.video_in_count);
 
   log_info("Initialized");
 
@@ -309,7 +307,7 @@ void forge_run(Parameters params) {
     shaders_free_window(program, params.output);
   }
 
-  free_video_captures(params.video_count);
+  free_video_captures(params.video_in_count);
 
   free_context();
 
