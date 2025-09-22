@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <linux/videodev2.h>
 #include <log.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -92,8 +93,51 @@ static bool check_device_caps(VideoDevice *device) {
   return true;
 }
 
-static bool set_device_format(VideoDevice *device, unsigned int preferred_width,
-                              unsigned int preferred_height) {
+static bool get_available_sizes(VideoDevice *device,
+                                unsigned int preferred_height) {
+  struct v4l2_frmsizeenum fmt_enum;
+  unsigned int index;
+
+  memset(&fmt_enum, 0, sizeof(fmt_enum));
+
+  index = 0;
+  fmt_enum.index = index;
+  fmt_enum.pixel_format = V4L2_PIX_FMT_YUYV;
+
+  device->width = 0;
+  device->height = 0;
+
+  while (ioctl(device->fd, VIDIOC_ENUM_FRAMESIZES, &fmt_enum) == 0) {
+    if (fmt_enum.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
+      log_trace("(%s) %d: %dx%d", device->name, index, fmt_enum.discrete.width,
+                fmt_enum.discrete.height);
+
+      if (fmt_enum.discrete.height == preferred_height) {
+        device->height = preferred_height;
+        if (device->width == 0 || device->width < fmt_enum.discrete.width) {
+          device->width = fmt_enum.discrete.width;
+        }
+      } else if (fmt_enum.discrete.height < preferred_height &&
+                 fmt_enum.discrete.height > device->height) {
+        device->height = fmt_enum.discrete.height;
+        device->width = fmt_enum.discrete.width;
+      }
+    }
+
+    memset(&fmt_enum, 0, sizeof(fmt_enum));
+    fmt_enum.index = ++index;
+    fmt_enum.pixel_format = V4L2_PIX_FMT_YUYV;
+  }
+
+  if (device->height == 0) {
+    device->error = true;
+    return false;
+  }
+
+  return true;
+}
+
+static bool set_device_format(VideoDevice *device) {
   struct v4l2_format fmt;
 
   device->output = false;
@@ -101,8 +145,8 @@ static bool set_device_format(VideoDevice *device, unsigned int preferred_width,
   memset(&fmt, 0, sizeof(fmt));
 
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  fmt.fmt.pix.width = preferred_width;
-  fmt.fmt.pix.height = preferred_height;
+  fmt.fmt.pix.width = device->width;
+  fmt.fmt.pix.height = device->height;
   fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
   fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
@@ -205,8 +249,7 @@ static void close_stream(VideoDevice device) {
   ioctl(device.fd, VIDIOC_STREAMOFF, &buf_type);
 }
 
-VideoDevice video_init(char *name, unsigned int preferred_width,
-                       unsigned int preferred_height) {
+VideoDevice video_init(char *name, unsigned int preferred_height) {
   VideoDevice device;
 
   device = open_device(name);
@@ -219,7 +262,11 @@ VideoDevice video_init(char *name, unsigned int preferred_width,
     return device;
   }
 
-  if (!set_device_format(&device, preferred_width, preferred_height)) {
+  if (!get_available_sizes(&device, preferred_height)) {
+    return device;
+  }
+
+  if (!set_device_format(&device)) {
     return device;
   }
 

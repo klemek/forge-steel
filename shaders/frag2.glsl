@@ -7,5 +7,5 @@ in vec2 vUV;
 out vec4 fragColor;
 
 void main() {
-    fragColor = yuyvTex(tex2, vUV, 320);
+    fragColor = yuyvTex(tex2, vUV, 320);  // TODO uniform
 }

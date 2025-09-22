@@ -145,13 +145,14 @@ static void free_files(unsigned int frag_count) {
   file_free(&common_shader_code, true);
 }
 
-static void init_devices(char *video_in[MAX_VIDEO], unsigned int video_count) {
+static void init_devices(char *video_in[MAX_VIDEO], unsigned int video_count,
+                         unsigned int internal_size) {
   unsigned int i;
 
   devices = malloc(video_count * sizeof(VideoDevice));
 
   for (i = 0; i < video_count; i++) {
-    devices[i] = video_init(video_in[i], 320, 240); // TODO define in args
+    devices[i] = video_init(video_in[i], internal_size);
   }
 }
 
@@ -242,7 +243,7 @@ void forge_run(Parameters params) {
 
   context.internal_size = params.internal_size;
 
-  init_devices(params.video_in, params.video_count);
+  init_devices(params.video_in, params.video_count, params.internal_size);
 
   if (params.output) {
     window_output = window_init(PACKAGE " " VERSION, params.output_screen,
