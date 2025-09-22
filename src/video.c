@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "timer.h"
 #include "types.h"
 #include "video.h"
 #include "window.h"
@@ -307,8 +308,27 @@ VideoCapture video_init(char *name, unsigned int preferred_height) {
   return video_capture;
 }
 
+static bool read_video(VideoCapture *video_capture) {
+  if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) == -1) {
+    ioctl_error(video_capture, "VIDIOC_DQBUF",
+                "buffer type not supported or no buffer allocated or the index "
+                "is out of bounds");
+    return false;
+  }
+
+  if (ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf) == -1) {
+    ioctl_error(video_capture, "VIDIOC_QBUF",
+                "buffer type not supported or no buffer allocated or the index "
+                "is out of bounds");
+    return false;
+  }
+
+  return true;
+}
+
 void video_background_read(VideoCapture *video_capture, bool *stop) {
   pid_t pid;
+  Timer timer;
   pid = fork();
   if (pid < 0) {
     log_error("Could not create subprocess");
@@ -319,9 +339,13 @@ void video_background_read(VideoCapture *video_capture, bool *stop) {
   }
   log_info("%s background acquisition started (pid: %d)", video_capture->name,
            pid);
-  while (!*stop) {
-    ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf);
-    ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
+  timer = timer_init(30);
+
+  while (!*stop && read_video(video_capture)) {
+    // repeat infinitely
+    if (timer_inc(&timer)) {
+      log_trace("(%s) %.2ffps", video_capture->name, timer_reset(&timer));
+    }
   }
   log_info("%s background acquisition stopped (pid: %d)", video_capture->name,
            pid);

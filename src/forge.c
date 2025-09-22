@@ -27,7 +27,7 @@ static ConfigFile shader_config;
 static bool stop;
 
 static unsigned int compute_fps() {
-  static double fps;
+  double fps;
   char title[100];
 
   if (timer_inc(&timer)) {
@@ -85,7 +85,6 @@ static void init_context(Parameters params) {
       context.input_widths[i] = inputs[i].width;
       context.input_heights[i] = inputs[i].height;
       context.input_formats[i] = inputs[i].pixelformat;
-      log_debug("%d %x", inputs[i].pixelformat, inputs[i].pixelformat);
     }
   }
 }
