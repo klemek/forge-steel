@@ -307,24 +307,6 @@ VideoCapture video_init(char *name, unsigned int preferred_height) {
   return video_capture;
 }
 
-static bool read_video(VideoCapture *video_capture) {
-  if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) == -1) {
-    ioctl_error(video_capture, "VIDIOC_DQBUF",
-                "buffer type not supported or no buffer allocated or the index "
-                "is out of bounds");
-    return false;
-  }
-
-  if (ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf) == -1) {
-    ioctl_error(video_capture, "VIDIOC_QBUF",
-                "buffer type not supported or no buffer allocated or the index "
-                "is out of bounds");
-    return false;
-  }
-
-  return true;
-}
-
 void video_background_read(VideoCapture *video_capture, bool *stop) {
   pid_t pid;
   pid = fork();
@@ -337,8 +319,9 @@ void video_background_read(VideoCapture *video_capture, bool *stop) {
   }
   log_info("%s background acquisition started (pid: %d)", video_capture->name,
            pid);
-  while (!*stop && read_video(video_capture)) {
-    // repeat infinitely
+  while (!*stop) {
+    ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf);
+    ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
   }
   log_info("%s background acquisition stopped (pid: %d)", video_capture->name,
            pid);
