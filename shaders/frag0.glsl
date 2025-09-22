@@ -1921,8 +1921,6 @@ subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, int 
     return mix_2(vUV, ta, tb, seed);
 }
 
-// TODO temp
-
 const mat3x3 yuv_to_rgb = {{1,1,1},{0,-0.39465,2.03211},{1.13983,-0.5806,0}};
 
 vec4 yuyvTex(sampler2D tex, vec2 vUV, int base_width) {

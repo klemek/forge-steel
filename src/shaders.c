@@ -360,6 +360,8 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
         config_file_get_int(shader_config, "FRAG_MONITOR", 1) - 1;
     program.sub_type_count =
         config_file_get_int(shader_config, "SUB_TYPE_COUNT", 0);
+    program.sub_variant_count =
+        config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 0);
     program.in_count = config_file_get_int(shader_config, "IN_COUNT", 0);
 
     init_gl(&program);
