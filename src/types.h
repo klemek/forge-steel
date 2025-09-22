@@ -67,6 +67,8 @@ typedef struct ShaderProgram {
   GLuint *itempo_locations;
   GLuint *ifps_locations;
   GLuint *ires_locations;
+  GLuint *itexres_locations;
+  GLuint *iinres_locations;
   GLuint *idemo_locations;
   GLuint *iseed_locations;
   GLuint *istate_locations;
@@ -102,7 +104,8 @@ typedef GLFWwindow Window;
 typedef struct Context {
   int width;
   int height;
-  unsigned int internal_size;
+  unsigned int internal_width;
+  unsigned int internal_height;
   double time;
   unsigned int fps;
   float tempo;

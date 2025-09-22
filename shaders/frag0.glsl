@@ -10,6 +10,7 @@ uniform float iTime;
 uniform float iTempo;
 uniform int iFPS;
 uniform vec2 iResolution;
+uniform vec2 iTexResolution;
 uniform int iDemo;
 
 uniform int seed1;

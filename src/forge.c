@@ -241,7 +241,7 @@ void forge_run(Parameters params) {
 
   window_startup(error_callback);
 
-  context.internal_size = params.internal_size;
+  context.internal_height = params.internal_size;
 
   init_devices(params.video_in, params.video_count, params.internal_size);
 

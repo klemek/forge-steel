@@ -122,6 +122,8 @@ double window_get_time() { return glfwGetTime(); }
 void window_use(Window *window, Context *context) {
   glfwMakeContextCurrent(window);
   glfwGetFramebufferSize(window, &context->width, &context->height);
+  context->internal_width = (int)(context->internal_height *
+                                  (float)context->width / (context->height));
 }
 
 void window_close(Window *window) {
