@@ -1,13 +1,13 @@
-#include <linmath.h>
+#include <log.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 #include "config.h"
 #include "config_file.h"
 #include "file.h"
 #include "forge.h"
-#include "logs.h"
 #include "rand.h"
 #include "shaders.h"
 #include "timer.h"
@@ -24,6 +24,7 @@ static File *fragment_shaders;
 static File common_shader_code;
 static Timer timer;
 static ConfigFile shader_config;
+static bool stop;
 
 static unsigned int compute_fps() {
   static double fps;
@@ -154,14 +155,12 @@ static void init_devices(char *video_in[MAX_VIDEO], unsigned int video_count) {
   }
 }
 
-static void update_devices(unsigned int video_count) {
+static void start_devices(unsigned int video_count) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
     if (!devices[i].error) {
-      if (!video_read(&devices[i])) {
-        video_free(devices[i]); // TODO hot reload of video
-      }
+      video_background_read(&devices[i], &stop);
     }
   }
 }
@@ -181,6 +180,7 @@ static void free_devices(unsigned int video_count) {
 static void error_callback(int error, const char *description) {
   log_error("[GLFW] %d: %s", error, description);
   window_terminate();
+  stop = true;
   exit(EXIT_FAILURE);
 }
 
@@ -199,7 +199,7 @@ static void key_callback(Window *window, int key,
   }
 }
 
-static void loop(bool hr, unsigned int video_count) {
+static void loop(bool hr) {
   if (hr) {
     hot_reload();
   }
@@ -207,8 +207,6 @@ static void loop(bool hr, unsigned int video_count) {
   context.fps = compute_fps();
 
   context.time = window_get_time();
-
-  update_devices(video_count);
 
   if (window_output != NULL) {
     window_use(window_output, &context);
@@ -231,6 +229,8 @@ static void loop(bool hr, unsigned int video_count) {
 
 void forge_run(Parameters params) {
   unsigned int frag_count;
+
+  stop = false;
 
   shader_config = config_file_read(params.frag_config_path, false);
 
@@ -279,12 +279,18 @@ void forge_run(Parameters params) {
 
   timer = timer_init(30);
 
-  log_success("Initialized");
+  start_devices(params.video_count);
+
+  log_info("Initialized");
 
   while ((window_output == NULL || !window_should_close(window_output)) &&
          (window_monitor == NULL || !window_should_close(window_monitor))) {
-    loop(params.hot_reload, params.video_count);
+    loop(params.hot_reload);
   }
+
+  stop = true;
+
+  wait(NULL);
 
   shaders_free(program);
 
@@ -302,11 +308,11 @@ void forge_run(Parameters params) {
 
   free_devices(params.video_count);
 
-  window_terminate();
-
   free_context();
 
   free_files(frag_count);
 
   config_file_free(shader_config);
+
+  window_terminate();
 }

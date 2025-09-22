@@ -1,11 +1,11 @@
 #include <linmath.h>
+#include <log.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "config_file.h"
 #include "constants.h"
-#include "logs.h"
 #include "shaders.h"
 #include "types.h"
 
@@ -59,7 +59,7 @@ static void init_textures(ShaderProgram *program, Context context) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    log_success("Texture %d initialized", i);
+    log_info("Texture %d initialized", i);
   }
 }
 
@@ -110,7 +110,7 @@ static void link_video_to_texture(ShaderProgram *program, VideoDevice *device,
   glEGLImageTargetTextureStorageEXT(program->textures[texture_index],
                                     (GLeglImageOES)device->dma_image, NULL);
 
-  log_success("Texture %d linked to %s", texture_index, device->name);
+  log_info("Texture %d linked to %s", texture_index, device->name);
 }
 
 static void init_videos(ShaderProgram *program, ConfigFile shader_config,
@@ -162,7 +162,7 @@ static void init_framebuffers(ShaderProgram *program,
       return;
     }
 
-    log_success("Framebuffer %d initialized", i);
+    log_info("Framebuffer %d initialized", i);
   }
 
   return;
@@ -211,7 +211,7 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   if (status_params == GL_FALSE) {
     log_error("Failed to compile\n%s", log);
   } else {
-    log_success("Compilation successful");
+    log_info("Compilation successful");
   }
 
   return status_params == GL_TRUE;
@@ -315,7 +315,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   program->vpos_locations[i] =
       glGetAttribLocation(program->programs[i], "vPos");
 
-  log_success("Program %d initialized", i + 1);
+  log_info("Program %d initialized", i + 1);
 }
 
 static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
@@ -401,7 +401,7 @@ void shaders_update(ShaderProgram program, File *fragment_shaders,
   if (result) {
     glLinkProgram(program.programs[i]);
 
-    log_success("Program %d updated", i + 1);
+    log_info("Program %d updated", i + 1);
   }
 }
 

@@ -1,13 +1,11 @@
-#include <GLFW/glfw3.h>
+#include <log.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <time.h>
 
 #include "file.h"
-#include "logs.h"
 #include "string.h"
 #include "types.h"
 

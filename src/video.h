@@ -6,7 +6,7 @@
 VideoDevice video_init(char *name, unsigned int preferred_width,
                        unsigned int preferred_height);
 
-bool video_read(VideoDevice *device);
+void video_background_read(VideoDevice *device, bool *stop);
 
 void video_free(VideoDevice device);
 

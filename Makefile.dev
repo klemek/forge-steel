@@ -13,11 +13,13 @@ build:
 		src/*.h src/*.c \
 		-Iinclude \
 		hashmap.c/hashmap.c \
+		log.c/src/log.c \
 		-lm -lGL -lglfw -ldrm \
 		-Wall -Wextra \
 		-DGLFW_INCLUDE_NONE \
 		-DGLFW_EXPOSE_NATIVE_EGL \
 		-DGLFW_NATIVE_INCLUDE_NONE \
+		-DLOG_USE_COLOR \
 		-o build/$(TARGET) \
 		-g
 

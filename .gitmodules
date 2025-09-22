@@ -4,3 +4,6 @@
 [submodule "hashmap.c"]
 	path = hashmap.c
 	url = https://github.com/tidwall/hashmap.c
+[submodule "log.c"]
+	path = log.c
+	url = https://github.com/rxi/log.c

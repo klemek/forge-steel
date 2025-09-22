@@ -1,10 +1,10 @@
 #include <hashmap.h>
+#include <log.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "config_file.h"
 #include "file.h"
-#include "logs.h"
 #include "string.h"
 #include "types.h"
 

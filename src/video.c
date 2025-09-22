@@ -1,12 +1,14 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
+#include <log.h>
+#include <stdlib.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "logs.h"
 #include "types.h"
 #include "video.h"
+#include "window.h"
 
 static void ioctl_error(VideoDevice *device, const char *operation,
                         const char *default_msg) {
@@ -238,7 +240,7 @@ VideoDevice video_init(char *name, unsigned int preferred_width,
   return device;
 }
 
-bool video_read(VideoDevice *device) {
+static bool read_video(VideoDevice *device) {
   if (ioctl(device->fd, VIDIOC_DQBUF, &device->buf) == -1) {
     ioctl_error(device, "VIDIOC_DQBUF",
                 "buffer type not supported or no buffer allocated or the index "
@@ -254,6 +256,25 @@ bool video_read(VideoDevice *device) {
   }
 
   return true;
+}
+
+void video_background_read(VideoDevice *device, bool *stop) {
+  pid_t pid;
+  pid = fork();
+  if (pid < 0) {
+    log_error("Could not create subprocess");
+    return;
+  }
+  if (pid == 0) {
+    return;
+  }
+  log_info("%s background acquisition started (pid: %d)", device->name, pid);
+  while (!*stop && read_video(device)) {
+    // repeat infinitely
+  }
+  log_info("%s background acquisition stopped (pid: %d)", device->name, pid);
+  window_terminate();
+  exit(EXIT_SUCCESS);
 }
 
 void video_free(VideoDevice device) {

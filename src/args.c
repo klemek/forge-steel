@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <log.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +7,6 @@
 
 #include "args.h"
 #include "config.h"
-#include "logs.h"
 #include "string.h"
 #include "types.h"
 

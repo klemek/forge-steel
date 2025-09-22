@@ -1,9 +1,8 @@
 #include <GLFW/glfw3.h>
-#include <linmath.h>
+#include <log.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "logs.h"
 #include "types.h"
 #include "window.h"
 
@@ -22,7 +21,7 @@ static void init_glfw(void (*error_callback)(int, const char *)) {
     exit(EXIT_FAILURE);
   }
 
-  log_success("[GLFS] Initialized...");
+  log_info("[GLFS] Initialized...");
 }
 
 static GLFWmonitor *get_monitor(unsigned char monitor_index) {
@@ -76,7 +75,7 @@ create_window(GLFWmonitor *monitor, char *title, Window *shared_context,
   // hide cursor
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-  log_success("[GLFW] Window created");
+  log_info("[GLFW] Window created");
 
   return window;
 }
