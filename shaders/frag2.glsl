@@ -6,6 +6,12 @@
 in vec2 vUV;
 out vec4 fragColor;
 
+uniform vec3 iInputResolution2;
+
 void main() {
-    fragColor = yuyvTex(tex2, vUV, 320);  // TODO uniform
+    if (iInputResolution2.z == YUYV_FOURCC) {
+        fragColor = yuyvTex(tex2, vUV, int(iInputResolution2.x));
+    } else {
+        fragColor = vec4(0, 0, 0, 1);
+    }
 }

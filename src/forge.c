@@ -61,12 +61,8 @@ static void init_context(Parameters params) {
   context.demo = params.demo;
   context.monitor = params.monitor;
 
-  context.sub_state = malloc(program.frag_count * program.sub_type_count *
-                             sizeof(unsigned int));
-
-  for (i = 0; i < program.frag_count * program.sub_type_count; i++) {
-    context.sub_state[i] = 0;
-  }
+  context.sub_state = (unsigned int *)calloc(
+      program.frag_count * program.sub_type_count, sizeof(unsigned int));
 
   if (params.demo) {
     randomize_context_state();
@@ -76,11 +72,30 @@ static void init_context(Parameters params) {
   for (i = 0; i < program.frag_count; i++) {
     context.seeds[i] = rand_uint(1000);
   }
+
+  context.input_widths =
+      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
+  context.input_heights =
+      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
+  context.input_formats =
+      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
+
+  for (i = 0; i < program.in_count; i++) {
+    if (!inputs[i].error) {
+      context.input_widths[i] = inputs[i].width;
+      context.input_heights[i] = inputs[i].height;
+      context.input_formats[i] = inputs[i].pixelformat;
+      log_debug("%d %x", inputs[i].pixelformat, inputs[i].pixelformat);
+    }
+  }
 }
 
 static void free_context() {
   free(context.sub_state);
   free(context.seeds);
+  free(context.input_widths);
+  free(context.input_heights);
+  free(context.input_formats);
 }
 
 static void hot_reload() {

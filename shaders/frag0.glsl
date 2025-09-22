@@ -798,15 +798,15 @@ float write_20(vec2 uv, vec2 pos, int str[20])
     return d;
 }
 
-float write_int(vec2 uv, vec2 pos, int value, int magnitude)
+float write_int(vec2 uv, vec2 pos, uint value, uint magnitude)
 {
     int i;
-    int m = 1;
+    uint m = 1;
     float d = 0;
     for (i = 0; i < magnitude; i++) {
         if (i == 0 || value >= m) {
-            d += char_at(uv, pos + vec2(magnitude - i - 1, 0), int(0x30 + (value % (m * 10)) / m));
-            m *= 10;
+            d += char_at(uv, pos + vec2(magnitude - i - 1, 0), int(0x30 + (value % (m * 10u)) / m));
+            m *= 10u;
         }
     }
     return d;
@@ -1924,15 +1924,24 @@ subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, int 
 
 const mat3x3 yuv_to_rgb = {{1,1,1},{0,-0.39465,2.03211},{1.13983,-0.5806,0}};
 
+const float YUYV_FOURCC = 1448695129.0;
+
 vec4 yuyvTex(sampler2D tex, vec2 vUV, int base_width) {
     float w = base_width - 1;
+    
     int x = int(vUV.x * w);
+
     int xU = x - x % 2;
     int xV = x - x % 2 + 1;
+
+    vec4 tU = texture(tex, vec2(xU / w, 1 - vUV.y));
+    vec4 tV = texture(tex, vec2(xV / w, 1 - vUV.y));
+
     vec3 yuv = vec3(
-        texture(tex, vec2(vUV.x, 1 - vUV.y)).x,
-        texture(tex, vec2(xU / w, 1 - vUV.y)).y - 0.5,
-        texture(tex, vec2(xV / w, 1 - vUV.y)).y - 0.5
+        x % 2 == 0 ? tU.x : tV.x,
+        tU.y - 0.5,
+        tV.y - 0.5
     );
+
     return vec4(yuv_to_rgb * yuv, 1.0);
 }

@@ -115,6 +115,7 @@ typedef struct Context {
   bool monitor;
   unsigned int *input_widths;
   unsigned int *input_heights;
+  unsigned int *input_formats;
 } Context;
 
 typedef struct Timer {

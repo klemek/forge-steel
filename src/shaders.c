@@ -435,6 +435,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   unsigned int j, k;
   GLuint *subroutines;
   vec2 resolution, tex_resolution;
+  vec3 in_resolution;
 
   resolution[0] = (float)context.width;
   resolution[1] = (float)context.height;
@@ -469,7 +470,14 @@ static void use_program(ShaderProgram program, int i, bool output,
   glUniform2fv(program.itexres_locations[i], 1,
                (const GLfloat *)&tex_resolution);
 
-  // TODO video resolution
+  for (j = 0; j < program.in_count; j++) {
+    in_resolution[0] = context.input_widths[j];
+    in_resolution[1] = context.input_heights[j];
+    in_resolution[2] = context.input_formats[j];
+
+    glUniform3fv(program.iinres_locations[i * program.in_count + j], 1,
+                 (const GLfloat *)&in_resolution);
+  }
 
   // set seeds uniforms
   for (j = 0; j < program.frag_count; j++) {

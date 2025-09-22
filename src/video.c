@@ -107,6 +107,7 @@ static bool get_available_sizes(VideoCapture *video_capture,
                                 unsigned int preferred_height) {
   struct v4l2_frmsizeenum fmt_enum;
   unsigned int index;
+  bool found = false;
 
   memset(&fmt_enum, 0, sizeof(fmt_enum));
 
@@ -114,6 +115,7 @@ static bool get_available_sizes(VideoCapture *video_capture,
   fmt_enum.index = index;
   fmt_enum.pixel_format = V4L2_PIX_FMT_YUYV;
 
+  found = false;
   video_capture->width = 0;
   video_capture->height = 0;
 
@@ -124,12 +126,18 @@ static bool get_available_sizes(VideoCapture *video_capture,
 
       if (fmt_enum.discrete.height == preferred_height) {
         video_capture->height = preferred_height;
+        found = true;
         if (video_capture->width == 0 ||
             video_capture->width < fmt_enum.discrete.width) {
           video_capture->width = fmt_enum.discrete.width;
         }
-      } else if (fmt_enum.discrete.height < preferred_height &&
-                 fmt_enum.discrete.height > video_capture->height) {
+      } else if (fmt_enum.discrete.height < preferred_height) {
+        if (!found || fmt_enum.discrete.height > video_capture->height) {
+          video_capture->height = fmt_enum.discrete.height;
+          video_capture->width = fmt_enum.discrete.width;
+          found = true;
+        }
+      } else if (video_capture->height == 0) {
         video_capture->height = fmt_enum.discrete.height;
         video_capture->width = fmt_enum.discrete.width;
       }
@@ -141,6 +149,7 @@ static bool get_available_sizes(VideoCapture *video_capture,
   }
 
   if (video_capture->height == 0) {
+    log_warn("(%s) No format found");
     video_capture->error = true;
     return false;
   }
@@ -159,7 +168,7 @@ static bool set_format(VideoCapture *video_capture) {
   fmt.fmt.pix.width = video_capture->width;
   fmt.fmt.pix.height = video_capture->height;
   fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
-  fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
+  fmt.fmt.pix.field = V4L2_FIELD_ANY;
 
   if (ioctl(video_capture->fd, VIDIOC_S_FMT, &fmt) == -1) {
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;

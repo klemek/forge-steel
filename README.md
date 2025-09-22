@@ -134,11 +134,12 @@ make -f Makefile.dev release-arch
   - [ ] Clean code and fix things
 - [ ] Video input
   - [x] Fixed camera video
-  - [ ] Pass video info to shaders
+  - [x] Pass video info to shaders
   - [x] Sub process video reading
   - [x] Shader based format mapping
   - [x] Video mapping config file
   - [x] Get first video size matching internal size
+  - [ ] other internal size for video
   - [ ] Clean code and fix things
 - [x] Monitor screen
   - [x] 2nd window
