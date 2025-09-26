@@ -13,8 +13,6 @@ uniform vec2 iResolution;
 uniform vec2 iTexResolution;
 uniform vec2 iInputResolution1;
 uniform vec2 iInputResolution2;
-uniform int iInputFPS1;
-uniform int iInputFPS2;
 uniform int iDemo;
 
 uniform int seed1;
@@ -1353,36 +1351,26 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
 
     x = -15;
     f += write_5(uv3, vec2(x,13), texts[0]);
-    f += write_int(uv3, vec2(x - 4,13), iFPS, 3);
+    f += write_int(uv3, vec2(x - 3.5,13), iFPS, 3);
     v = min(1, iFPS/60.0);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
-    f += rect(uv3, vec2(x + 4 * v - 3.5, 12), vec2(4 * v, 0.4));
+    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
     
     x = 0;
     f += write_5(uv3, vec2(x,13), texts[1]);
-    f += write_int(uv3, vec2(x - 4,13), int(iTempo), 3);
+    f += write_int(uv3, vec2(x - 3.5,13), int(iTempo), 3);
     v = modTime(1);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
-    f += rect(uv3, vec2(x + 4 * v - 3.5, 12), vec2(4 * v, 0.4));
+    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
 
     x = 15;
     f += write_5(uv3, vec2(x,13), texts[2]);
-    f += write_int(uv3, vec2(x - 6,13), int(iTime), 5);
+    f += write_int(uv3, vec2(x - 5.5,13), int(iTime), 5);
     v = fract(iTime);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
-    f += rect(uv3, vec2(x + 4 * v - 3.5, 12), vec2(4 * v, 0.4));
+    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
 
     f += write_5(uv3, vec2(-2,-15), iDemo > 0 ? texts[3] : texts[4]);
-
-    if (iInputResolution1.x > 0) {
-        f += write_5(uv3, vec2(-23.5,5.5), texts[0]);
-        f += write_int(uv3, vec2(-27,5.5), iInputFPS1, 3);
-    }
-
-    if (iInputResolution2.x > 0) {
-        f += write_5(uv3, vec2(-23.5,-9.5), texts[0]);
-        f += write_int(uv3, vec2(-27,-9.5), iInputFPS2, 3);
-    }
 
     return vec4(f);
 }
