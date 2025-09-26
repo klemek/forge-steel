@@ -160,13 +160,13 @@ static void free_files(unsigned int frag_count) {
 }
 
 static void init_inputs(char *video_in[MAX_VIDEO], unsigned int input_count,
-                        unsigned int internal_size) {
+                        unsigned int video_size) {
   unsigned int i;
 
   inputs = malloc(input_count * sizeof(VideoCapture));
 
   for (i = 0; i < input_count; i++) {
-    inputs[i] = video_init(video_in[i], internal_size);
+    inputs[i] = video_init(video_in[i], video_size);
   }
 }
 
@@ -257,7 +257,7 @@ void forge_run(Parameters params) {
 
   context.internal_height = params.internal_size;
 
-  init_inputs(params.video_in, params.video_in_count, params.internal_size);
+  init_inputs(params.video_in, params.video_in_count, params.video_size);
 
   if (params.output) {
     window_output = window_init(PACKAGE " " VERSION, params.output_screen,

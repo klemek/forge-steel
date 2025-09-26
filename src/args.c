@@ -23,8 +23,9 @@ static void print_help(int status_code) {
       "[-mo] "
       "[-f=DIR_PATH] "
       "[-fc=CFG_PATH] "
-      "[-v=FILE] "
       "[-is=SIZE] "
+      "[-v=FILE] "
+      "[-vs=SIZE] "
       "[-t=TEMPO] "
       "[--demo] "
       "[-w] "
@@ -40,11 +41,11 @@ static void print_help(int status_code) {
       "  -f, --frag                fragment shaders directory (default: TODO)\n"
       "  -fc, --frag-config        fragment shaders config file (default: "
       "TODO)\n"
+      "  -is, --internal-size      internal texture height (default: 720)\n"
       "  -v, --video-in            path to video capture device (multiple "
       "allowed)\n"
-      "  -is, --internal-size      internal texture height (default: 720)\n"
-      "(default: "
-      "3)\n"
+      "  -vs, --video-size         video capture desired height (default: "
+      "internal texture height)\n"
       "  -t, --tempo               base tempo (default: 60)\n"
       "  --demo                    demonstration mode\n"
       "  -w, --windowed            not fullscreen\n");
@@ -93,6 +94,7 @@ Parameters args_parse(int argc, char **argv) {
   params.frag_path = 0;
   params.frag_config_path = 0;
   params.internal_size = 720;
+  params.video_size = 0;
   params.base_tempo = 60.0f;
   params.demo = false;
   params.windowed = false;
@@ -114,12 +116,20 @@ Parameters args_parse(int argc, char **argv) {
       params.frag_path = value;
     } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
       params.frag_config_path = value;
-    } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
-      params.video_in[params.video_in_count++] = value;
-    } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
-      params.base_tempo = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
       params.internal_size = parse_uint(arg, value);
+      if (params.internal_size == 0) {
+        invalid_value(arg, value);
+      }
+    } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
+      params.video_in[params.video_in_count++] = value;
+    } else if (is_arg(arg, "-vs") || is_arg(arg, "--video-size")) {
+      params.video_size = parse_uint(arg, value);
+      if (params.video_size == 0) {
+        invalid_value(arg, value);
+      }
+    } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
+      params.base_tempo = (float)parse_uint(arg, value);
     } else if (is_arg(arg, "-m") || is_arg(arg, "--monitor")) {
       params.monitor = true;
       params.monitor_screen = parse_uint(arg, value);
@@ -149,6 +159,10 @@ Parameters args_parse(int argc, char **argv) {
   if (params.frag_path == 0) {
     log_error("required argument -fc/--frag-config");
     exit(EXIT_FAILURE);
+  }
+
+  if (params.video_size == 0) {
+    params.video_size = params.internal_size;
   }
 
   return params;

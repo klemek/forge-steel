@@ -73,6 +73,7 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
                                   unsigned int texture_index) {
   input->dma_image = EGL_NO_IMAGE_KHR;
 
+  // https://registry.khronos.org/EGL/extensions/EXT/EGL_EXT_image_dma_buf_import.txt
   const EGLint attrib_list[] = {EGL_WIDTH,
                                 input->width,
                                 EGL_HEIGHT,
@@ -104,8 +105,8 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
                GL_UNSIGNED_BYTE, 0);
 
   // https://registry.khronos.org/OpenGL/extensions/EXT/EXT_EGL_image_storage.txt
-  glEGLImageTargetTextureStorageEXT(program->textures[texture_index],
-                                    (GLeglImageOES)input->dma_image, NULL);
+  glEGLImageTargetTexStorageEXT(GL_TEXTURE_2D, (GLeglImageOES)input->dma_image,
+                                NULL);
 
   log_info("Texture %d linked to %s", texture_index, input->name);
 }

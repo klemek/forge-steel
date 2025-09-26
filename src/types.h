@@ -22,6 +22,7 @@ typedef struct Parameters {
   char *frag_path;
   char *frag_config_path;
   unsigned int internal_size;
+  unsigned int video_size;
   float base_tempo;
   bool demo;
   bool windowed;
