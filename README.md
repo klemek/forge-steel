@@ -139,7 +139,8 @@ make -f Makefile.dev release-arch
   - [x] Shader based format mapping
   - [x] Video mapping config file
   - [x] Get first video size matching internal size
-  - [x] other internal size for video
+  - [x] Other internal size for video
+  - [x] Pass input fps into shaders for debug
   - [ ] Clean code and fix things
 - [x] Monitor screen
   - [x] 2nd window

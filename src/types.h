@@ -13,6 +13,16 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+typedef struct SharedUint {
+  int fd;
+  unsigned int value;
+} SharedUint;
+
+typedef struct SharedBool {
+  int fd;
+  bool value;
+} SharedBool;
+
 typedef struct Parameters {
   bool hot_reload;
   bool output;
@@ -70,6 +80,8 @@ typedef struct ShaderProgram {
   GLuint *ires_locations;
   GLuint *itexres_locations;
   GLuint *iinres_locations;
+  GLuint *iinfmt_locations;
+  GLuint *iinfps_locations;
   GLuint *idemo_locations;
   GLuint *iseed_locations;
   GLuint *istate_locations;
@@ -95,6 +107,7 @@ typedef struct VideoCapture {
   unsigned int height;
   unsigned int pixelformat;
   unsigned int bytesperline;
+  SharedUint *fps;
   bool output;
   struct v4l2_buffer buf;
   EGLImageKHR dma_image;
@@ -117,6 +130,7 @@ typedef struct Context {
   unsigned int *input_widths;
   unsigned int *input_heights;
   unsigned int *input_formats;
+  unsigned int *input_fps;
 } Context;
 
 typedef struct Timer {

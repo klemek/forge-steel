@@ -10,6 +10,7 @@
 #include "forge.h"
 #include "rand.h"
 #include "shaders.h"
+#include "shared.h"
 #include "timer.h"
 #include "types.h"
 #include "video.h"
@@ -24,14 +25,18 @@ static File *fragment_shaders;
 static File common_shader_code;
 static Timer timer;
 static ConfigFile shader_config;
-static bool stop;
+static SharedBool *stop;
 
-static unsigned int compute_fps() {
+static void compute_fps() {
+  unsigned int i;
+
   double fps;
   char title[100];
 
   if (timer_inc(&timer)) {
     fps = timer_reset(&timer);
+
+    log_trace("(main) %.2ffps", fps);
 
     if (window_output != NULL) {
       sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
@@ -42,9 +47,15 @@ static unsigned int compute_fps() {
       sprintf(title, PACKAGE " " VERSION " (monitor) - %.0ffps", fps);
       window_update_title(window_monitor, title);
     }
+
+    context.fps = (unsigned int)round(fps);
   }
 
-  return (unsigned int)round(fps);
+  for (i = 0; i < program.in_count; i++) {
+    if (!inputs[i].error) {
+      context.input_fps[i] = inputs[i].fps->value;
+    }
+  }
 }
 
 static void randomize_context_state() {
@@ -79,6 +90,8 @@ static void init_context(Parameters params) {
       (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
   context.input_formats =
       (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
+  context.input_fps =
+      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
 
   for (i = 0; i < program.in_count; i++) {
     if (!inputs[i].error) {
@@ -95,6 +108,7 @@ static void free_context() {
   free(context.input_widths);
   free(context.input_heights);
   free(context.input_formats);
+  free(context.input_fps);
 }
 
 static void hot_reload() {
@@ -175,7 +189,7 @@ static void start_video_captures(unsigned int video_count) {
 
   for (i = 0; i < video_count; i++) {
     if (!inputs[i].error) {
-      video_background_read(&inputs[i], &stop);
+      video_background_read(&inputs[i], stop);
     }
   }
 }
@@ -195,7 +209,7 @@ static void free_video_captures(unsigned int video_count) {
 static void error_callback(int error, const char *description) {
   log_error("[GLFW] %d: %s", error, description);
   window_terminate();
-  stop = true;
+  stop->value = true;
   exit(EXIT_FAILURE);
 }
 
@@ -219,7 +233,7 @@ static void loop(bool hr) {
     hot_reload();
   }
 
-  context.fps = compute_fps();
+  compute_fps();
 
   context.time = window_get_time();
 
@@ -245,7 +259,7 @@ static void loop(bool hr) {
 void forge_run(Parameters params) {
   unsigned int frag_count;
 
-  stop = false;
+  stop = shared_init_bool("/" PACKAGE "_stop", false);
 
   shader_config = config_file_read(params.frag_config_path, false);
 
@@ -253,11 +267,11 @@ void forge_run(Parameters params) {
 
   init_files(params.frag_path, frag_count);
 
+  init_inputs(params.video_in, params.video_in_count, params.video_size);
+
   window_startup(error_callback);
 
   context.internal_height = params.internal_size;
-
-  init_inputs(params.video_in, params.video_in_count, params.video_size);
 
   if (params.output) {
     window_output = window_init(PACKAGE " " VERSION, params.output_screen,
@@ -303,7 +317,7 @@ void forge_run(Parameters params) {
     loop(params.hot_reload);
   }
 
-  stop = true;
+  stop->value = true;
 
   wait(NULL);
 

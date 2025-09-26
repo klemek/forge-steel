@@ -11,6 +11,10 @@ uniform float iTempo;
 uniform int iFPS;
 uniform vec2 iResolution;
 uniform vec2 iTexResolution;
+uniform vec2 iInputResolution1;
+uniform vec2 iInputResolution2;
+uniform int iInputFPS1;
+uniform int iInputFPS2;
 uniform int iDemo;
 
 uniform int seed1;
@@ -1310,12 +1314,26 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     f += selected_fx == 4 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
 
     // show inputs / feedback
-    f += selected_srca == 5 ? rect(uv2, vec2(-8, 2), vec2(2, 0.1)) : 0;
-    f += selected_srca == 10 ? rect(uv2, vec2(-7, 2), vec2(1, 0.1)) + rect(uv2, vec2(-8, 0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-9, -1), vec2(1, 0.1)) : 0;
-    f += (selected_srca == 0 || selected_srca % 5 != 0 && selected_srca >= 8) ? rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 4), vec2(7, 0.1)) + rect(uv2, vec2(-7, 3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, 2), vec2(0.1, 2.1)) : 0;
-    f += selected_srcb == 5 ? rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(-7, -0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-8.5, 1), vec2(1.5, 0.1)) : 0;
-    f += selected_srcb == 10 ? rect(uv2, vec2(-8, -2), vec2(2, 0.1)) : 0;
-    f += (selected_srcb == 0 || selected_srcb % 5 != 0 && selected_srcb >= 8) ? rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1)) : 0;
+    float line_a_a = rect(uv2, vec2(-8, 2), vec2(2, 0.1));
+    float line_a_b = rect(uv2, vec2(-7, 2), vec2(1, 0.1)) + rect(uv2, vec2(-8, 0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-9, -1), vec2(1, 0.1));
+    float line_a_f = rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 4), vec2(7, 0.1)) + rect(uv2, vec2(-7, 3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, 2), vec2(0.1, 2.1));
+    if (selected_srca == 5) {
+        f += iInputResolution1.x > 0 ? line_a_a : line_a_f;
+    } else if (selected_srca == 10) {
+        f += iInputResolution2.x > 0 ? line_a_b : line_a_f;
+    } else if (selected_srca == 0 || selected_srca >= 8) {
+        f += line_a_f;
+    }
+    float line_b_a = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(-7, -0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-8.5, 1), vec2(1.5, 0.1));
+    float line_b_b = rect(uv2, vec2(-8, -2), vec2(2, 0.1));
+    float line_b_f = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1));
+    if (selected_srcb == 5) {
+        f += iInputResolution1.x > 0 ? line_b_a : line_b_f;
+    } else if (selected_srcb == 10) {
+        f += iInputResolution2.x > 0 ? line_b_b : line_b_f;
+    } else if (selected_srcb == 0 || selected_srcb >= 8) {
+        f += line_b_f;
+    }
 
     // show page
     f += char_at(uv2, vec2(-9.2, -4.3), hex_chars[page]);
@@ -1338,23 +1356,33 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     f += write_int(uv3, vec2(x - 4,13), iFPS, 3);
     v = min(1, iFPS/60.0);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
-    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
+    f += rect(uv3, vec2(x + 4 * v - 3.5, 12), vec2(4 * v, 0.4));
     
     x = 0;
     f += write_5(uv3, vec2(x,13), texts[1]);
     f += write_int(uv3, vec2(x - 4,13), int(iTempo), 3);
     v = modTime(1);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
-    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
+    f += rect(uv3, vec2(x + 4 * v - 3.5, 12), vec2(4 * v, 0.4));
 
     x = 15;
     f += write_5(uv3, vec2(x,13), texts[2]);
     f += write_int(uv3, vec2(x - 6,13), int(iTime), 5);
     v = fract(iTime);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
-    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
+    f += rect(uv3, vec2(x + 4 * v - 3.5, 12), vec2(4 * v, 0.4));
 
     f += write_5(uv3, vec2(-2,-15), iDemo > 0 ? texts[3] : texts[4]);
+
+    if (iInputResolution1.x > 0) {
+        f += write_5(uv3, vec2(-23.5,5.5), texts[0]);
+        f += write_int(uv3, vec2(-27,5.5), iInputFPS1, 3);
+    }
+
+    if (iInputResolution2.x > 0) {
+        f += write_5(uv3, vec2(-23.5,-9.5), texts[0]);
+        f += write_int(uv3, vec2(-27,-9.5), iInputFPS2, 3);
+    }
 
     return vec4(f);
 }
@@ -1924,7 +1952,7 @@ subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, int 
 
 const mat3x3 yuv_to_rgb = {{1,1,1},{0,-0.39465,2.03211},{1.13983,-0.5806,0}};
 
-const float YUYV_FOURCC = 1448695129.0;
+const int YUYV_FOURCC = 1448695129;
 
 vec4 yuyvTex(sampler2D tex, vec2 vUV, int base_width) {
     float w = base_width - 1;

@@ -5,7 +5,7 @@
 
 VideoCapture video_init(char *name, unsigned int preferred_height);
 
-void video_background_read(VideoCapture *video_capture, bool *stop);
+void video_background_read(VideoCapture *video_capture, SharedBool *stop);
 
 void video_free(VideoCapture video_capture);
 

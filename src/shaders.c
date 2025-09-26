@@ -272,10 +272,25 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
   prefix = config_file_get_str(shader_config, "UNIFORM_IN_RESOLUTION_PREFIX",
                                "iInputResolution");
-
   for (j = 0; j < program->in_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
     program->iinres_locations[i * program->in_count + j] =
+        glGetUniformLocation(program->programs[i], name);
+  }
+
+  prefix = config_file_get_str(shader_config, "UNIFORM_IN_FORMAT_PREFIX",
+                               "iInputFormat");
+  for (j = 0; j < program->in_count; j++) {
+    sprintf(name, "%s%d", prefix, j + 1);
+    program->iinfmt_locations[i * program->in_count + j] =
+        glGetUniformLocation(program->programs[i], name);
+  }
+
+  prefix =
+      config_file_get_str(shader_config, "UNIFORM_IN_FPS_PREFIX", "iInputFPS");
+  for (j = 0; j < program->in_count; j++) {
+    sprintf(name, "%s%d", prefix, j + 1);
+    program->iinfps_locations[i * program->in_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
@@ -334,6 +349,10 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
   program->ires_locations = malloc(program->frag_count * sizeof(GLuint));
   program->itexres_locations = malloc(program->frag_count * sizeof(GLuint));
   program->iinres_locations =
+      malloc(program->frag_count * program->in_count * sizeof(GLuint));
+  program->iinfmt_locations =
+      malloc(program->frag_count * program->in_count * sizeof(GLuint));
+  program->iinfps_locations =
       malloc(program->frag_count * program->in_count * sizeof(GLuint));
   program->idemo_locations = malloc(program->frag_count * sizeof(GLuint));
   program->iseed_locations =
@@ -435,8 +454,7 @@ static void use_program(ShaderProgram program, int i, bool output,
                         Context context) {
   unsigned int j, k;
   GLuint *subroutines;
-  vec2 resolution, tex_resolution;
-  vec3 in_resolution;
+  vec2 resolution, tex_resolution, in_resolution;
 
   resolution[0] = (float)context.width;
   resolution[1] = (float)context.height;
@@ -474,10 +492,13 @@ static void use_program(ShaderProgram program, int i, bool output,
   for (j = 0; j < program.in_count; j++) {
     in_resolution[0] = context.input_widths[j];
     in_resolution[1] = context.input_heights[j];
-    in_resolution[2] = context.input_formats[j];
 
-    glUniform3fv(program.iinres_locations[i * program.in_count + j], 1,
+    glUniform2fv(program.iinres_locations[i * program.in_count + j], 1,
                  (const GLfloat *)&in_resolution);
+    glUniform1i(program.iinfmt_locations[i * program.in_count + j],
+                (const GLint)context.input_formats[j]);
+    glUniform1i(program.iinfps_locations[i * program.in_count + j],
+                (const GLint)context.input_fps[j]);
   }
 
   // set seeds uniforms

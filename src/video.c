@@ -3,10 +3,14 @@
 #include <linux/videodev2.h>
 #include <log.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "config.h"
+#include "rand.h"
+#include "shared.h"
 #include "timer.h"
 #include "types.h"
 #include "video.h"
@@ -266,6 +270,14 @@ static void create_image_buffer(VideoCapture *video_capture) {
   ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
 }
 
+static void create_shared_data(VideoCapture *video_capture) {
+  char name[256];
+
+  sprintf(name, "/" PACKAGE "_fps_%d", rand_uint(1000000));
+
+  video_capture->fps = shared_init_uint(name, 0);
+}
+
 static void close_stream(VideoCapture video_capture) {
   ioctl(video_capture.fd, VIDIOC_STREAMOFF, &buf_type);
 }
@@ -305,6 +317,8 @@ VideoCapture video_init(char *name, unsigned int preferred_height) {
 
   create_image_buffer(&video_capture);
 
+  create_shared_data(&video_capture);
+
   return video_capture;
 }
 
@@ -326,9 +340,11 @@ static bool read_video(VideoCapture *video_capture) {
   return true;
 }
 
-void video_background_read(VideoCapture *video_capture, bool *stop) {
+void video_background_read(VideoCapture *video_capture, SharedBool *stop) {
   pid_t pid;
   Timer timer;
+  double fps;
+
   pid = fork();
   if (pid < 0) {
     log_error("Could not create subprocess");
@@ -341,21 +357,30 @@ void video_background_read(VideoCapture *video_capture, bool *stop) {
            pid);
   timer = timer_init(30);
 
-  while (!*stop && read_video(video_capture)) {
+  while (!stop->value && read_video(video_capture)) {
     // repeat infinitely
     if (timer_inc(&timer)) {
-      log_trace("(%s) %.2ffps", video_capture->name, timer_reset(&timer));
+      fps = timer_reset(&timer);
+
+      video_capture->fps->value = (unsigned int)round(fps);
+      log_trace("(%s) %.2ffps", video_capture->name, fps);
     }
   }
-  log_info("%s background acquisition stopped (pid: %d)", video_capture->name,
-           pid);
+  if (stop->value) {
+    log_info("%s background acquisition stopped by main thread (pid: %d)",
+             video_capture->name, pid);
+  } else {
+    log_info("%s background acquisition stopped after error (pid: %d)",
+             video_capture->name, pid);
+  }
   window_terminate();
-  exit(EXIT_SUCCESS);
+  exit(stop->value ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 
 void video_free(VideoCapture video_capture) {
   if (!video_capture.error) {
     close_stream(video_capture);
+    shared_close_uint(video_capture.fps);
   }
   if (video_capture.exp_fd != -1) {
     close(video_capture.exp_fd);

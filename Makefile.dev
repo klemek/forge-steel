@@ -25,7 +25,7 @@ build:
 
 .PHONY: run
 run: build
-	./build/$(TARGET) $(TEST_ARGS) --monitor-only --internal-size=240 --hot-reload
+	./build/$(TARGET) $(TEST_ARGS) --monitor-only --internal-size=480 --video-size=240 --hot-reload
 
 .PHONY: demo
 demo: build
