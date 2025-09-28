@@ -31,7 +31,7 @@ static void init_gl(ShaderProgram *program) {
   gladLoadEGL(program->egl_display, glfwGetProcAddress);
 }
 
-static void init_textures(ShaderProgram *program, Context context) {
+static void init_textures(ShaderProgram *program, SharedContext *context) {
   unsigned int i;
 
   program->textures = malloc(program->tex_count * sizeof(GLuint));
@@ -50,8 +50,8 @@ static void init_textures(ShaderProgram *program, Context context) {
     glDisable(GL_BLEND);
 
     // define texture image as empty
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.internal_width,
-                 context.internal_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->internal_width,
+                 context->internal_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // setup mipmap context
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -111,7 +111,7 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
   log_info("Texture %d linked to %s", texture_index, input->name);
 }
 
-static void init_input(ShaderProgram *program, ConfigFile shader_config,
+static void init_input(ShaderProgram *program, ConfigFile config,
                        VideoCapture *inputs, unsigned int input_count) {
   unsigned int i;
   unsigned tex_i;
@@ -120,7 +120,7 @@ static void init_input(ShaderProgram *program, ConfigFile shader_config,
   for (i = 0; i < program->in_count; i++) {
     if (i < input_count && !inputs[i].error) {
       sprintf(name, "IN_%d_OUT", i + 1);
-      tex_i = config_file_get_int(shader_config, name, 0);
+      tex_i = config_file_get_int(config, name, 0);
       link_input_to_texture(program, &inputs[i], tex_i);
     } else {
       log_warn("Cannot link input %d", i + 1);
@@ -128,8 +128,7 @@ static void init_input(ShaderProgram *program, ConfigFile shader_config,
   }
 }
 
-static void init_framebuffers(ShaderProgram *program,
-                              ConfigFile shader_config) {
+static void init_framebuffers(ShaderProgram *program, ConfigFile config) {
   unsigned int i;
   unsigned tex_i;
   char name[32];
@@ -146,7 +145,7 @@ static void init_framebuffers(ShaderProgram *program,
     glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
 
     sprintf(name, "FRAG_%d_OUT", i + 1);
-    tex_i = config_file_get_int(shader_config, name, 0);
+    tex_i = config_file_get_int(config, name, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                            program->textures[tex_i], 0);
 
@@ -239,7 +238,7 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
 }
 
 static void init_single_program(ShaderProgram *program, unsigned int i,
-                                ConfigFile shader_config) {
+                                ConfigFile config) {
   unsigned int j, k;
   char name[32];
   char *prefix;
@@ -252,25 +251,23 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   // create uniforms pointers
   program->itime_locations[i] = glGetUniformLocation(
       program->programs[i],
-      config_file_get_str(shader_config, "UNIFORM_TIME", "iTime"));
+      config_file_get_str(config, "UNIFORM_TIME", "iTime"));
   program->itempo_locations[i] = glGetUniformLocation(
       program->programs[i],
-      config_file_get_str(shader_config, "UNIFORM_TEMPO", "iTempo"));
+      config_file_get_str(config, "UNIFORM_TEMPO", "iTempo"));
   program->ifps_locations[i] = glGetUniformLocation(
-      program->programs[i],
-      config_file_get_str(shader_config, "UNIFORM_FPS", "iFPS"));
+      program->programs[i], config_file_get_str(config, "UNIFORM_FPS", "iFPS"));
   program->ires_locations[i] = glGetUniformLocation(
       program->programs[i],
-      config_file_get_str(shader_config, "UNIFORM_RESOLUTION", "iResolution"));
+      config_file_get_str(config, "UNIFORM_RESOLUTION", "iResolution"));
   program->itexres_locations[i] = glGetUniformLocation(
       program->programs[i],
-      config_file_get_str(shader_config, "UNIFORM_TEX_RESOLUTION",
-                          "iTexResolution"));
+      config_file_get_str(config, "UNIFORM_TEX_RESOLUTION", "iTexResolution"));
   program->idemo_locations[i] = glGetUniformLocation(
       program->programs[i],
-      config_file_get_str(shader_config, "UNIFORM_DEMO", "iDemo"));
+      config_file_get_str(config, "UNIFORM_DEMO", "iDemo"));
 
-  prefix = config_file_get_str(shader_config, "UNIFORM_IN_RESOLUTION_PREFIX",
+  prefix = config_file_get_str(config, "UNIFORM_IN_RESOLUTION_PREFIX",
                                "iInputResolution");
   for (j = 0; j < program->in_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
@@ -278,30 +275,29 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
         glGetUniformLocation(program->programs[i], name);
   }
 
-  prefix = config_file_get_str(shader_config, "UNIFORM_IN_FORMAT_PREFIX",
-                               "iInputFormat");
+  prefix =
+      config_file_get_str(config, "UNIFORM_IN_FORMAT_PREFIX", "iInputFormat");
   for (j = 0; j < program->in_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
     program->iinfmt_locations[i * program->in_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
-  prefix =
-      config_file_get_str(shader_config, "UNIFORM_IN_FPS_PREFIX", "iInputFPS");
+  prefix = config_file_get_str(config, "UNIFORM_IN_FPS_PREFIX", "iInputFPS");
   for (j = 0; j < program->in_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
     program->iinfps_locations[i * program->in_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
-  prefix = config_file_get_str(shader_config, "UNIFORM_SEED_PREFIX", "seed");
+  prefix = config_file_get_str(config, "UNIFORM_SEED_PREFIX", "seed");
   for (j = 0; j < program->frag_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
     program->iseed_locations[i * program->frag_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
-  prefix = config_file_get_str(shader_config, "UNIFORM_STATE_PREFIX", "state");
+  prefix = config_file_get_str(config, "UNIFORM_STATE_PREFIX", "state");
   for (j = 0; j < program->frag_count; j++) {
     for (k = 0; k < program->sub_type_count; k++) {
       sprintf(name, "%s%d_%d", prefix, j + 1, k + 1);
@@ -314,7 +310,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
   for (j = 0; j < program->sub_type_count; j++) {
     sprintf(name, "SUB_%d_PREFIX", j + 1);
-    prefix = config_file_get_str(shader_config, name, 0);
+    prefix = config_file_get_str(config, name, 0);
     for (k = 0; k < program->sub_variant_count; k++) {
       sprintf(name, "%s%d", prefix, k + 1);
       program->sub_locations[i * program->sub_variant_count *
@@ -325,7 +321,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   }
 
   // create texX uniforms pointer
-  prefix = config_file_get_str(shader_config, "UNIFORM_TEX_PREFIX", "tex");
+  prefix = config_file_get_str(config, "UNIFORM_TEX_PREFIX", "tex");
   for (j = 0; j < program->tex_count; j++) {
     sprintf(name, "%s%d", prefix, j);
     program->textures_locations[i * program->tex_count + j] =
@@ -339,7 +335,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   log_info("Program %d initialized", i + 1);
 }
 
-static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
+static void init_programs(ShaderProgram *program, ConfigFile config) {
   unsigned int i;
 
   program->programs = malloc(program->frag_count * sizeof(GLuint));
@@ -367,30 +363,29 @@ static void init_programs(ShaderProgram *program, ConfigFile shader_config) {
              program->sub_variant_count * sizeof(GLuint));
 
   for (i = 0; i < program->frag_count; i++) {
-    init_single_program(program, i, shader_config);
+    init_single_program(program, i, config);
   }
 }
 
-ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context, VideoCapture *inputs,
+ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
+                           SharedContext *context, VideoCapture *inputs,
                            unsigned int input_count, ShaderProgram *previous) {
   ShaderProgram program;
 
   if (previous == NULL) {
     program.error = false;
-    program.last_width = context.width;
-    program.last_height = context.height;
-    program.tex_count = config_file_get_int(shader_config, "TEX_COUNT", 9);
-    program.frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
+    program.last_width = context->width;
+    program.last_height = context->height;
+    program.tex_count = config_file_get_int(config, "TEX_COUNT", 9);
+    program.frag_count = config_file_get_int(config, "FRAG_COUNT", 6);
     program.frag_output_index =
-        config_file_get_int(shader_config, "FRAG_OUTPUT", 1) - 1;
+        config_file_get_int(config, "FRAG_OUTPUT", 1) - 1;
     program.frag_monitor_index =
-        config_file_get_int(shader_config, "FRAG_MONITOR", 1) - 1;
-    program.sub_type_count =
-        config_file_get_int(shader_config, "SUB_TYPE_COUNT", 0);
+        config_file_get_int(config, "FRAG_MONITOR", 1) - 1;
+    program.sub_type_count = config_file_get_int(config, "SUB_TYPE_COUNT", 0);
     program.sub_variant_count =
-        config_file_get_int(shader_config, "SUB_VARIANT_COUNT", 0);
-    program.in_count = config_file_get_int(shader_config, "IN_COUNT", 0);
+        config_file_get_int(config, "SUB_VARIANT_COUNT", 0);
+    program.in_count = config_file_get_int(config, "IN_COUNT", 0);
 
     init_gl(&program);
 
@@ -402,11 +397,11 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
 
     init_textures(&program, context);
 
-    init_input(&program, shader_config, inputs, input_count);
+    init_input(&program, config, inputs, input_count);
 
-    init_framebuffers(&program, shader_config);
+    init_framebuffers(&program, config);
 
-    init_programs(&program, shader_config);
+    init_programs(&program, config);
 
     init_vertices(&program);
 
@@ -435,38 +430,38 @@ void shaders_update(ShaderProgram program, File *fragment_shaders,
   }
 }
 
-static void update_viewport(ShaderProgram program, Context context) {
+static void update_viewport(ShaderProgram program, SharedContext *context) {
   unsigned int i;
 
   // viewport changed
-  if (context.width != program.last_width ||
-      context.height != program.last_height) {
+  if (context->width != program.last_width ||
+      context->height != program.last_height) {
     // clean and resize all textures
     for (i = 0; i < program.tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context.internal_width,
-                   context.internal_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->internal_width,
+                   context->internal_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
   }
 }
 
 static void use_program(ShaderProgram program, int i, bool output,
-                        Context context) {
+                        SharedContext *context) {
   unsigned int j, k;
   GLuint *subroutines;
   vec2 resolution, tex_resolution, in_resolution;
 
-  resolution[0] = (float)context.width;
-  resolution[1] = (float)context.height;
-  tex_resolution[0] = (float)context.internal_width;
-  tex_resolution[1] = (float)context.internal_height;
+  resolution[0] = (float)context->width;
+  resolution[1] = (float)context->height;
+  tex_resolution[0] = (float)context->internal_width;
+  tex_resolution[1] = (float)context->internal_height;
   subroutines = malloc(program.sub_type_count * sizeof(GLuint));
 
   // use specific shader program
   glUseProgram(program.programs[i]);
 
   if (output) {
-    glViewport(0, 0, context.width, context.height);
+    glViewport(0, 0, context->width, context->height);
 
     // use default framebuffer (output)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -474,42 +469,42 @@ static void use_program(ShaderProgram program, int i, bool output,
     // clear buffer
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
-    glViewport(0, 0, context.internal_width, context.internal_height);
+    glViewport(0, 0, context->internal_width, context->internal_height);
 
     // use memory framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
   }
   // set fragment uniforms
-  glUniform1f(program.itime_locations[i], (const GLfloat)context.time);
-  glUniform1f(program.itempo_locations[i], (const GLfloat)context.tempo);
-  glUniform1i(program.ifps_locations[i], (const GLint)context.fps);
-  glUniform1i(program.idemo_locations[i], (const GLint)(context.demo ? 1 : 0));
+  glUniform1f(program.itime_locations[i], (const GLfloat)context->time);
+  glUniform1f(program.itempo_locations[i], (const GLfloat)context->tempo);
+  glUniform1i(program.ifps_locations[i], (const GLint)context->fps);
+  glUniform1i(program.idemo_locations[i], (const GLint)(context->demo ? 1 : 0));
   glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
   glUniform2fv(program.itexres_locations[i], 1,
                (const GLfloat *)&tex_resolution);
 
   for (j = 0; j < program.in_count; j++) {
-    in_resolution[0] = context.input_widths[j];
-    in_resolution[1] = context.input_heights[j];
+    in_resolution[0] = context->input_widths[j];
+    in_resolution[1] = context->input_heights[j];
 
     glUniform2fv(program.iinres_locations[i * program.in_count + j], 1,
                  (const GLfloat *)&in_resolution);
     glUniform1i(program.iinfmt_locations[i * program.in_count + j],
-                (const GLint)context.input_formats[j]);
+                (const GLint)context->input_formats[j]);
     glUniform1i(program.iinfps_locations[i * program.in_count + j],
-                (const GLint)context.input_fps[j]);
+                (const GLint)context->input_fps[j]);
   }
 
   // set seeds uniforms
   for (j = 0; j < program.frag_count; j++) {
     glUniform1i(program.iseed_locations[i * program.frag_count + j],
-                (const GLint)context.seeds[j]);
+                (const GLint)context->seeds[j]);
   }
 
   // set subroutines for fragment and update state uniforms
   for (j = 0; j < program.sub_type_count; j++) {
-    k = context.sub_state[i * program.sub_type_count + j];
+    k = context->sub_state[i * program.sub_type_count + j];
     subroutines[j] = program.sub_locations[i * program.sub_type_count *
                                                program.sub_variant_count +
                                            j * program.sub_variant_count + k];
@@ -518,7 +513,7 @@ static void use_program(ShaderProgram program, int i, bool output,
           program.istate_locations[i * program.frag_count *
                                        program.sub_type_count +
                                    k * program.sub_type_count + j],
-          (const GLint)context.sub_state[k * program.sub_type_count + j]);
+          (const GLint)context->sub_state[k * program.sub_type_count + j]);
     }
   }
 
@@ -536,8 +531,8 @@ static void use_program(ShaderProgram program, int i, bool output,
   free(subroutines);
 }
 
-void shaders_compute(ShaderProgram program, Context context, bool monitor,
-                     bool output_only) {
+void shaders_compute(ShaderProgram program, SharedContext *context,
+                     bool monitor, bool output_only) {
   unsigned int i;
 
   if (!output_only) {

@@ -15,7 +15,7 @@ void window_update_title(Window *window, char *title);
 
 double window_get_time();
 
-void window_use(Window *window, Context *context);
+void window_use(Window *window, SharedContext *context);
 
 void window_refresh(Window *window);
 

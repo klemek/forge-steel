@@ -7,6 +7,7 @@
 #include "forge.h"
 #include "main.h"
 #include "rand.h"
+#include "types.h"
 
 int main(int argc, char **argv) {
   Parameters params;

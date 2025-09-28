@@ -18,34 +18,17 @@ static void close_shared(void *shared, size_t size, int fd) {
   close(fd);
 }
 
-SharedUint *shared_init_uint(const char *key, unsigned int initial_value) {
+SharedContext *shared_init_context(const char *key) {
   int shared_fd;
-  SharedUint *shared;
+  SharedContext *shared;
 
-  shared = open_shared(key, sizeof(SharedUint), &shared_fd);
+  shared = open_shared(key, sizeof(SharedContext), &shared_fd);
 
   shared->fd = shared_fd;
-  shared->value = initial_value;
 
   return shared;
 }
 
-void shared_close_uint(SharedUint *shared) {
-  close_shared(shared, sizeof(SharedUint), shared->fd);
-}
-
-SharedBool *shared_init_bool(const char *key, bool initial_value) {
-  int shared_fd;
-  SharedBool *shared;
-
-  shared = open_shared(key, sizeof(SharedBool), &shared_fd);
-
-  shared->fd = shared_fd;
-  shared->value = initial_value;
-
-  return shared;
-}
-
-void shared_close_bool(SharedBool *shared) {
-  close_shared(shared, sizeof(SharedBool), shared->fd);
+void shared_close_context(SharedContext *shared) {
+  close_shared(shared, sizeof(SharedContext), shared->fd);
 }

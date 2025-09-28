@@ -31,7 +31,7 @@ typedef struct Parameters {
   bool monitor;
   unsigned int monitor_screen;
   char *frag_path;
-  char *frag_config_path;
+  char *config_path;
   unsigned int internal_size;
   unsigned int video_size;
   float base_tempo;
@@ -108,7 +108,6 @@ typedef struct VideoCapture {
   unsigned int height;
   unsigned int pixelformat;
   unsigned int bytesperline;
-  SharedUint *fps;
   bool output;
   struct v4l2_buffer buf;
   EGLImageKHR dma_image;
@@ -116,7 +115,9 @@ typedef struct VideoCapture {
 
 typedef GLFWwindow Window;
 
-typedef struct Context {
+typedef struct SharedContext {
+  int fd;
+
   int width;
   int height;
   unsigned int internal_width;
@@ -124,15 +125,16 @@ typedef struct Context {
   double time;
   unsigned int fps;
   float tempo;
-  unsigned int *sub_state;
+  unsigned int sub_state[256]; // TODO
   bool demo;
-  unsigned int *seeds;
+  unsigned int seeds[256];
   bool monitor;
-  unsigned int *input_widths;
-  unsigned int *input_heights;
-  unsigned int *input_formats;
-  unsigned int *input_fps;
-} Context;
+  unsigned int input_widths[256];
+  unsigned int input_heights[256];
+  unsigned int input_formats[256];
+  unsigned int input_fps[256];
+  bool stop;
+} SharedContext;
 
 typedef struct Timer {
   struct timeval start;

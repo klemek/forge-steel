@@ -3,15 +3,15 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-ShaderProgram shaders_init(File *fragment_shaders, ConfigFile shader_config,
-                           Context context, VideoCapture *inputs,
+ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
+                           SharedContext *context, VideoCapture *inputs,
                            unsigned int input_count, ShaderProgram *previous);
 
 void shaders_update(ShaderProgram program, File *fragment_shaders,
                     unsigned int i);
 
-void shaders_compute(ShaderProgram program, Context context, bool monitor,
-                     bool output_only);
+void shaders_compute(ShaderProgram program, SharedContext *context,
+                     bool monitor, bool output_only);
 
 void shaders_free(ShaderProgram program);
 

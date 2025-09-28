@@ -16,7 +16,7 @@
 #include "video.h"
 #include "window.h"
 
-static Context context;
+static SharedContext *context;
 static ShaderProgram program;
 static Window *window_output;
 static Window *window_monitor;
@@ -24,12 +24,9 @@ static VideoCapture *inputs;
 static File *fragment_shaders;
 static File common_shader_code;
 static Timer timer;
-static ConfigFile shader_config;
-static SharedBool *stop;
+static ConfigFile config;
 
 static void compute_fps() {
-  unsigned int i;
-
   double fps;
   char title[100];
 
@@ -48,13 +45,7 @@ static void compute_fps() {
       window_update_title(window_monitor, title);
     }
 
-    context.fps = (unsigned int)round(fps);
-  }
-
-  for (i = 0; i < program.in_count; i++) {
-    if (!inputs[i].error) {
-      context.input_fps[i] = inputs[i].fps->value;
-    }
+    context->fps = (unsigned int)round(fps);
   }
 }
 
@@ -62,54 +53,43 @@ static void randomize_context_state() {
   unsigned int i;
 
   for (i = 0; i < program.frag_count * program.sub_type_count; i++) {
-    context.sub_state[i] = rand_uint(program.sub_variant_count);
+    context->sub_state[i] = rand_uint(program.sub_variant_count);
   }
 }
 static void init_context(Parameters params) {
   unsigned int i;
 
-  context.tempo = params.base_tempo;
-  context.demo = params.demo;
-  context.monitor = params.monitor;
+  context->tempo = params.base_tempo;
+  context->demo = params.demo;
+  context->monitor = params.monitor;
 
-  context.sub_state = (unsigned int *)calloc(
-      program.frag_count * program.sub_type_count, sizeof(unsigned int));
+  memset(context->sub_state, 0, sizeof(context->sub_state));
 
   if (params.demo) {
     randomize_context_state();
   }
 
-  context.seeds = malloc(program.frag_count * sizeof(unsigned int));
+  memset(context->seeds, 0, sizeof(context->seeds));
+
   for (i = 0; i < program.frag_count; i++) {
-    context.seeds[i] = rand_uint(1000);
+    context->seeds[i] = rand_uint(1000);
   }
 
-  context.input_widths =
-      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
-  context.input_heights =
-      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
-  context.input_formats =
-      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
-  context.input_fps =
-      (unsigned int *)calloc(program.in_count, sizeof(unsigned int));
+  memset(context->input_widths, 0, sizeof(context->input_widths));
+  memset(context->input_heights, 0, sizeof(context->input_heights));
+  memset(context->input_formats, 0, sizeof(context->input_formats));
+  memset(context->input_fps, 0, sizeof(context->input_fps));
 
   for (i = 0; i < program.in_count; i++) {
     if (!inputs[i].error) {
-      context.input_widths[i] = inputs[i].width;
-      context.input_heights[i] = inputs[i].height;
-      context.input_formats[i] = inputs[i].pixelformat;
+      context->input_widths[i] = inputs[i].width;
+      context->input_heights[i] = inputs[i].height;
+      context->input_formats[i] = inputs[i].pixelformat;
     }
   }
 }
 
-static void free_context() {
-  free(context.sub_state);
-  free(context.seeds);
-  free(context.input_widths);
-  free(context.input_heights);
-  free(context.input_formats);
-  free(context.input_fps);
-}
+static void free_context() { shared_close_context(context); }
 
 static void hot_reload() {
   unsigned int i;
@@ -189,7 +169,7 @@ static void start_video_captures(unsigned int video_count) {
 
   for (i = 0; i < video_count; i++) {
     if (!inputs[i].error) {
-      video_background_read(&inputs[i], stop);
+      video_background_read(&inputs[i], context, i);
     }
   }
 }
@@ -209,7 +189,7 @@ static void free_video_captures(unsigned int video_count) {
 static void error_callback(int error, const char *description) {
   log_error("[GLFW] %d: %s", error, description);
   window_terminate();
-  stop->value = true;
+  context->stop = true;
   exit(EXIT_FAILURE);
 }
 
@@ -224,7 +204,7 @@ static void key_callback(Window *window, int key,
     randomize_context_state();
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
-    context.demo = !context.demo;
+    context->demo = !context->demo;
   }
 }
 
@@ -235,10 +215,10 @@ static void loop(bool hr) {
 
   compute_fps();
 
-  context.time = window_get_time();
+  context->time = window_get_time();
 
   if (window_output != NULL) {
-    window_use(window_output, &context);
+    window_use(window_output, context);
 
     shaders_compute(program, context, false, false);
 
@@ -246,7 +226,7 @@ static void loop(bool hr) {
   }
 
   if (window_monitor != NULL) {
-    window_use(window_monitor, &context);
+    window_use(window_monitor, context);
 
     shaders_compute(program, context, true, window_output != NULL);
 
@@ -259,11 +239,13 @@ static void loop(bool hr) {
 void forge_run(Parameters params) {
   unsigned int frag_count;
 
-  stop = shared_init_bool("/" PACKAGE "_stop", false);
+  context = shared_init_context("/" PACKAGE "_context");
 
-  shader_config = config_file_read(params.frag_config_path, false);
+  context->stop = false;
 
-  frag_count = config_file_get_int(shader_config, "FRAG_COUNT", 6);
+  config = config_file_read(params.config_path, false);
+
+  frag_count = config_file_get_int(config, "FRAG_COUNT", 6);
 
   init_files(params.frag_path, frag_count);
 
@@ -271,15 +253,15 @@ void forge_run(Parameters params) {
 
   window_startup(error_callback);
 
-  context.internal_height = params.internal_size;
+  context->internal_height = params.internal_size;
 
   if (params.output) {
     window_output = window_init(PACKAGE " " VERSION, params.output_screen,
                                 params.windowed, NULL, key_callback);
 
-    window_use(window_output, &context);
+    window_use(window_output, context);
 
-    program = shaders_init(fragment_shaders, shader_config, context, inputs,
+    program = shaders_init(fragment_shaders, config, context, inputs,
                            params.video_in_count, NULL);
   } else {
     window_output = NULL;
@@ -290,9 +272,9 @@ void forge_run(Parameters params) {
         window_init(PACKAGE " " VERSION " (monitor)", params.monitor_screen,
                     params.windowed, window_output, key_callback);
 
-    window_use(window_monitor, &context);
+    window_use(window_monitor, context);
 
-    program = shaders_init(fragment_shaders, shader_config, context, inputs,
+    program = shaders_init(fragment_shaders, config, context, inputs,
                            params.video_in_count,
                            window_output != NULL ? &program : NULL);
   } else {
@@ -317,20 +299,20 @@ void forge_run(Parameters params) {
     loop(params.hot_reload);
   }
 
-  stop->value = true;
+  context->stop = true;
 
   wait(NULL);
 
   shaders_free(program);
 
   if (window_output != NULL) {
-    window_use(window_output, &context);
+    window_use(window_output, context);
 
     shaders_free_window(program, false);
   }
 
   if (window_monitor != NULL) {
-    window_use(window_monitor, &context);
+    window_use(window_monitor, context);
 
     shaders_free_window(program, params.output);
   }
@@ -341,7 +323,7 @@ void forge_run(Parameters params) {
 
   free_files(frag_count);
 
-  config_file_free(shader_config);
+  config_file_free(config);
 
   window_terminate();
 }

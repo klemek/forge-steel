@@ -22,7 +22,7 @@ static void print_help(int status_code) {
       "[-m=SCREEN] "
       "[-mo] "
       "[-f=DIR_PATH] "
-      "[-fc=CFG_PATH] "
+      "[-c=CFG_PATH] "
       "[-is=SIZE] "
       "[-v=FILE] "
       "[-vs=SIZE] "
@@ -39,7 +39,7 @@ static void print_help(int status_code) {
       "  -m, --monitor             monitor screen number (default: none)\n"
       "  -mo, --monitor-only       no output screen\n"
       "  -f, --frag                fragment shaders directory (default: TODO)\n"
-      "  -fc, --frag-config        fragment shaders config file (default: "
+      "  -c, --config        fragment shaders config file (default: "
       "TODO)\n"
       "  -is, --internal-size      internal texture height (default: 720)\n"
       "  -v, --video-in            path to video capture device (multiple "
@@ -92,7 +92,7 @@ Parameters args_parse(int argc, char **argv) {
   params.monitor = false;
   params.monitor_screen = 0;
   params.frag_path = 0;
-  params.frag_config_path = 0;
+  params.config_path = 0;
   params.internal_size = 720;
   params.video_size = 0;
   params.base_tempo = 60.0f;
@@ -114,8 +114,8 @@ Parameters args_parse(int argc, char **argv) {
       params.output_screen = parse_uint(arg, value);
     } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {
       params.frag_path = value;
-    } else if (is_arg(arg, "-fc") || is_arg(arg, "--frag-config")) {
-      params.frag_config_path = value;
+    } else if (is_arg(arg, "-c") || is_arg(arg, "--config")) {
+      params.config_path = value;
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
       params.internal_size = parse_uint(arg, value);
       if (params.internal_size == 0) {
