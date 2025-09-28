@@ -18,6 +18,8 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
+static const GLuint unused_uniform = (GLuint)-1;
+
 static void init_gl(ShaderProgram *program) {
   gladLoadGL(glfwGetProcAddress);
 
@@ -433,25 +435,25 @@ static void update_viewport(ShaderProgram program, SharedContext *context) {
 }
 
 static void write_uniform_1f(GLuint location, float value) {
-  if (location != -1) {
+  if (location != unused_uniform) {
     glUniform1f(location, (const GLfloat)value);
   }
 }
 
 static void write_uniform_1i(GLuint location, unsigned int value) {
-  if (location != -1) {
+  if (location != unused_uniform) {
     glUniform1i(location, (const GLint)value);
   }
 }
 
 static void write_uniform_2f(GLuint location, vec2 *value) {
-  if (location != -1) {
+  if (location != unused_uniform) {
     glUniform2fv(location, 1, (const GLfloat *)value);
   }
 }
 
 // static void write_uniform_3f(GLuint location, vec3 *value) {
-//   if (location != -1) {
+//   if (location != unused_uniform) {
 //     glUniform3fv(location, 1, (const GLfloat *)value);
 //   }
 // }

@@ -125,11 +125,12 @@ make -f Makefile.dev release-arch
   - [x] random mode / demo mode with R/D key
   - [x] Clean code and fix things
 - [ ] Midi
-  - [ ] Read Midi events
-  - [ ] Read midi mapping config file
+  - [x] Read Midi events
+  - [x] Read midi mapping config file
   - [ ] Write Midi events
+  - [ ] Send midi data to shaders
   - [ ] Save midi state
-  - [ ] State machine with A/B switch
+  - [x] State machine with A/B switch
   - [ ] Tap-tempo feature
   - [ ] Clean code and fix things
 - [x] Video input
