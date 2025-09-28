@@ -20,7 +20,19 @@ MidiDevice midi_open(char *name) {
   return device;
 }
 
-bool midi_background_listen(MidiDevice device, SharedContext *context) {
+void midi_write(MidiDevice device, unsigned char code, float value) {
+  unsigned char buffer[3];
+
+  buffer[0] = 0xB0;
+  buffer[1] = code;
+  buffer[2] = (unsigned char)(256 * value);
+
+  snd_rawmidi_write(device.output, buffer, 3);
+}
+
+bool midi_background_listen(MidiDevice device, SharedContext *context,
+                            void (*event_callback)(unsigned char code,
+                                                   float value)) {
   pid_t pid;
   int bytes_read;
   unsigned char buffer[3];
@@ -38,7 +50,9 @@ bool midi_background_listen(MidiDevice device, SharedContext *context) {
   while (!context->stop) {
     bytes_read = snd_rawmidi_read(device.input, buffer, 3);
     if (bytes_read == 3) {
-      log_debug("midi: %d %.2f", buffer[1], (float)buffer[2] / 256);
+      event_callback(buffer[1], (float)buffer[2] / 256.0);
+      log_debug("midi: %02x %d %.2f", buffer[0], buffer[1],
+                (float)buffer[2] / 256);
     }
   }
 

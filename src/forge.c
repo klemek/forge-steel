@@ -212,6 +212,11 @@ static void key_callback(Window *window, int key,
   }
 }
 
+static void midi_callback(unsigned char code, float value) {
+  log_debug("midi: %d %.2f", code, value);
+  midi_write(midi, code, value);
+}
+
 static void loop(bool hr) {
   if (hr) {
     hot_reload();
@@ -264,7 +269,7 @@ void forge_run(Parameters params) {
   if (midi.error) {
     params.demo = true;
   } else {
-    if (!midi_background_listen(midi, context)) {
+    if (!midi_background_listen(midi, context, midi_callback)) {
       return;
     }
   }
