@@ -51,11 +51,12 @@ static void compute_fps() {
   }
 }
 
+// TODO put in state file
 static void randomize_context_state() {
   unsigned int i;
 
-  for (i = 0; i < program.frag_count * program.sub_type_count; i++) {
-    context->sub_state[i] = rand_uint(program.sub_variant_count);
+  for (i = 0; i < program.frag_count; i++) {
+    context->state[i] = rand_uint(program.sub_variant_count);
   }
 }
 static void init_context(Parameters params) {
@@ -65,7 +66,7 @@ static void init_context(Parameters params) {
   context->demo = params.demo;
   context->monitor = params.monitor;
 
-  memset(context->sub_state, 0, sizeof(context->sub_state));
+  memset(context->state, 0, sizeof(context->state));
 
   if (params.demo) {
     randomize_context_state();
@@ -215,6 +216,7 @@ static void key_callback(Window *window, int key,
 static void midi_callback(unsigned char code, float value) {
   log_debug("midi: %d %.2f", code, value);
   midi_write(midi, code, value);
+  // TODO treat in state file
 }
 
 static void loop(bool hr) {
@@ -307,6 +309,7 @@ void forge_run(Parameters params) {
   init_context(params);
 
   if (program.error) {
+    context->stop = true;
     window_terminate();
     exit(EXIT_FAILURE);
   }

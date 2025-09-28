@@ -300,13 +300,9 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
   prefix = config_file_get_str(config, "UNIFORM_STATE_PREFIX", "state");
   for (j = 0; j < program->frag_count; j++) {
-    for (k = 0; k < program->sub_type_count; k++) {
-      sprintf(name, "%s%d_%d", prefix, j + 1, k + 1);
-      program
-          ->istate_locations[i * program->frag_count * program->sub_type_count +
-                             j * program->sub_type_count + k] =
-          glGetUniformLocation(program->programs[i], name);
-    }
+    sprintf(name, "%s%d", prefix, j + 1);
+    program->istate_locations[i * program->frag_count + j] =
+        glGetUniformLocation(program->programs[i], name);
   }
 
   for (j = 0; j < program->sub_type_count; j++) {
@@ -510,18 +506,16 @@ static void use_program(ShaderProgram program, int i, bool output,
   }
 
   // set subroutines for fragment and update state uniforms
+  k = context->state[i];
   for (j = 0; j < program.sub_type_count; j++) {
-    k = context->sub_state[i * program.sub_type_count + j];
     subroutines[j] = program.sub_locations[i * program.sub_type_count *
                                                program.sub_variant_count +
                                            j * program.sub_variant_count + k];
-    for (k = 0; k < program.frag_count; k++) {
-      glUniform1i(
-          program.istate_locations[i * program.frag_count *
-                                       program.sub_type_count +
-                                   k * program.sub_type_count + j],
-          (const GLint)context->sub_state[k * program.sub_type_count + j]);
-    }
+  }
+
+  for (j = 0; j < program.frag_count; j++) {
+    glUniform1i(program.istate_locations[i * program.frag_count + j],
+                (const GLint)context->state[j]);
   }
 
   glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program.sub_type_count,

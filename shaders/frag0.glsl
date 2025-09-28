@@ -24,12 +24,12 @@ uniform int seed6;
 uniform int seed7;
 uniform int seed8;
 
-uniform int state3_1;
-uniform int state4_1;
-uniform int state5_2;
-uniform int state6_2;
-uniform int state7_3;
-uniform int state8_2;
+uniform int state3;
+uniform int state4;
+uniform int state5;
+uniform int state6;
+uniform int state7;
+uniform int state8;
 
 // 2. textures
 // ---------------
@@ -1243,16 +1243,16 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     int page = 0; // TODO debug page
     int selected_src = 0; // TODO debug selected
     int selected_fx = 0; // TODO debug selected
-    int selected_srca = state3_1;
-    int selected_srcb = state4_1;
-    int selected_fxa = state5_2;
-    int selected_fxb = state6_2;
-    int selected_mfx = state8_2;
+    int selected_srca = state3;
+    int selected_srcb = state4;
+    int selected_fxa = state5;
+    int selected_fxb = state6;
+    int selected_mfx = state8;
     float fxa_value = magic(seed5);
     float fxb_value = magic(seed6);
     float mfx_value = magic(seed8);
     float mix_value = magic(seed7);
-    int mix_type = state7_3 % 2;
+    bool mix_type = magic_trigger(seed7 + 10);
 
     // logic
 
@@ -1342,7 +1342,7 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     f = mix(f, 1 - f, rect(uv2, vec2(-2, -2.9 + 0.9 * mfx_value), vec2(0.9, 0.9 * mfx_value)));
 
     // show mix
-    f += char_at(uv2, vec2(1.55, -0.6), mix_type > 0 ? 0x4B : 0x4D);
+    f += char_at(uv2, vec2(1.55, -0.6), mix_type ? 0x4B : 0x4D);
     f = mix(f, 1 - f, rect(uv2, vec2(2, -0.9 + 0.9 * mix_value), vec2(0.9, 0.9 * mix_value)));
 
     // show debug info
@@ -1817,125 +1817,6 @@ subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feed
     vec3 c = c0;
 
     return vec4(mix(c0, c, fx), 1.0);
-}
-
-// 7. mix
-// ----------
-
-subroutine vec4 mix_stage_sub(vec2 vUV, sampler2D tex_a, sampler2D tex_a, int seed);
-
-subroutine uniform mix_stage_sub mix_stage;
-
-// MIX 1 : mix
-subroutine(mix_stage_sub) vec4 mix_1(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    // start
-
-	vec2 uv0 = vUV.st;
-
-    // controls
-
-    float mix_src = magic(seed);
-
-    // logic
-
-    vec4 color_a = texture(ta, vUV);
-    vec4 color_b = texture(tb, vUV);
-
-    return mix(color_b, color_a, mix_src);
-}
-
-// MIX 2 : luminance key
-subroutine(mix_stage_sub) vec4 mix_2(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    // start
-
-	vec2 uv0 = vUV.st;
-
-    // controls
-
-    float mix_src = magic(seed);
-
-    // logic
-    
-    vec4 color_a = texture(ta, vUV);
-    vec4 color_b = texture(tb, vUV);
-
-    float k = mean(color_a);
-
-    return mix(color_b, color_a, step(mix_src, k));
-}
-
-// alternate mix 1 / 2 for random selection
-
-subroutine(mix_stage_sub) vec4 mix_3(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_1(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_4(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_2(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_5(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_1(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_6(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_2(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_7(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_1(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_8(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_2(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_9(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_1(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_10(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_2(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_11(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_1(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_12(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_2(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_13(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_1(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_14(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_2(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_15(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_1(vUV, ta, tb, seed);
-}
-
-subroutine(mix_stage_sub) vec4 mix_16(vec2 vUV, sampler2D ta, sampler2D tb, int seed)
-{
-    return mix_2(vUV, ta, tb, seed);
 }
 
 const mat3x3 yuv_to_rgb = {{1,1,1},{0,-0.39465,2.03211},{1.13983,-0.5806,0}};

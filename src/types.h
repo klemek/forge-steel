@@ -125,7 +125,7 @@ typedef struct SharedContext {
   double time;
   unsigned int fps;
   float tempo;
-  unsigned int sub_state[MAX_FRAG * MAX_FRAG];
+  unsigned int state[MAX_FRAG];
   bool demo;
   unsigned int seeds[MAX_FRAG];
   bool monitor;
