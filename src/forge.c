@@ -22,8 +22,8 @@ static SharedContext *context;
 static ShaderProgram program;
 static Window *window_output;
 static Window *window_monitor;
-static VideoCapture *inputs;
-static File *fragment_shaders;
+static VideoCapture inputs[ARRAY_SIZE];
+static File fragment_shaders[ARRAY_SIZE];
 static File common_shader_code;
 static Timer timer;
 static ConfigFile config;
@@ -53,7 +53,8 @@ static void compute_fps() {
   }
 }
 
-static void init_context(Parameters params) {
+static void init_context(Parameters params, unsigned int in_count,
+                         unsigned int frag_count) {
   unsigned int i;
 
   context->tempo = params.base_tempo;
@@ -63,12 +64,12 @@ static void init_context(Parameters params) {
   memset(context->state, 0, sizeof(context->state));
 
   if (params.demo) {
-    state_randomize(context, state_config, program.frag_count);
+    state_randomize(context, state_config, frag_count);
   }
 
   memset(context->seeds, 0, sizeof(context->seeds));
 
-  for (i = 0; i < program.frag_count; i++) {
+  for (i = 0; i < frag_count; i++) {
     context->seeds[i] = rand_uint(1000);
   }
 
@@ -77,7 +78,7 @@ static void init_context(Parameters params) {
   memset(context->input_formats, 0, sizeof(context->input_formats));
   memset(context->input_fps, 0, sizeof(context->input_fps));
 
-  for (i = 0; i < program.in_count; i++) {
+  for (i = 0; i < in_count; i++) {
     if (!inputs[i].error) {
       context->input_widths[i] = inputs[i].width;
       context->input_heights[i] = inputs[i].height;
@@ -127,8 +128,6 @@ File read_fragment_shader_file(char *frag_path, unsigned int i) {
 static void init_files(char *frag_path, unsigned int frag_count) {
   unsigned int i;
 
-  fragment_shaders = malloc(frag_count * sizeof(File));
-
   for (i = 0; i < frag_count + 1; i++) {
     if (i == 0) {
       common_shader_code = read_fragment_shader_file(frag_path, i);
@@ -153,8 +152,6 @@ static void free_files(unsigned int frag_count) {
 static void init_inputs(char *video_in[MAX_VIDEO], unsigned int input_count,
                         unsigned int video_size) {
   unsigned int i;
-
-  inputs = malloc(input_count * sizeof(VideoCapture));
 
   for (i = 0; i < input_count; i++) {
     inputs[i] = video_init(video_in[i], video_size);
@@ -181,8 +178,6 @@ static void free_video_captures(unsigned int video_count) {
 
     video_free(inputs[i]);
   }
-
-  free(inputs);
 }
 
 static void error_callback(int error, const char *description) {
@@ -242,7 +237,7 @@ static void loop(bool hr) {
 }
 
 void forge_run(Parameters params) {
-  unsigned int frag_count;
+  unsigned int frag_count, in_count;
 
   context = shared_init_context("/" PACKAGE "_context");
 
@@ -250,13 +245,16 @@ void forge_run(Parameters params) {
 
   config = config_file_read(params.config_path, false);
 
-  state_config = state_parse_config(config);
+  frag_count = config_file_get_int(config, "FRAG_COUNT", 1);
+  in_count = config_file_get_int(config, "IN_COUNT", 0);
 
-  frag_count = config_file_get_int(config, "FRAG_COUNT", 6);
+  state_config = state_parse_config(config);
 
   init_files(params.frag_path, frag_count);
 
   init_inputs(params.video_in, params.video_in_count, params.video_size);
+
+  init_context(params, in_count, frag_count);
 
   if (!start_video_captures(params.video_in_count)) {
     return;
@@ -304,8 +302,6 @@ void forge_run(Parameters params) {
     window_monitor = NULL;
   }
 
-  init_context(params);
-
   if (program.error) {
     context->stop = true;
     window_terminate();
@@ -344,8 +340,6 @@ void forge_run(Parameters params) {
   free_files(frag_count);
 
   config_file_free(config);
-
-  state_free_config(state_config);
 
   window_terminate();
 }

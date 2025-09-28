@@ -64,36 +64,36 @@ typedef struct ShaderProgram {
   GLuint vertex_array[2];
 
   unsigned int tex_count;
-  GLuint *textures;
+  GLuint textures[ARRAY_SIZE];
 
   unsigned int frag_count;
   unsigned int frag_output_index;
   unsigned int frag_monitor_index;
 
-  GLuint *programs;
+  GLuint programs[ARRAY_SIZE];
 
-  GLuint *frame_buffers;
-  GLuint *fragment_shaders;
+  GLuint frame_buffers[ARRAY_SIZE];
+  GLuint fragment_shaders[ARRAY_SIZE];
 
-  GLuint *itime_locations;
-  GLuint *itempo_locations;
-  GLuint *ifps_locations;
-  GLuint *ires_locations;
-  GLuint *itexres_locations;
-  GLuint *iinres_locations;
-  GLuint *iinfmt_locations;
-  GLuint *iinfps_locations;
-  GLuint *idemo_locations;
-  GLuint *iseed_locations;
-  GLuint *istate_locations;
+  GLuint itime_locations[ARRAY_SIZE];
+  GLuint itempo_locations[ARRAY_SIZE];
+  GLuint ifps_locations[ARRAY_SIZE];
+  GLuint ires_locations[ARRAY_SIZE];
+  GLuint itexres_locations[ARRAY_SIZE];
+  GLuint iinres_locations[ARRAY_SIZE];
+  GLuint iinfmt_locations[ARRAY_SIZE];
+  GLuint iinfps_locations[ARRAY_SIZE];
+  GLuint idemo_locations[ARRAY_SIZE];
+  GLuint iseed_locations[ARRAY_SIZE];
+  GLuint istate_locations[ARRAY_SIZE];
 
-  GLuint *vpos_locations;
+  GLuint vpos_locations[ARRAY_SIZE];
 
-  GLuint *textures_locations;
+  GLuint textures_locations[ARRAY_SIZE];
 
   unsigned int sub_type_count;
   unsigned int sub_variant_count;
-  GLuint *sub_locations;
+  GLuint sub_locations[ARRAY_SIZE];
 
   unsigned int in_count;
   EGLDisplay egl_display;
@@ -138,21 +138,23 @@ typedef struct SharedContext {
 
 typedef struct StateConfig {
   unsigned int select_page_count;
-  unsigned int *select_page_codes;
+  unsigned int select_page_codes[ARRAY_SIZE];
 
   unsigned int select_item_count;
-  unsigned int *select_item_codes;
+  unsigned int select_item_codes[ARRAY_SIZE];
 
-  unsigned int *select_frag_codes;
+  unsigned int select_frag_codes[ARRAY_SIZE];
 
   unsigned int src_count;
-  unsigned int *src_active_counts;
-  unsigned int *src_active;
-  unsigned int *src_subcounts;
-  unsigned int *src_codes;
+  unsigned int src_active_counts[ARRAY_SIZE];
+  unsigned int src_active_offsets[ARRAY_SIZE];
+  unsigned int src_active_codes[ARRAY_SIZE];
+  unsigned int src_subcounts[ARRAY_SIZE];
+  unsigned int src_offsets[ARRAY_SIZE];
+  unsigned int src_codes[ARRAY_SIZE];
 
   unsigned int fader_count;
-  unsigned int *fader_codes;
+  unsigned int fader_codes[ARRAY_SIZE];
 
   unsigned int tap_tempo_code;
 } StateConfig;

@@ -35,8 +35,6 @@ static void init_gl(ShaderProgram *program) {
 static void init_textures(ShaderProgram *program, SharedContext *context) {
   unsigned int i;
 
-  program->textures = malloc(program->tex_count * sizeof(GLuint));
-
   glGenTextures(program->tex_count, program->textures);
 
   for (i = 0; i < program->tex_count; i++) {
@@ -116,7 +114,7 @@ static void init_input(ShaderProgram *program, ConfigFile config,
                        VideoCapture *inputs, unsigned int input_count) {
   unsigned int i;
   unsigned tex_i;
-  char name[32];
+  char name[256];
 
   for (i = 0; i < program->in_count; i++) {
     if (i < input_count && !inputs[i].error) {
@@ -132,9 +130,7 @@ static void init_input(ShaderProgram *program, ConfigFile config,
 static void init_framebuffers(ShaderProgram *program, ConfigFile config) {
   unsigned int i;
   unsigned tex_i;
-  char name[32];
-
-  program->frame_buffers = malloc(program->frag_count * sizeof(GLuint));
+  char name[256];
 
   glGenFramebuffers(program->frag_count, program->frame_buffers);
 
@@ -223,8 +219,6 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
   program->error |= !compile_shader(
       program->vertex_shader, "internal vertex shader", vertex_shader_text);
 
-  program->fragment_shaders = malloc(program->frag_count * sizeof(GLuint));
-
   // compile fragment shaders
   for (i = 0; i < program->frag_count; i++) {
     program->fragment_shaders[i] = glCreateShader(GL_FRAGMENT_SHADER);
@@ -241,7 +235,7 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
 static void init_single_program(ShaderProgram *program, unsigned int i,
                                 ConfigFile config) {
   unsigned int j, k;
-  char name[32];
+  char name[256];
   char *prefix;
   program->programs[i] = glCreateProgram();
 
@@ -334,30 +328,6 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
 static void init_programs(ShaderProgram *program, ConfigFile config) {
   unsigned int i;
-
-  program->programs = malloc(program->frag_count * sizeof(GLuint));
-  program->itime_locations = malloc(program->frag_count * sizeof(GLuint));
-  program->itempo_locations = malloc(program->frag_count * sizeof(GLuint));
-  program->ifps_locations = malloc(program->frag_count * sizeof(GLuint));
-  program->ires_locations = malloc(program->frag_count * sizeof(GLuint));
-  program->itexres_locations = malloc(program->frag_count * sizeof(GLuint));
-  program->iinres_locations =
-      malloc(program->frag_count * program->in_count * sizeof(GLuint));
-  program->iinfmt_locations =
-      malloc(program->frag_count * program->in_count * sizeof(GLuint));
-  program->iinfps_locations =
-      malloc(program->frag_count * program->in_count * sizeof(GLuint));
-  program->idemo_locations = malloc(program->frag_count * sizeof(GLuint));
-  program->iseed_locations =
-      malloc(program->frag_count * program->frag_count * sizeof(GLuint));
-  program->istate_locations = malloc(program->frag_count * program->frag_count *
-                                     program->sub_type_count * sizeof(GLuint));
-  program->vpos_locations = malloc(program->frag_count * sizeof(GLuint));
-  program->textures_locations =
-      malloc(program->frag_count * program->tex_count * sizeof(GLuint));
-  program->sub_locations =
-      malloc(program->frag_count * program->sub_type_count *
-             program->sub_variant_count * sizeof(GLuint));
 
   for (i = 0; i < program->frag_count; i++) {
     init_single_program(program, i, config);
@@ -452,14 +422,13 @@ static void update_viewport(ShaderProgram program, SharedContext *context) {
 static void use_program(ShaderProgram program, int i, bool output,
                         SharedContext *context) {
   unsigned int j, k;
-  GLuint *subroutines;
+  GLuint subroutines[ARRAY_SIZE];
   vec2 resolution, tex_resolution, in_resolution;
 
   resolution[0] = (float)context->width;
   resolution[1] = (float)context->height;
   tex_resolution[0] = (float)context->internal_width;
   tex_resolution[1] = (float)context->internal_height;
-  subroutines = malloc(program.sub_type_count * sizeof(GLuint));
 
   // use specific shader program
   glUseProgram(program.programs[i]);
@@ -529,8 +498,6 @@ static void use_program(ShaderProgram program, int i, bool output,
 
   // draw output
   glDrawArrays(GL_TRIANGLES, 0, 6);
-
-  free(subroutines);
 }
 
 void shaders_compute(ShaderProgram program, SharedContext *context,

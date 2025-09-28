@@ -21,7 +21,7 @@ build:
 		-DGLFW_NATIVE_INCLUDE_NONE \
 		-DLOG_USE_COLOR \
 		-o build/$(TARGET) \
-		-g
+		-g -Og
 
 .PHONY: run
 run: build
