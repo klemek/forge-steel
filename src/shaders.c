@@ -366,7 +366,9 @@ static void init_programs(ShaderProgram *program, ConfigFile config) {
 
 ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
                            SharedContext *context, VideoCapture *inputs,
-                           unsigned int input_count, ShaderProgram *previous) {
+                           unsigned int input_count,
+                           unsigned int sub_variant_count,
+                           ShaderProgram *previous) {
   ShaderProgram program;
 
   if (previous == NULL) {
@@ -380,8 +382,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
     program.frag_monitor_index =
         config_file_get_int(config, "FRAG_MONITOR", 1) - 1;
     program.sub_type_count = config_file_get_int(config, "SUB_TYPE_COUNT", 0);
-    program.sub_variant_count =
-        config_file_get_int(config, "SUB_VARIANT_COUNT", 0);
+    program.sub_variant_count = sub_variant_count;
     program.in_count = config_file_get_int(config, "IN_COUNT", 0);
 
     if (program.frag_count > MAX_FRAG) {

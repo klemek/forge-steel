@@ -12,6 +12,7 @@
 #include "rand.h"
 #include "shaders.h"
 #include "shared.h"
+#include "state.h"
 #include "timer.h"
 #include "types.h"
 #include "video.h"
@@ -27,6 +28,7 @@ static File common_shader_code;
 static Timer timer;
 static ConfigFile config;
 static MidiDevice midi;
+static StateConfig state_config;
 
 static void compute_fps() {
   double fps;
@@ -51,14 +53,6 @@ static void compute_fps() {
   }
 }
 
-// TODO put in state file
-static void randomize_context_state() {
-  unsigned int i;
-
-  for (i = 0; i < program.frag_count; i++) {
-    context->state[i] = rand_uint(program.sub_variant_count);
-  }
-}
 static void init_context(Parameters params) {
   unsigned int i;
 
@@ -69,7 +63,7 @@ static void init_context(Parameters params) {
   memset(context->state, 0, sizeof(context->state));
 
   if (params.demo) {
-    randomize_context_state();
+    state_randomize(context, state_config, program.frag_count);
   }
 
   memset(context->seeds, 0, sizeof(context->seeds));
@@ -206,7 +200,7 @@ static void key_callback(Window *window, int key,
     window_close(window);
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
-    randomize_context_state();
+    state_randomize(context, state_config, program.frag_count);
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
     context->demo = !context->demo;
@@ -256,6 +250,8 @@ void forge_run(Parameters params) {
 
   config = config_file_read(params.config_path, false);
 
+  state_config = state_parse_config(config);
+
   frag_count = config_file_get_int(config, "FRAG_COUNT", 6);
 
   init_files(params.frag_path, frag_count);
@@ -286,8 +282,9 @@ void forge_run(Parameters params) {
 
     window_use(window_output, context);
 
-    program = shaders_init(fragment_shaders, config, context, inputs,
-                           params.video_in_count, NULL);
+    program = shaders_init(
+        fragment_shaders, config, context, inputs, params.video_in_count,
+        state_config.select_page_count * state_config.select_item_count, NULL);
   } else {
     window_output = NULL;
   }
@@ -299,9 +296,10 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, context);
 
-    program = shaders_init(fragment_shaders, config, context, inputs,
-                           params.video_in_count,
-                           window_output != NULL ? &program : NULL);
+    program = shaders_init(
+        fragment_shaders, config, context, inputs, params.video_in_count,
+        state_config.select_page_count * state_config.select_item_count,
+        window_output != NULL ? &program : NULL);
   } else {
     window_monitor = NULL;
   }
@@ -346,6 +344,8 @@ void forge_run(Parameters params) {
   free_files(frag_count);
 
   config_file_free(config);
+
+  state_free_config(state_config);
 
   window_terminate();
 }

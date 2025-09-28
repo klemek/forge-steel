@@ -17,4 +17,8 @@
 #define MAX_FRAG 64
 #endif
 
+#ifndef UNSET_MIDI_CODE
+#define UNSET_MIDI_CODE 300
+#endif
+
 #endif /* CONFIG_H */

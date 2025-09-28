@@ -136,6 +136,27 @@ typedef struct SharedContext {
   bool stop;
 } SharedContext;
 
+typedef struct StateConfig {
+  unsigned int select_page_count;
+  unsigned int *select_page_codes;
+
+  unsigned int select_item_count;
+  unsigned int *select_item_codes;
+
+  unsigned int *select_frag_codes;
+
+  unsigned int src_count;
+  unsigned int *src_active_counts;
+  unsigned int *src_active;
+  unsigned int *src_subcounts;
+  unsigned int *src_codes;
+
+  unsigned int fader_count;
+  unsigned int *fader_codes;
+
+  unsigned int tap_tempo_code;
+} StateConfig;
+
 typedef struct Timer {
   struct timeval start;
   unsigned int counter;
