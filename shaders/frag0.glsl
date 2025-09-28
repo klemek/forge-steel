@@ -14,6 +14,8 @@ uniform vec2 iTexResolution;
 uniform vec2 iInputResolution1;
 uniform vec2 iInputResolution2;
 uniform int iDemo;
+uniform int iPage;
+uniform int iSelected;
 
 uniform int seed1;
 uniform int seed2;
@@ -28,8 +30,10 @@ uniform int state3;
 uniform int state4;
 uniform int state5;
 uniform int state6;
-uniform int state7;
 uniform int state8;
+
+uniform int active1;
+uniform int active2;
 
 // 2. textures
 // ---------------
@@ -1239,10 +1243,6 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
 
     // inputs
 
-    int selected = 0; // TODO debug selected
-    int page = 0; // TODO debug page
-    int selected_src = 0; // TODO debug selected
-    int selected_fx = 0; // TODO debug selected
     int selected_srca = state3;
     int selected_srcb = state4;
     int selected_fxa = state5;
@@ -1298,18 +1298,18 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     f += char_at(uv2, vec2(-2.4, -2.55), hex_chars[selected_mfx]);
 
     // show current selected
-    f += selected == 0 ? h_rect(uv2, vec2(-5, 2), vec2(1.2), 0.1) : 0;
-    f += selected == 1 ? h_rect(uv2, vec2(-5, -2), vec2(1.2), 0.1) : 0;
-    f += selected == 2 ? h_rect(uv2, vec2(-2, 2), vec2(1.2), 0.1) : 0;
-    f += selected == 3 ? h_rect(uv2, vec2(5, 0), vec2(1.2), 0.1) : 0;
-    f += selected == 4 ? h_rect(uv2, vec2(-2, -2), vec2(1.2), 0.1) : 0;
+    f += iSelected == 3 ? h_rect(uv2, vec2(-5, 2), vec2(1.2), 0.1) : 0;
+    f += iSelected == 4 ? h_rect(uv2, vec2(-5, -2), vec2(1.2), 0.1) : 0;
+    f += iSelected == 5 ? h_rect(uv2, vec2(-2, 2), vec2(1.2), 0.1) : 0;
+    f += iSelected == 6 ? h_rect(uv2, vec2(5, 0), vec2(1.2), 0.1) : 0;
+    f += iSelected == 8 ? h_rect(uv2, vec2(-2, -2), vec2(1.2), 0.1) : 0;
 
     // show selected src/fx
-    f += selected_src == 0 ? h_rect(uv2, vec2(-5, 0.8), vec2(1, 0), 0.1) : 0;
-    f += selected_src == 1 ? h_rect(uv2, vec2(-5, -3.2), vec2(1, 0), 0.1) : 0;
-    f += selected_fx == 2 ? h_rect(uv2, vec2(-2, 0.8), vec2(1.2, 0), 0.1) : 0;
-    f += selected_fx == 3 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
-    f += selected_fx == 4 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
+    f += active1 == 1 ? h_rect(uv2, vec2(-5, 0.8), vec2(1, 0), 0.1) : 0;
+    f += active1 == 2 ? h_rect(uv2, vec2(-5, -3.2), vec2(1, 0), 0.1) : 0;
+    f += active2 == 1 ? h_rect(uv2, vec2(-2, 0.8), vec2(1.2, 0), 0.1) : 0;
+    f += active2 == 2 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
+    f += active2 == 3 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
 
     // show inputs / feedback
     float line_a_a = rect(uv2, vec2(-8, 2), vec2(2, 0.1));
@@ -1334,7 +1334,7 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     }
 
     // show page
-    f += char_at(uv2, vec2(-9.2, -4.3), hex_chars[page]);
+    f += char_at(uv2, vec2(-9.2, -4.3), hex_chars[iPage]);
 
     // show fx values
     f = mix(f, 1 - f, rect(uv2, vec2(-2, 1.1 + 0.9 * fxa_value), vec2(0.9, 0.9 * fxa_value)));

@@ -67,6 +67,11 @@ static void init_context(Parameters params, unsigned int in_count,
     state_randomize(context, state_config, frag_count);
   }
 
+  memset(context->active, 0, sizeof(context->active));
+
+  context->page = 0;
+  context->selected = 0;
+
   memset(context->seeds, 0, sizeof(context->seeds));
 
   for (i = 0; i < frag_count; i++) {
@@ -285,7 +290,8 @@ void forge_run(Parameters params) {
 
     program = shaders_init(
         fragment_shaders, config, context, inputs, params.video_in_count,
-        state_config.select_page_count * state_config.select_item_count, NULL);
+        state_config.select_page_count * state_config.select_item_count,
+        state_config.src_count, NULL);
   } else {
     window_output = NULL;
   }
@@ -300,7 +306,7 @@ void forge_run(Parameters params) {
     program = shaders_init(
         fragment_shaders, config, context, inputs, params.video_in_count,
         state_config.select_page_count * state_config.select_item_count,
-        window_output != NULL ? &program : NULL);
+        state_config.src_count, window_output != NULL ? &program : NULL);
   } else {
     window_monitor = NULL;
   }

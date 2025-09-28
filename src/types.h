@@ -14,16 +14,6 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef struct SharedUint {
-  int fd;
-  unsigned int value;
-} SharedUint;
-
-typedef struct SharedBool {
-  int fd;
-  bool value;
-} SharedBool;
-
 typedef struct Parameters {
   bool hot_reload;
   bool output;
@@ -86,6 +76,9 @@ typedef struct ShaderProgram {
   GLuint idemo_locations[ARRAY_SIZE];
   GLuint iseed_locations[ARRAY_SIZE];
   GLuint istate_locations[ARRAY_SIZE];
+  GLuint ipage_locations[ARRAY_SIZE];
+  GLuint iselected_locations[ARRAY_SIZE];
+  GLuint iactive_locations[ARRAY_SIZE];
 
   GLuint vpos_locations[ARRAY_SIZE];
 
@@ -94,6 +87,8 @@ typedef struct ShaderProgram {
   unsigned int sub_type_count;
   unsigned int sub_variant_count;
   GLuint sub_locations[ARRAY_SIZE];
+
+  unsigned int active_count;
 
   unsigned int in_count;
   EGLDisplay egl_display;
@@ -126,6 +121,9 @@ typedef struct SharedContext {
   unsigned int fps;
   float tempo;
   unsigned int state[MAX_FRAG];
+  unsigned int page;
+  unsigned int selected;
+  unsigned int active[ARRAY_SIZE];
   bool demo;
   unsigned int seeds[MAX_FRAG];
   bool monitor;

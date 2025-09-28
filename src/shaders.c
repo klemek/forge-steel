@@ -260,6 +260,12 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   program->idemo_locations[i] = glGetUniformLocation(
       program->programs[i],
       config_file_get_str(config, "UNIFORM_DEMO", "iDemo"));
+  program->ipage_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(config, "UNIFORM_PAGE", "iPage"));
+  program->iselected_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(config, "UNIFORM_SELECTED", "iSelected"));
 
   prefix = config_file_get_str(config, "UNIFORM_IN_RESOLUTION_PREFIX",
                                "iInputResolution");
@@ -310,6 +316,13 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
     }
   }
 
+  prefix = config_file_get_str(config, "UNIFORM_ACTIVE_PREFIX", "active");
+  for (j = 0; j < program->active_count; j++) {
+    sprintf(name, "%s%d", prefix, j + 1);
+    program->iactive_locations[i * program->active_count + j] =
+        glGetUniformLocation(program->programs[i], name);
+  }
+
   // create texX uniforms pointer
   prefix = config_file_get_str(config, "UNIFORM_TEX_PREFIX", "tex");
   for (j = 0; j < program->tex_count; j++) {
@@ -337,7 +350,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
                            SharedContext *context, VideoCapture *inputs,
                            unsigned int input_count,
                            unsigned int sub_variant_count,
-                           ShaderProgram *previous) {
+                           unsigned int active_count, ShaderProgram *previous) {
   ShaderProgram program;
 
   if (previous == NULL) {
@@ -351,8 +364,9 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
     program.frag_monitor_index =
         config_file_get_int(config, "FRAG_MONITOR", 1) - 1;
     program.sub_type_count = config_file_get_int(config, "SUB_TYPE_COUNT", 0);
-    program.sub_variant_count = sub_variant_count;
     program.in_count = config_file_get_int(config, "IN_COUNT", 0);
+    program.sub_variant_count = sub_variant_count;
+    program.active_count = active_count;
 
     if (program.frag_count > MAX_FRAG) {
       log_error("FRAG_COUNT over %d", MAX_FRAG);
@@ -378,8 +392,8 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
 
     init_vertices(&program);
 
-    log_debug("Error after init: %04x",
-              glGetError()); // TODO check error at each step
+    // log_debug("Error after init: %04x",
+    //           glGetError()); // TODO check error at each step
   } else {
     program = *previous;
   }
@@ -476,8 +490,15 @@ static void use_program(ShaderProgram program, int i, bool output,
   write_uniform_1f(program.itempo_locations[i], context->tempo);
   write_uniform_1i(program.ifps_locations[i], context->fps);
   write_uniform_1i(program.idemo_locations[i], context->demo ? 1 : 0);
+  write_uniform_1i(program.ipage_locations[i], context->page);
+  write_uniform_1i(program.iselected_locations[i], context->page);
   write_uniform_2f(program.ires_locations[i], &resolution);
   write_uniform_2f(program.itexres_locations[i], &tex_resolution);
+
+  for (j = 0; j < program.active_count; j++) {
+    write_uniform_1i(program.iactive_locations[i * program.active_count + j],
+                     context->active[i] + 1);
+  }
 
   for (j = 0; j < program.in_count; j++) {
     in_resolution[0] = context->input_widths[j];

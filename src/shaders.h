@@ -7,7 +7,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
                            SharedContext *context, VideoCapture *inputs,
                            unsigned int input_count,
                            unsigned int sub_variant_count,
-                           ShaderProgram *previous);
+                           unsigned int active_count, ShaderProgram *previous);
 
 void shaders_update(ShaderProgram program, File *fragment_shaders,
                     unsigned int i);
