@@ -1,7 +1,10 @@
-#include "state.h"
+#include <log.h>
+
 #include "config.h"
 #include "config_file.h"
+#include "midi.h"
 #include "rand.h"
+#include "state.h"
 #include "types.h"
 
 StateConfig state_parse_config(ConfigFile config) {
@@ -90,6 +93,38 @@ StateConfig state_parse_config(ConfigFile config) {
       config_file_get_int(config, "TAP_TEMPO", UNSET_MIDI_CODE);
 
   return state_config;
+}
+
+void state_apply_event(SharedContext *context, StateConfig state_config,
+                       unsigned int state_count, MidiDevice midi,
+                       unsigned char code, float value) {
+  log_debug("midi: %d %.2f", code, value);
+  midi_write(midi, code, value);
+  // TODO
+}
+
+bool state_background_midi_write(SharedContext *context,
+                                 StateConfig state_config, MidiDevice midi) {
+  pid_t pid;
+  int bytes_read;
+  unsigned char buffer[3];
+
+  pid = fork();
+  if (pid < 0) {
+    log_error("Could not create subprocess");
+    return false;
+  }
+  if (pid == 0) {
+    return true;
+  }
+  log_info("(state) background writing started (pid: %d)", pid);
+
+  while (!context->stop) {
+    // TODO tap tempo and more
+  }
+
+  log_info("(state) background writing stopped by main thread (pid: %d)", pid);
+  return false;
 }
 
 void state_randomize(SharedContext *context, StateConfig state_config,

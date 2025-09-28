@@ -2,7 +2,6 @@
 #include <log.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "config.h"
 #include "config_file.h"

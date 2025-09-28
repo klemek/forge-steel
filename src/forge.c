@@ -203,9 +203,8 @@ static void key_callback(Window *window, int key,
 }
 
 static void midi_callback(unsigned char code, float value) {
-  log_debug("midi: %d %.2f", code, value);
-  midi_write(midi, code, value);
-  // TODO treat in state file
+  state_apply_event(context, state_config, program.frag_count, midi, code,
+                    value);
 }
 
 static void loop(bool hr) {
@@ -266,6 +265,10 @@ void forge_run(Parameters params) {
     params.demo = true;
   } else {
     if (!midi_background_listen(midi, context, midi_callback)) {
+      return;
+    }
+
+    if (!state_background_midi_write(context, state_config, midi)) {
       return;
     }
   }
