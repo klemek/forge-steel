@@ -418,6 +418,30 @@ static void update_viewport(ShaderProgram program, SharedContext *context) {
   }
 }
 
+static void write_uniform_1f(GLuint location, float value) {
+  if (location != -1) {
+    glUniform1f(location, (const GLfloat)value);
+  }
+}
+
+static void write_uniform_1i(GLuint location, unsigned int value) {
+  if (location != -1) {
+    glUniform1i(location, (const GLint)value);
+  }
+}
+
+static void write_uniform_2f(GLuint location, vec2 *value) {
+  if (location != -1) {
+    glUniform2fv(location, 1, (const GLfloat *)value);
+  }
+}
+
+// static void write_uniform_3f(GLuint location, vec3 *value) {
+//   if (location != -1) {
+//     glUniform3fv(location, 1, (const GLfloat *)value);
+//   }
+// }
+
 static void use_program(ShaderProgram program, int i, bool output,
                         SharedContext *context) {
   unsigned int j, k;
@@ -448,30 +472,29 @@ static void use_program(ShaderProgram program, int i, bool output,
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
   }
   // set fragment uniforms
-  glUniform1f(program.itime_locations[i], (const GLfloat)context->time);
-  glUniform1f(program.itempo_locations[i], (const GLfloat)context->tempo);
-  glUniform1i(program.ifps_locations[i], (const GLint)context->fps);
-  glUniform1i(program.idemo_locations[i], (const GLint)(context->demo ? 1 : 0));
-  glUniform2fv(program.ires_locations[i], 1, (const GLfloat *)&resolution);
-  glUniform2fv(program.itexres_locations[i], 1,
-               (const GLfloat *)&tex_resolution);
+  write_uniform_1f(program.itime_locations[i], context->time);
+  write_uniform_1f(program.itempo_locations[i], context->tempo);
+  write_uniform_1i(program.ifps_locations[i], context->fps);
+  write_uniform_1i(program.idemo_locations[i], context->demo ? 1 : 0);
+  write_uniform_2f(program.ires_locations[i], &resolution);
+  write_uniform_2f(program.itexres_locations[i], &tex_resolution);
 
   for (j = 0; j < program.in_count; j++) {
     in_resolution[0] = context->input_widths[j];
     in_resolution[1] = context->input_heights[j];
 
-    glUniform2fv(program.iinres_locations[i * program.in_count + j], 1,
-                 (const GLfloat *)&in_resolution);
-    glUniform1i(program.iinfmt_locations[i * program.in_count + j],
-                (const GLint)context->input_formats[j]);
-    glUniform1i(program.iinfps_locations[i * program.in_count + j],
-                (const GLint)context->input_fps[j]);
+    write_uniform_2f(program.iinres_locations[i * program.in_count + j],
+                     &in_resolution);
+    write_uniform_1i(program.iinfmt_locations[i * program.in_count + j],
+                     context->input_formats[j]);
+    write_uniform_1i(program.iinfps_locations[i * program.in_count + j],
+                     context->input_fps[j]);
   }
 
   // set seeds uniforms
   for (j = 0; j < program.frag_count; j++) {
-    glUniform1i(program.iseed_locations[i * program.frag_count + j],
-                (const GLint)context->seeds[j]);
+    write_uniform_1i(program.iseed_locations[i * program.frag_count + j],
+                     context->seeds[j]);
   }
 
   // set subroutines for fragment and update state uniforms
@@ -483,8 +506,8 @@ static void use_program(ShaderProgram program, int i, bool output,
   }
 
   for (j = 0; j < program.frag_count; j++) {
-    glUniform1i(program.istate_locations[i * program.frag_count + j],
-                (const GLint)context->state[j]);
+    write_uniform_1i(program.istate_locations[i * program.frag_count + j],
+                     context->state[j]);
   }
 
   glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program.sub_type_count,
@@ -492,7 +515,7 @@ static void use_program(ShaderProgram program, int i, bool output,
 
   // set GL_TEXTURE(X) to uniform sampler2D texX
   for (j = 0; j < program.tex_count; j++) {
-    glUniform1i(program.textures_locations[i * program.tex_count + j], j);
+    write_uniform_1i(program.textures_locations[i * program.tex_count + j], j);
   }
 
   // draw output
