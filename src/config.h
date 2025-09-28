@@ -10,7 +10,11 @@
 #endif /* VERSION */
 
 #ifndef MAX_VIDEO
-#define MAX_VIDEO 256
+#define MAX_VIDEO 16
+#endif
+
+#ifndef MAX_FRAG
+#define MAX_FRAG 64
 #endif
 
 #endif /* CONFIG_H */

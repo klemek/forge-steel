@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include "config_file.h"
 #include "constants.h"
 #include "shaders.h"
@@ -377,7 +378,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
     program.last_width = context->width;
     program.last_height = context->height;
     program.tex_count = config_file_get_int(config, "TEX_COUNT", 9);
-    program.frag_count = config_file_get_int(config, "FRAG_COUNT", 6);
+    program.frag_count = config_file_get_int(config, "FRAG_COUNT", 10);
     program.frag_output_index =
         config_file_get_int(config, "FRAG_OUTPUT", 1) - 1;
     program.frag_monitor_index =
@@ -386,6 +387,12 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
     program.sub_variant_count =
         config_file_get_int(config, "SUB_VARIANT_COUNT", 0);
     program.in_count = config_file_get_int(config, "IN_COUNT", 0);
+
+    if (program.frag_count > MAX_FRAG) {
+      log_error("FRAG_COUNT over %d", MAX_FRAG);
+      program.error = true;
+      return program;
+    }
 
     init_gl(&program);
 

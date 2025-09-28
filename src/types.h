@@ -125,14 +125,14 @@ typedef struct SharedContext {
   double time;
   unsigned int fps;
   float tempo;
-  unsigned int sub_state[256]; // TODO
+  unsigned int sub_state[MAX_FRAG * MAX_FRAG];
   bool demo;
-  unsigned int seeds[256];
+  unsigned int seeds[MAX_FRAG];
   bool monitor;
-  unsigned int input_widths[256];
-  unsigned int input_heights[256];
-  unsigned int input_formats[256];
-  unsigned int input_fps[256];
+  unsigned int input_widths[MAX_VIDEO];
+  unsigned int input_heights[MAX_VIDEO];
+  unsigned int input_formats[MAX_VIDEO];
+  unsigned int input_fps[MAX_VIDEO];
   bool stop;
 } SharedContext;
 
