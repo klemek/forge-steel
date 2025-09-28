@@ -153,6 +153,7 @@ typedef struct ConfigFileItem {
 
 typedef struct MidiDevice {
   bool error;
+  char *name;
   snd_rawmidi_t *input;
   snd_rawmidi_t *output;
 } MidiDevice;

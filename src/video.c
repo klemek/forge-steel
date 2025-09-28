@@ -341,7 +341,7 @@ void video_background_read(VideoCapture *video_capture, SharedContext *context,
   if (pid == 0) {
     return;
   }
-  log_info("%s background acquisition started (pid: %d)", video_capture->name,
+  log_info("(%s) background acquisition started (pid: %d)", video_capture->name,
            pid);
   timer = timer_init(30);
 
@@ -355,13 +355,12 @@ void video_background_read(VideoCapture *video_capture, SharedContext *context,
     }
   }
   if (context->stop) {
-    log_info("%s background acquisition stopped by main thread (pid: %d)",
+    log_info("(%s) background acquisition stopped by main thread (pid: %d)",
              video_capture->name, pid);
   } else {
-    log_info("%s background acquisition stopped after error (pid: %d)",
+    log_info("(%s) background acquisition stopped after error (pid: %d)",
              video_capture->name, pid);
   }
-  window_terminate();
   exit(context->stop ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 

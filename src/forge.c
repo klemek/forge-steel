@@ -8,6 +8,7 @@
 #include "config_file.h"
 #include "file.h"
 #include "forge.h"
+#include "midi.h"
 #include "rand.h"
 #include "shaders.h"
 #include "shared.h"
@@ -25,6 +26,7 @@ static File *fragment_shaders;
 static File common_shader_code;
 static Timer timer;
 static ConfigFile config;
+static MidiDevice midi;
 
 static void compute_fps() {
   double fps;
@@ -251,6 +253,16 @@ void forge_run(Parameters params) {
 
   init_inputs(params.video_in, params.video_in_count, params.video_size);
 
+  start_video_captures(params.video_in_count);
+
+  midi = midi_open(config_file_get_str(config, "MIDI_HW", "hw"));
+
+  if (midi.error) {
+    params.demo = true;
+  } else {
+    midi_background_listen(midi, context);
+  }
+
   window_startup(error_callback);
 
   context->internal_height = params.internal_size;
@@ -290,8 +302,6 @@ void forge_run(Parameters params) {
 
   timer = timer_init(30);
 
-  start_video_captures(params.video_in_count);
-
   log_info("Initialized");
 
   while ((window_output == NULL || !window_should_close(window_output)) &&
@@ -318,6 +328,8 @@ void forge_run(Parameters params) {
   }
 
   free_video_captures(params.video_in_count);
+
+  midi_close(midi);
 
   free_context();
 
