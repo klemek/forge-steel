@@ -166,14 +166,16 @@ static void init_inputs(char *video_in[MAX_VIDEO], unsigned int input_count,
   }
 }
 
-static void start_video_captures(unsigned int video_count) {
+static bool start_video_captures(unsigned int video_count) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
-    if (!inputs[i].error) {
-      video_background_read(&inputs[i], context, i);
+    if (!inputs[i].error && !video_background_read(&inputs[i], context, i)) {
+      return false;
     }
   }
+
+  return true;
 }
 
 static void free_video_captures(unsigned int video_count) {
@@ -253,14 +255,18 @@ void forge_run(Parameters params) {
 
   init_inputs(params.video_in, params.video_in_count, params.video_size);
 
-  start_video_captures(params.video_in_count);
+  if (!start_video_captures(params.video_in_count)) {
+    return;
+  }
 
   midi = midi_open(config_file_get_str(config, "MIDI_HW", "hw"));
 
   if (midi.error) {
     params.demo = true;
   } else {
-    midi_background_listen(midi, context);
+    if (!midi_background_listen(midi, context)) {
+      return;
+    }
   }
 
   window_startup(error_callback);
@@ -311,8 +317,6 @@ void forge_run(Parameters params) {
 
   context->stop = true;
 
-  wait(NULL);
-
   shaders_free(program);
 
   if (window_output != NULL) {
@@ -328,8 +332,6 @@ void forge_run(Parameters params) {
   }
 
   free_video_captures(params.video_in_count);
-
-  midi_close(midi);
 
   free_context();
 

@@ -21,7 +21,7 @@ static void init_glfw(void (*error_callback)(int, const char *)) {
     exit(EXIT_FAILURE);
   }
 
-  log_info("[GLFS] Initialized...");
+  log_info("[GLFW] Initialized...");
 }
 
 static GLFWmonitor *get_monitor(unsigned char monitor_index) {

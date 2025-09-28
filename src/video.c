@@ -327,7 +327,7 @@ static bool read_video(VideoCapture *video_capture) {
   return true;
 }
 
-void video_background_read(VideoCapture *video_capture, SharedContext *context,
+bool video_background_read(VideoCapture *video_capture, SharedContext *context,
                            int input_index) {
   pid_t pid;
   Timer timer;
@@ -336,10 +336,10 @@ void video_background_read(VideoCapture *video_capture, SharedContext *context,
   pid = fork();
   if (pid < 0) {
     log_error("Could not create subprocess");
-    return;
+    return false;
   }
   if (pid == 0) {
-    return;
+    return true;
   }
   log_info("(%s) background acquisition started (pid: %d)", video_capture->name,
            pid);
@@ -362,6 +362,7 @@ void video_background_read(VideoCapture *video_capture, SharedContext *context,
              video_capture->name, pid);
   }
   exit(context->stop ? EXIT_SUCCESS : EXIT_FAILURE);
+  return false;
 }
 
 void video_free(VideoCapture video_capture) {
