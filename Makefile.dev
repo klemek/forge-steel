@@ -14,7 +14,7 @@ build:
 		-Iinclude \
 		hashmap.c/hashmap.c \
 		log.c/src/log.c \
-		-lm -lGL -lglfw -ldrm \
+		-lm -lGL -lglfw -lasound \
 		-Wall -Wextra \
 		-DGLFW_INCLUDE_NONE \
 		-DGLFW_EXPOSE_NATIVE_EGL \

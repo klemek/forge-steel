@@ -1,4 +1,5 @@
 #include <GLFW/glfw3.h>
+#include <alsa/asoundlib.h>
 #include <glad/egl.h>
 #include <glad/gl.h>
 #include <hashmap.h>
@@ -147,5 +148,11 @@ typedef struct ConfigFileItem {
   char key[256];
   char value[2048];
 } ConfigFileItem;
+
+typedef struct MidiDevice {
+  bool error;
+  snd_rawmidi_t *input;
+  snd_rawmidi_t *output;
+} MidiDevice;
 
 #endif /* TYPES_H */

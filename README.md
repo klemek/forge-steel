@@ -132,7 +132,7 @@ make -f Makefile.dev release-arch
   - [ ] State machine with A/B switch
   - [ ] Tap-tempo feature
   - [ ] Clean code and fix things
-- [ ] Video input
+- [x] Video input
   - [x] Fixed camera video
   - [x] Pass video info to shaders
   - [x] Sub process video reading
@@ -141,7 +141,7 @@ make -f Makefile.dev release-arch
   - [x] Get first video size matching internal size
   - [x] Other internal size for video
   - [x] Pass input fps into shaders for debug
-  - [ ] Clean code and fix things
+  - [x] Clean code and fix things
 - [x] Monitor screen
   - [x] 2nd window
   - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
