@@ -1,5 +1,6 @@
 #include <log.h>
 
+#include "arr.h"
 #include "config.h"
 #include "config_file.h"
 #include "midi.h"
@@ -12,32 +13,37 @@ StateConfig state_parse_config(ConfigFile config) {
   StateConfig state_config;
   char name[256];
 
-  state_config.select_page_count =
+  state_config.select_page_codes.length =
       config_file_get_int(config, "SELECT_PAGE_COUNT", 0);
 
-  for (i = 0; i < state_config.select_page_count; i++) {
+  for (i = 0; i < state_config.select_page_codes.length; i++) {
     sprintf(name, "SELECT_PAGE_%d", i + 1);
-    state_config.select_page_codes[i] =
+    state_config.select_page_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
   }
 
-  state_config.select_item_count =
+  state_config.select_item_codes.length =
       config_file_get_int(config, "SELECT_ITEM_COUNT", 0);
 
-  for (i = 0; i < state_config.select_item_count; i++) {
+  for (i = 0; i < state_config.select_item_codes.length; i++) {
     sprintf(name, "SELECT_ITEM_%d", i + 1);
-    state_config.select_item_codes[i] =
+    state_config.select_item_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
   }
 
-  frag_count = config_file_get_int(config, "FRAG_COUNT", 1);
+  state_config.state_max = state_config.select_page_codes.length *
+                           state_config.select_item_codes.length;
 
-  for (i = 0; i < frag_count; i++) {
+  state_config.select_frag_codes.length =
+      config_file_get_int(config, "FRAG_COUNT", 1);
+
+  for (i = 0; i < state_config.select_frag_codes.length; i++) {
     sprintf(name, "SELECT_FRAG_%d", i + 1);
-    state_config.select_frag_codes[i] =
+    state_config.select_frag_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
   }
 
+  // TODO uint arrays
   state_config.src_count = config_file_get_int(config, "SRC_COUNT", 0);
 
   total = 0;
@@ -96,9 +102,44 @@ StateConfig state_parse_config(ConfigFile config) {
 }
 
 void state_apply_event(SharedContext *context, StateConfig state_config,
-                       unsigned int state_count, MidiDevice midi,
-                       unsigned char code, float value) {
-  log_debug("midi: %d %.2f", code, value);
+                       MidiDevice midi, unsigned char code, float value) {
+  unsigned int index;
+  bool found;
+
+  found = false;
+
+  if (value > 0) {
+    index =
+        arr_uint_index_of(state_config.select_page_codes, (unsigned int)code);
+
+    // PAGE CHANGE
+    if (index != ARRAY_NOT_FOUND) {
+      context->page = index;
+      found = true;
+    }
+
+    index = arr_uint_index_of(state_config.select_frag_codes, code);
+
+    // TARGET CHANGE
+    if (index != ARRAY_NOT_FOUND) {
+      context->selected = index + 1;
+      found = true;
+    }
+
+    index = arr_uint_index_of(state_config.select_item_codes, code);
+
+    // ITEM CHANGE
+    if (index != ARRAY_NOT_FOUND) {
+      context->state[context->selected - 1] =
+          context->page * state_config.select_item_codes.length + index;
+      found = true;
+    }
+  }
+
+  if (!found) {
+    log_debug("unknown midi: %d %.2f", code, value);
+  }
+
   midi_write(midi, code, value);
   // TODO
 }
@@ -127,12 +168,10 @@ bool state_background_midi_write(SharedContext *context,
   return false;
 }
 
-void state_randomize(SharedContext *context, StateConfig state_config,
-                     unsigned int state_count) {
+void state_randomize(SharedContext *context, StateConfig state_config) {
   unsigned int i;
 
-  for (i = 0; i < state_count; i++) {
-    context->state[i] = rand_uint(state_config.select_page_count *
-                                  state_config.select_item_count);
+  for (i = 0; i < state_config.select_frag_codes.length; i++) {
+    context->state[i] = rand_uint(state_config.state_max);
   }
 }

@@ -64,7 +64,7 @@ static void init_context(Parameters params, unsigned int in_count,
   memset(context->state, 0, sizeof(context->state));
 
   if (params.demo) {
-    state_randomize(context, state_config, frag_count);
+    state_randomize(context, state_config);
   }
 
   memset(context->active, 0, sizeof(context->active));
@@ -200,7 +200,7 @@ static void key_callback(Window *window, int key,
     window_close(window);
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
-    state_randomize(context, state_config, program.frag_count);
+    state_randomize(context, state_config);
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
     context->demo = !context->demo;
@@ -208,8 +208,7 @@ static void key_callback(Window *window, int key,
 }
 
 static void midi_callback(unsigned char code, float value) {
-  state_apply_event(context, state_config, program.frag_count, midi, code,
-                    value);
+  state_apply_event(context, state_config, midi, code, value);
 }
 
 static void loop(bool hr) {
@@ -288,10 +287,9 @@ void forge_run(Parameters params) {
 
     window_use(window_output, context);
 
-    program = shaders_init(
-        fragment_shaders, config, context, inputs, params.video_in_count,
-        state_config.select_page_count * state_config.select_item_count,
-        state_config.src_count, NULL);
+    program = shaders_init(fragment_shaders, config, context, inputs,
+                           params.video_in_count, state_config.state_max,
+                           state_config.src_count, NULL);
   } else {
     window_output = NULL;
   }
@@ -303,10 +301,10 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, context);
 
-    program = shaders_init(
-        fragment_shaders, config, context, inputs, params.video_in_count,
-        state_config.select_page_count * state_config.select_item_count,
-        state_config.src_count, window_output != NULL ? &program : NULL);
+    program = shaders_init(fragment_shaders, config, context, inputs,
+                           params.video_in_count, state_config.state_max,
+                           state_config.src_count,
+                           window_output != NULL ? &program : NULL);
   } else {
     window_monitor = NULL;
   }

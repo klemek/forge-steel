@@ -14,6 +14,11 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+typedef struct UintArray {
+  unsigned int values[ARRAY_SIZE];
+  unsigned int length;
+} UintArray;
+
 typedef struct Parameters {
   bool hot_reload;
   bool output;
@@ -135,14 +140,14 @@ typedef struct SharedContext {
 } SharedContext;
 
 typedef struct StateConfig {
-  unsigned int select_page_count;
-  unsigned int select_page_codes[ARRAY_SIZE];
+  unsigned int state_max;
 
-  unsigned int select_item_count;
-  unsigned int select_item_codes[ARRAY_SIZE];
+  UintArray select_page_codes;
+  UintArray select_item_codes;
 
-  unsigned int select_frag_codes[ARRAY_SIZE];
+  UintArray select_frag_codes;
 
+  // TODO Uint arrays
   unsigned int src_count;
   unsigned int src_active_counts[ARRAY_SIZE];
   unsigned int src_active_offsets[ARRAY_SIZE];

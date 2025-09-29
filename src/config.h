@@ -25,4 +25,8 @@
 #define ARRAY_SIZE 1024
 #endif
 
+#ifndef ARRAY_NOT_FOUND
+#define ARRAY_NOT_FOUND ARRAY_SIZE + 1
+#endif
+
 #endif /* CONFIG_H */
