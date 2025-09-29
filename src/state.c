@@ -109,6 +109,49 @@ StateConfig state_parse_config(ConfigFile config) {
   return state_config;
 }
 
+static void safe_midi_write(MidiDevice midi, unsigned int code, float value) {
+  if (code != UNSET_MIDI_CODE) {
+    midi_write(midi, code, value);
+  }
+}
+
+static void update_page(SharedContext *context, StateConfig state_config,
+                        MidiDevice midi) {
+  unsigned int i, page_item_min, page_item_max;
+  // SHOW PAGE
+  for (i = 0; i < state_config.select_page_codes.length; i++) {
+    safe_midi_write(midi, state_config.select_page_codes.values[i],
+                    i == context->page ? 1.0 : 0);
+  }
+
+  // SHOW PAGE ITEM
+  page_item_min = state_config.select_item_codes.length * context->page;
+  page_item_max = page_item_min + state_config.select_item_codes.length;
+
+  if (context->state[context->selected] >= page_item_min &&
+      context->state[context->selected] < page_item_max) {
+    for (i = 0; i < state_config.select_item_codes.length; i++) {
+      safe_midi_write(
+          midi, state_config.select_item_codes.values[i],
+          i == context->state[context->selected] - page_item_min ? 1 : 0);
+    }
+  } else {
+    for (i = 0; i < state_config.select_item_codes.length; i++) {
+      safe_midi_write(midi, state_config.select_item_codes.values[i], 0);
+    }
+  }
+}
+
+static void update_selected(SharedContext *context, StateConfig state_config,
+                            MidiDevice midi) {
+  unsigned int i;
+
+  for (i = 0; i < state_config.select_frag_codes.length; i++) {
+    safe_midi_write(midi, state_config.select_frag_codes.values[i],
+                    i == context->selected ? 1.0 : 0);
+  }
+}
+
 void state_apply_event(SharedContext *context, StateConfig state_config,
                        MidiDevice midi, unsigned char code, float value) {
   unsigned int index, part;
@@ -116,50 +159,62 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
 
   found = false;
 
-  if (value > 0) {
-    // PAGE CHANGE
-    index = arr_uint_index_of(state_config.select_page_codes, code);
-    if (index != ARRAY_NOT_FOUND) {
+  // PAGE CHANGE
+  index = arr_uint_index_of(state_config.select_page_codes, code);
+  if (index != ARRAY_NOT_FOUND) {
+    found = true;
+    if (value > 0) {
       context->page = index;
-      found = true;
-    }
-
-    // TARGET CHANGE
-    index = arr_uint_index_of(state_config.select_frag_codes, code);
-    if (index != ARRAY_NOT_FOUND) {
-      context->selected = index + 1;
-      found = true;
-    }
-
-    // ITEM CHANGE
-    index = arr_uint_index_of(state_config.select_item_codes, code);
-    if (index != ARRAY_NOT_FOUND) {
-      context->state[context->selected - 1] =
-          context->page * state_config.select_item_codes.length + index;
-      found = true;
-    }
-
-    // ACTIVE CHANGE
-    index = arr_uint_index_of(state_config.src_active_codes, code);
-    if (index != ARRAY_NOT_FOUND) {
-      part = arr_uint_remap_index(state_config.src_active_offsets, &index);
-      context->active[part] = index;
-      found = true;
-    }
-
-    if (!found) {
-      log_trace("unknown midi: %d %.2f", code, value);
+      update_page(context, state_config, midi);
     }
   }
 
-  midi_write(midi, code, value);
-  // TODO
+  // TARGET CHANGE
+  index = arr_uint_index_of(state_config.select_frag_codes, code);
+  if (index != ARRAY_NOT_FOUND) {
+    found = true;
+    if (value > 0) {
+      context->selected = index;
+      update_page(context, state_config, midi);
+      update_selected(context, state_config, midi);
+    }
+  }
+
+  // ITEM CHANGE
+  index = arr_uint_index_of(state_config.select_item_codes, code);
+  if (index != ARRAY_NOT_FOUND) {
+    found = true;
+    if (value > 0) {
+      context->state[context->selected - 1] =
+          context->page * state_config.select_item_codes.length + index;
+      update_page(context, state_config, midi);
+    }
+  }
+
+  // ACTIVE CHANGE
+  index = arr_uint_index_of(state_config.src_active_codes, code);
+  if (index != ARRAY_NOT_FOUND) {
+    found = true;
+    if (value > 0) {
+      part = arr_uint_remap_index(state_config.src_active_offsets, &index);
+      context->active[part] = index;
+      // TODO things
+    }
+  }
+
+  // TODO values
+  if (!found) {
+    log_trace("unknown midi: %d %.2f", code, value);
+    midi_write(midi, code, value);
+  } else {
+    log_trace("midi: %d %.2f", code, value);
+  }
 }
 
-bool state_background_midi_write(
-    SharedContext *context, __attribute__((unused)) StateConfig state_config,
-    __attribute__((unused)) MidiDevice midi) {
+bool state_background_midi_write(SharedContext *context,
+                                 StateConfig state_config, MidiDevice midi) {
   pid_t pid;
+  unsigned int i, page_item_min, page_item_max;
 
   pid = fork();
   if (pid < 0) {
@@ -170,6 +225,9 @@ bool state_background_midi_write(
     return true;
   }
   log_info("(state) background writing started (pid: %d)", pid);
+
+  update_page(context, state_config, midi);
+  update_selected(context, state_config, midi);
 
   while (!context->stop) {
     // TODO tap tempo and more

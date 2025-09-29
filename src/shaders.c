@@ -493,7 +493,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   write_uniform_1i(program.ifps_locations[i], context->fps);
   write_uniform_1i(program.idemo_locations[i], context->demo ? 1 : 0);
   write_uniform_1i(program.ipage_locations[i], context->page);
-  write_uniform_1i(program.iselected_locations[i], context->selected);
+  write_uniform_1i(program.iselected_locations[i], context->selected + 1);
   write_uniform_2f(program.ires_locations[i], &resolution);
   write_uniform_2f(program.itexres_locations[i], &tex_resolution);
 

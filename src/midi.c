@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <alsa/asoundlib.h>
 
+#include "config.h"
 #include "log.h"
 #include "types.h"
 
@@ -25,7 +26,7 @@ void midi_write(MidiDevice device, unsigned char code, float value) {
 
   buffer[0] = 0xB0;
   buffer[1] = code;
-  buffer[2] = (unsigned char)(256 * value);
+  buffer[2] = (unsigned char)(128 * value);
 
   snd_rawmidi_write(device.output, buffer, 3);
 }
