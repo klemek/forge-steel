@@ -499,7 +499,7 @@ static void use_program(ShaderProgram program, int i, bool output,
 
   for (j = 0; j < program.active_count; j++) {
     write_uniform_1i(program.iactive_locations[i * program.active_count + j],
-                     context->active[i] + 1);
+                     context->active[j] + 1);
   }
 
   for (j = 0; j < program.in_count; j++) {

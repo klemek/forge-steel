@@ -15,7 +15,7 @@ MidiDevice midi_open(char *name) {
 
   device.error = device.input == NULL || device.output == NULL;
 
-  log_debug("(%s) MIDI open", name);
+  log_info("(%s) MIDI open", name);
 
   return device;
 }
@@ -51,8 +51,6 @@ bool midi_background_listen(MidiDevice device, SharedContext *context,
     bytes_read = snd_rawmidi_read(device.input, buffer, 3);
     if (bytes_read == 3) {
       event_callback(buffer[1], (float)buffer[2] / 256.0);
-      log_debug("midi: %02x %d %.2f", buffer[0], buffer[1],
-                (float)buffer[2] / 256);
     }
   }
 

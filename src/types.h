@@ -59,6 +59,7 @@ typedef struct ShaderProgram {
   GLuint vertex_array[2];
 
   unsigned int tex_count;
+  // TODO use arrays
   GLuint textures[ARRAY_SIZE];
 
   unsigned int frag_count;
@@ -118,6 +119,7 @@ typedef GLFWwindow Window;
 typedef struct SharedContext {
   int fd;
 
+  // TODO use arrays
   int width;
   int height;
   unsigned int internal_width;
@@ -141,23 +143,16 @@ typedef struct SharedContext {
 
 typedef struct StateConfig {
   unsigned int state_max;
+  unsigned int src_count;
 
   UintArray select_page_codes;
   UintArray select_item_codes;
-
   UintArray select_frag_codes;
-
-  // TODO Uint arrays
-  unsigned int src_count;
-  unsigned int src_active_counts[ARRAY_SIZE];
-  unsigned int src_active_offsets[ARRAY_SIZE];
-  unsigned int src_active_codes[ARRAY_SIZE];
-  unsigned int src_subcounts[ARRAY_SIZE];
-  unsigned int src_offsets[ARRAY_SIZE];
-  unsigned int src_codes[ARRAY_SIZE];
-
-  unsigned int fader_count;
-  unsigned int fader_codes[ARRAY_SIZE];
+  UintArray src_active_offsets;
+  UintArray src_active_codes;
+  UintArray src_offsets;
+  UintArray src_codes;
+  UintArray fader_codes;
 
   unsigned int tap_tempo_code;
 } StateConfig;

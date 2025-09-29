@@ -9,8 +9,9 @@
 #include "types.h"
 
 StateConfig state_parse_config(ConfigFile config) {
-  unsigned int i, j, offset, total, frag_count;
+  unsigned int i, j, offset, total;
   StateConfig state_config;
+  UintArray tmp_counts;
   char name[256];
 
   state_config.select_page_codes.length =
@@ -43,55 +44,62 @@ StateConfig state_parse_config(ConfigFile config) {
         config_file_get_int(config, name, UNSET_MIDI_CODE);
   }
 
-  // TODO uint arrays
-  state_config.src_count = config_file_get_int(config, "SRC_COUNT", 0);
+  state_config.src_count = tmp_counts.length =
+      state_config.src_active_offsets.length = state_config.src_offsets.length =
+          config_file_get_int(config, "SRC_COUNT", 0);
 
   total = 0;
-  for (i = 0; i < state_config.src_count; i++) {
+  for (i = 0; i < tmp_counts.length; i++) {
     sprintf(name, "SRC_%d_ACTIVE_COUNT", i + 1);
-    state_config.src_active_counts[i] = config_file_get_int(config, name, 0);
-    state_config.src_active_offsets[i] = total;
-    total += state_config.src_active_counts[i];
+    tmp_counts.values[i] = config_file_get_int(config, name, 0);
+    state_config.src_active_offsets.values[i] = total;
+    total += tmp_counts.values[i];
   }
 
-  for (i = 0; i < state_config.src_count; i++) {
-    for (j = 0; j < state_config.src_active_counts[i]; j++) {
+  state_config.src_active_codes.length = total;
+
+  for (i = 0; i < tmp_counts.length; i++) {
+    for (j = 0; j < tmp_counts.values[i]; j++) {
       sprintf(name, "SRC_%d_ACTIVE_%d", i + 1, j + 1);
-      state_config.src_active_codes[state_config.src_active_offsets[i] + j] =
+      state_config.src_active_codes
+          .values[state_config.src_active_offsets.values[i] + j] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
     }
   }
 
   total = 0;
-  for (i = 0; i < state_config.src_count; i++) {
+  for (i = 0; i < tmp_counts.length; i++) {
     sprintf(name, "SRC_%d_COUNT", i + 1);
-    state_config.src_subcounts[i] = config_file_get_int(config, name, 0);
-    state_config.src_offsets[i] = total;
-    total += state_config.src_subcounts[i];
+    tmp_counts.values[i] = config_file_get_int(config, name, 0);
+    state_config.src_offsets.values[i] = total;
+    total += tmp_counts.values[i];
   }
 
-  for (i = 0; i < state_config.src_count; i++) {
-    offset = state_config.src_offsets[i];
-    for (j = 0; j < state_config.src_subcounts[i]; j++) {
+  state_config.src_codes.length = total * 3;
+
+  for (i = 0; i < tmp_counts.length; i++) {
+    offset = state_config.src_offsets.values[i];
+    for (j = 0; j < tmp_counts.values[i]; j++) {
       sprintf(name, "SRC_%d_%d_X", i + 1, j + 1);
-      state_config.src_active_codes[(offset + j) * 3] =
+      state_config.src_codes.values[(offset + j) * 3] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
 
       sprintf(name, "SRC_%d_%d_Y", i + 1, j + 1);
-      state_config.src_active_codes[(offset + j) * 3 + 1] =
+      state_config.src_codes.values[(offset + j) * 3 + 1] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
 
       sprintf(name, "SRC_%d_%d_Z", i + 1, j + 1);
-      state_config.src_active_codes[(offset + j) * 3 + 2] =
+      state_config.src_codes.values[(offset + j) * 3 + 2] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
     }
   }
 
-  state_config.fader_count = config_file_get_int(config, "FADER_COUNT", 0);
+  state_config.fader_codes.length =
+      config_file_get_int(config, "FADER_COUNT", 0);
 
-  for (i = 0; i < state_config.fader_count; i++) {
+  for (i = 0; i < state_config.fader_codes.length; i++) {
     sprintf(name, "FADER_%d", i + 1);
-    state_config.fader_codes[i] =
+    state_config.fader_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
   }
 
@@ -103,52 +111,55 @@ StateConfig state_parse_config(ConfigFile config) {
 
 void state_apply_event(SharedContext *context, StateConfig state_config,
                        MidiDevice midi, unsigned char code, float value) {
-  unsigned int index;
+  unsigned int index, part;
   bool found;
 
   found = false;
 
   if (value > 0) {
-    index =
-        arr_uint_index_of(state_config.select_page_codes, (unsigned int)code);
-
     // PAGE CHANGE
+    index = arr_uint_index_of(state_config.select_page_codes, code);
     if (index != ARRAY_NOT_FOUND) {
       context->page = index;
       found = true;
     }
 
-    index = arr_uint_index_of(state_config.select_frag_codes, code);
-
     // TARGET CHANGE
+    index = arr_uint_index_of(state_config.select_frag_codes, code);
     if (index != ARRAY_NOT_FOUND) {
       context->selected = index + 1;
       found = true;
     }
 
-    index = arr_uint_index_of(state_config.select_item_codes, code);
-
     // ITEM CHANGE
+    index = arr_uint_index_of(state_config.select_item_codes, code);
     if (index != ARRAY_NOT_FOUND) {
       context->state[context->selected - 1] =
           context->page * state_config.select_item_codes.length + index;
       found = true;
     }
-  }
 
-  if (!found) {
-    log_debug("unknown midi: %d %.2f", code, value);
+    // ACTIVE CHANGE
+    index = arr_uint_index_of(state_config.src_active_codes, code);
+    if (index != ARRAY_NOT_FOUND) {
+      part = arr_uint_remap_index(state_config.src_active_offsets, &index);
+      context->active[part] = index;
+      found = true;
+    }
+
+    if (!found) {
+      log_trace("unknown midi: %d %.2f", code, value);
+    }
   }
 
   midi_write(midi, code, value);
   // TODO
 }
 
-bool state_background_midi_write(SharedContext *context,
-                                 StateConfig state_config, MidiDevice midi) {
+bool state_background_midi_write(
+    SharedContext *context, __attribute__((unused)) StateConfig state_config,
+    __attribute__((unused)) MidiDevice midi) {
   pid_t pid;
-  int bytes_read;
-  unsigned char buffer[3];
 
   pid = fork();
   if (pid < 0) {
