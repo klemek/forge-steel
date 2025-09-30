@@ -6,7 +6,8 @@
 StateConfig state_parse_config(ConfigFile config);
 
 void state_apply_event(SharedContext *context, StateConfig state_config,
-                       MidiDevice midi, unsigned char code, float value);
+                       MidiDevice midi, unsigned char code,
+                       unsigned char value);
 
 bool state_background_midi_write(SharedContext *context,
                                  StateConfig state_config, MidiDevice midi);

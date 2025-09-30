@@ -21,6 +21,10 @@
 #define UNSET_MIDI_CODE 300
 #endif
 
+#ifndef MIDI_MAX
+#define MIDI_MAX 127
+#endif
+
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE 1024
 #endif

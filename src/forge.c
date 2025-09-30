@@ -207,7 +207,7 @@ static void key_callback(Window *window, int key,
   }
 }
 
-static void midi_callback(unsigned char code, float value) {
+static void midi_callback(unsigned char code, unsigned char value) {
   state_apply_event(context, state_config, midi, code, value);
 }
 

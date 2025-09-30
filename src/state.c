@@ -109,7 +109,8 @@ StateConfig state_parse_config(ConfigFile config) {
   return state_config;
 }
 
-static void safe_midi_write(MidiDevice midi, unsigned int code, float value) {
+static void safe_midi_write(MidiDevice midi, unsigned int code,
+                            unsigned char value) {
   if (code != UNSET_MIDI_CODE) {
     midi_write(midi, code, value);
   }
@@ -121,7 +122,7 @@ static void update_page(SharedContext *context, StateConfig state_config,
   // SHOW PAGE
   for (i = 0; i < state_config.select_page_codes.length; i++) {
     safe_midi_write(midi, state_config.select_page_codes.values[i],
-                    i == context->page ? 1.0 : 0);
+                    i == context->page ? MIDI_MAX : 0);
   }
 
   // SHOW PAGE ITEM
@@ -131,9 +132,10 @@ static void update_page(SharedContext *context, StateConfig state_config,
   if (context->state[context->selected] >= page_item_min &&
       context->state[context->selected] < page_item_max) {
     for (i = 0; i < state_config.select_item_codes.length; i++) {
-      safe_midi_write(
-          midi, state_config.select_item_codes.values[i],
-          i == context->state[context->selected] - page_item_min ? 1 : 0);
+      safe_midi_write(midi, state_config.select_item_codes.values[i],
+                      i == context->state[context->selected] - page_item_min
+                          ? MIDI_MAX
+                          : 0);
     }
   } else {
     for (i = 0; i < state_config.select_item_codes.length; i++) {
@@ -148,12 +150,13 @@ static void update_selected(SharedContext *context, StateConfig state_config,
 
   for (i = 0; i < state_config.select_frag_codes.length; i++) {
     safe_midi_write(midi, state_config.select_frag_codes.values[i],
-                    i == context->selected ? 1.0 : 0);
+                    i == context->selected ? MIDI_MAX : 0);
   }
 }
 
 void state_apply_event(SharedContext *context, StateConfig state_config,
-                       MidiDevice midi, unsigned char code, float value) {
+                       MidiDevice midi, unsigned char code,
+                       unsigned char value) {
   unsigned int index, part;
   bool found;
 
@@ -185,7 +188,7 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
   if (index != ARRAY_NOT_FOUND) {
     found = true;
     if (value > 0) {
-      context->state[context->selected - 1] =
+      context->state[context->selected] =
           context->page * state_config.select_item_codes.length + index;
       update_page(context, state_config, midi);
     }
@@ -204,17 +207,16 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
 
   // TODO values
   if (!found) {
-    log_trace("unknown midi: %d %.2f", code, value);
+    log_trace("unknown midi: %d %d", code, value);
     midi_write(midi, code, value);
   } else {
-    log_trace("midi: %d %.2f", code, value);
+    log_trace("midi: %d %d", code, value);
   }
 }
 
 bool state_background_midi_write(SharedContext *context,
                                  StateConfig state_config, MidiDevice midi) {
   pid_t pid;
-  unsigned int i, page_item_min, page_item_max;
 
   pid = fork();
   if (pid < 0) {
