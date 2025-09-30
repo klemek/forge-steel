@@ -3,13 +3,11 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
-                           SharedContext *context, VideoCapture *inputs,
-                           unsigned int input_count,
-                           unsigned int sub_variant_count,
-                           unsigned int active_count, ShaderProgram *previous);
+ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
+                           SharedContext *context, VideoCaptureArray inputs,
+                           StateConfig state_config, ShaderProgram *previous);
 
-void shaders_update(ShaderProgram program, File *fragment_shaders,
+void shaders_update(ShaderProgram program, FileArray fragment_shaders,
                     unsigned int i);
 
 void shaders_compute(ShaderProgram program, SharedContext *context,

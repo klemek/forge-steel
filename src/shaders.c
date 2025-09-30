@@ -112,16 +112,16 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
 }
 
 static void init_input(ShaderProgram *program, ConfigFile config,
-                       VideoCapture *inputs, unsigned int input_count) {
+                       VideoCaptureArray inputs) {
   unsigned int i;
   unsigned tex_i;
   char name[256];
 
   for (i = 0; i < program->in_count; i++) {
-    if (i < input_count && !inputs[i].error) {
+    if (i < inputs.length && !inputs.values[i].error) {
       sprintf(name, "IN_%d_OUT", i + 1);
       tex_i = config_file_get_int(config, name, 0);
-      link_input_to_texture(program, &inputs[i], tex_i);
+      link_input_to_texture(program, &inputs.values[i], tex_i);
     } else {
       log_warn("Cannot link input %d", i + 1);
     }
@@ -212,7 +212,7 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
+static void init_shaders(ShaderProgram *program, FileArray fragment_shaders) {
   unsigned int i;
 
   // compile vertex shader
@@ -223,9 +223,9 @@ static void init_shaders(ShaderProgram *program, File *fragment_shaders) {
   // compile fragment shaders
   for (i = 0; i < program->frag_count; i++) {
     program->fragment_shaders[i] = glCreateShader(GL_FRAGMENT_SHADER);
-    program->error |=
-        !compile_shader(program->fragment_shaders[i], fragment_shaders[i].path,
-                        fragment_shaders[i].content);
+    program->error |= !compile_shader(program->fragment_shaders[i],
+                                      fragment_shaders.values[i].path,
+                                      fragment_shaders.values[i].content);
 
     if (program->error) {
       return;
@@ -348,11 +348,9 @@ static void init_programs(ShaderProgram *program, ConfigFile config) {
   }
 }
 
-ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
-                           SharedContext *context, VideoCapture *inputs,
-                           unsigned int input_count,
-                           unsigned int sub_variant_count,
-                           unsigned int active_count, ShaderProgram *previous) {
+ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
+                           SharedContext *context, VideoCaptureArray inputs,
+                           StateConfig state_config, ShaderProgram *previous) {
   ShaderProgram program;
 
   if (previous == NULL) {
@@ -367,8 +365,8 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
         config_file_get_int(config, "FRAG_MONITOR", 1) - 1;
     program.sub_type_count = config_file_get_int(config, "SUB_TYPE_COUNT", 0);
     program.in_count = config_file_get_int(config, "IN_COUNT", 0);
-    program.sub_variant_count = sub_variant_count;
-    program.active_count = active_count;
+    program.sub_variant_count = state_config.state_max;
+    program.active_count = state_config.src_count;
 
     if (program.frag_count > MAX_FRAG) {
       log_error("FRAG_COUNT over %d", MAX_FRAG);
@@ -386,7 +384,7 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
 
     init_textures(&program, context);
 
-    init_input(&program, config, inputs, input_count);
+    init_input(&program, config, inputs);
 
     init_framebuffers(&program, config);
 
@@ -405,12 +403,13 @@ ShaderProgram shaders_init(File *fragment_shaders, ConfigFile config,
   return program;
 }
 
-void shaders_update(ShaderProgram program, File *fragment_shaders,
+void shaders_update(ShaderProgram program, FileArray fragment_shaders,
                     unsigned int i) {
   bool result;
 
-  result = compile_shader(program.fragment_shaders[i], fragment_shaders[i].path,
-                          fragment_shaders[i].content);
+  result = compile_shader(program.fragment_shaders[i],
+                          fragment_shaders.values[i].path,
+                          fragment_shaders.values[i].content);
 
   if (result) {
     glLinkProgram(program.programs[i]);

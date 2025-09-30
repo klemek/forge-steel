@@ -22,8 +22,8 @@ static SharedContext *context;
 static ShaderProgram program;
 static Window *window_output;
 static Window *window_monitor;
-static VideoCapture inputs[ARRAY_SIZE];
-static File fragment_shaders[ARRAY_SIZE];
+static VideoCaptureArray inputs;
+static FileArray fragment_shaders;
 static File common_shader_code;
 static Timer timer;
 static ConfigFile config;
@@ -84,10 +84,10 @@ static void init_context(Parameters params, unsigned int in_count,
   memset(context->input_fps, 0, sizeof(context->input_fps));
 
   for (i = 0; i < in_count; i++) {
-    if (!inputs[i].error) {
-      context->input_widths[i] = inputs[i].width;
-      context->input_heights[i] = inputs[i].height;
-      context->input_formats[i] = inputs[i].pixelformat;
+    if (!inputs.values[i].error) {
+      context->input_widths[i] = inputs.values[i].width;
+      context->input_heights[i] = inputs.values[i].height;
+      context->input_formats[i] = inputs.values[i].pixelformat;
     }
   }
 }
@@ -106,9 +106,9 @@ static void hot_reload() {
   }
 
   for (i = 0; i < program.frag_count; i++) {
-    if (force_update || file_should_update(fragment_shaders[i])) {
-      file_update(&fragment_shaders[i]);
-      file_prepend(&fragment_shaders[i], common_shader_code);
+    if (force_update || file_should_update(fragment_shaders.values[i])) {
+      file_update(&fragment_shaders.values[i]);
+      file_prepend(&fragment_shaders.values[i], common_shader_code);
 
       shaders_update(program, fragment_shaders, i);
     }
@@ -133,13 +133,15 @@ File read_fragment_shader_file(char *frag_path, unsigned int i) {
 static void init_files(char *frag_path, unsigned int frag_count) {
   unsigned int i;
 
+  fragment_shaders.length = frag_count;
+
   for (i = 0; i < frag_count + 1; i++) {
     if (i == 0) {
       common_shader_code = read_fragment_shader_file(frag_path, i);
     } else {
-      fragment_shaders[i - 1] = read_fragment_shader_file(frag_path, i);
+      fragment_shaders.values[i - 1] = read_fragment_shader_file(frag_path, i);
 
-      file_prepend(&fragment_shaders[i - 1], common_shader_code);
+      file_prepend(&fragment_shaders.values[i - 1], common_shader_code);
     }
   }
 }
@@ -148,7 +150,7 @@ static void free_files(unsigned int frag_count) {
   unsigned int i;
 
   for (i = 0; i < frag_count; i++) {
-    file_free(&fragment_shaders[i], true);
+    file_free(&fragment_shaders.values[i], true);
   }
 
   file_free(&common_shader_code, true);
@@ -158,8 +160,10 @@ static void init_inputs(char *video_in[MAX_VIDEO], unsigned int input_count,
                         unsigned int video_size) {
   unsigned int i;
 
+  inputs.length = input_count;
+
   for (i = 0; i < input_count; i++) {
-    inputs[i] = video_init(video_in[i], video_size);
+    inputs.values[i] = video_init(video_in[i], video_size);
   }
 }
 
@@ -167,7 +171,8 @@ static bool start_video_captures(unsigned int video_count) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
-    if (!inputs[i].error && !video_background_read(&inputs[i], context, i)) {
+    if (!inputs.values[i].error &&
+        !video_background_read(&inputs.values[i], context, i)) {
       return false;
     }
   }
@@ -179,9 +184,9 @@ static void free_video_captures(unsigned int video_count) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
-    shaders_free_input(program, inputs[i]);
+    shaders_free_input(program, inputs.values[i]);
 
-    video_free(inputs[i]);
+    video_free(inputs.values[i]);
   }
 }
 
@@ -288,8 +293,7 @@ void forge_run(Parameters params) {
     window_use(window_output, context);
 
     program = shaders_init(fragment_shaders, config, context, inputs,
-                           params.video_in_count, state_config.state_max,
-                           state_config.src_count, NULL);
+                           state_config, NULL);
   } else {
     window_output = NULL;
   }
@@ -301,10 +305,9 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, context);
 
-    program = shaders_init(fragment_shaders, config, context, inputs,
-                           params.video_in_count, state_config.state_max,
-                           state_config.src_count,
-                           window_output != NULL ? &program : NULL);
+    program =
+        shaders_init(fragment_shaders, config, context, inputs, state_config,
+                     window_output != NULL ? &program : NULL);
   } else {
     window_monitor = NULL;
   }

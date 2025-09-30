@@ -47,6 +47,11 @@ typedef struct File {
   time_t last_write;
 } File;
 
+typedef struct FileArray {
+  File values[ARRAY_SIZE];
+  unsigned int length;
+} FileArray;
+
 typedef struct ShaderProgram {
   bool error;
 
@@ -113,6 +118,11 @@ typedef struct VideoCapture {
   struct v4l2_buffer buf;
   EGLImageKHR dma_image;
 } VideoCapture;
+
+typedef struct VideoCaptureArray {
+  VideoCapture values[ARRAY_SIZE];
+  unsigned int length;
+} VideoCaptureArray;
 
 typedef GLFWwindow Window;
 
