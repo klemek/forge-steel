@@ -35,6 +35,11 @@ uniform int state8;
 uniform int active1;
 uniform int active2;
 
+uniform vec3 src2_1[7];
+uniform vec3 src2_2[7];
+uniform vec3 src2_3[7];
+uniform vec3 src3_1[2];
+
 // 2. textures
 // ---------------
 
@@ -879,11 +884,11 @@ int guess_char(sampler2D tex, vec2 uv, float k, float t)
 // 5. generators
 // -------------
 
-subroutine vec4 src_stage_sub(vec2 vUV, int seed);
+subroutine vec4 src_stage_sub(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3);
 
 subroutine uniform src_stage_sub src_stage;
 
-vec4 src_thru(vec2 vUV, sampler2D tex, int seed)
+vec4 src_thru(vec2 vUV, sampler2D tex, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -891,9 +896,9 @@ vec4 src_thru(vec2 vUV, sampler2D tex, int seed)
 
     // controls
 
-    float hue = magic(seed + 10);
-    float saturation = magic(seed + 20);
-    float light = magic(seed + 30);
+    float hue = magic(f1, b1, seed + 10);
+    float saturation = magic(f2, b2, seed + 20);
+    float light = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -910,13 +915,13 @@ vec4 src_thru(vec2 vUV, sampler2D tex, int seed)
 }
 
 // SRC 1: feedback + thru
-subroutine(src_stage_sub) vec4 src_1(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_1(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_thru(vUV, tex0, seed);
+    return src_thru(vUV, tex0, seed, b1, f1, b2, f2, b3, f3);
 }
 
 // SRC 2 : lines
-subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -926,9 +931,9 @@ subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed)
 
     // controls
 
-    float thickness = magic(seed + 10);
-    float rotation = magic(seed + 20);
-    float distort = magic(seed + 30);
+    float thickness = magic(f1, b1, seed + 10);
+    float rotation = magic(f2, b2, seed + 20);
+    float distort = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -943,7 +948,7 @@ subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed)
 }
 
 // SRC 3 : dots
-subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -953,9 +958,9 @@ subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed)
 
     // controls
 
-    float zoom = magic(seed + 10);
-    float rotation = magic(seed + 20);
-    float lens_v = magic(seed + 30);
+    float zoom = magic(f1, b1, seed + 10);
+    float rotation = magic(f2, b2, seed + 20);
+    float lens_v = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -972,7 +977,7 @@ subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed)
 }
 
 // SRC 4 : waves
-subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -982,9 +987,9 @@ subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed)
 
     // controls
 
-    float spacing = magic(seed + 10);
-    float thickness = magic(seed + 20);
-    float scroll = magic_reverse(seed + 30);
+    float spacing = magic(f1, b1, seed + 10);
+    float thickness = magic(f2, b2, seed + 20);
+    float scroll = magic_reverse(f3, b3, seed + 30);
 
     // logic
 
@@ -1015,7 +1020,7 @@ subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed)
 }
 
 // SRC 5 : noise
-subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1025,9 +1030,9 @@ subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed)
 
     // controls
 
-    float zoom = magic(seed + 10);
-    float voronoi_distort = magic(seed + 20);
-    float details = magic(seed + 30);
+    float zoom = magic(f1, b1, seed + 10);
+    float voronoi_distort = magic(f2, b2, seed + 20);
+    float details = magic(f3, b3, seed + 30);
     float noise_factor = magic(seed + 40);
 
     // logic
@@ -1045,13 +1050,13 @@ subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed)
 }
 
 // SRC 6 : video in 1 + thru
-subroutine(src_stage_sub) vec4 src_6(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_6(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_thru(vUV, tex3, seed);
+    return src_thru(vUV, tex3, seed, b1, f1, b2, f2, b3, f3);
 }
 
 // SRC 7 : cp437
-subroutine(src_stage_sub) vec4 src_7(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_7(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1061,10 +1066,10 @@ subroutine(src_stage_sub) vec4 src_7(vec2 vUV, int seed)
 
     // controls
 
-    float zoom = magic(seed + 10);
-    vec2 charset = magic_f(seed + 20);
-    vec3 charset_ctrl = magic_b(seed + 20);
-    float char_delta = magic(seed + 30);
+    float zoom = magic(f1, b1, seed + 10);
+    vec2 charset = magic_f(f2, b2, seed + 20);
+    vec3 charset_ctrl = magic_b(b2, seed + 20);
+    float char_delta = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -1103,7 +1108,7 @@ const int lengths[SENTENCE_COUNT] = {
     5, 17, 13, 13, 13, 17, 8, 8, 11, 19
 };
 
-subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1113,10 +1118,10 @@ subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed)
 
     // controls
 
-    float zoom = magic(seed + 10);
-    float sentence = magic_reverse(seed + 20);
-    float h_delta = magic(seed + 30);
-    vec3 h_delta_b = magic_b(seed + 30);
+    float zoom = magic(f1, b1, seed + 10);
+    float sentence = magic_reverse(f2, b2, seed + 20);
+    float h_delta = magic(f3, b3, seed + 30);
+    vec3 h_delta_b = magic_b(b3, seed + 30);
 
     // logic
 
@@ -1131,7 +1136,7 @@ subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed)
 }
 
 // TODO SRC 9
-subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1147,7 +1152,7 @@ subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed)
 }
 
 // TODO SRC 10
-subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1163,13 +1168,13 @@ subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed)
 }
 
 // SRC 11 : video in 2 + thru
-subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_thru(vUV, tex4, seed);
+    return src_thru(vUV, tex4, seed, b1, f1, b2, f2, b3, f3);
 }
 
 // TODO SRC 12
-subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1185,7 +1190,7 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed)
 }
 
 // TODO SRC 13
-subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1201,7 +1206,7 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed)
 }
 
 // TODO SRC 14
-subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1217,7 +1222,7 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed)
 }
 
 // TODO SRC 15
-subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1233,7 +1238,7 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed)
 }
 
 // SRC 16 : debug
-subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
+subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1248,11 +1253,11 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
     int selected_fxa = state5;
     int selected_fxb = state6;
     int selected_mfx = state8;
-    float fxa_value = magic(seed5);
-    float fxb_value = magic(seed6);
-    float mfx_value = magic(seed8);
-    float mix_value = magic(seed7);
-    bool mix_type = magic_trigger(seed7 + 10);
+    float fxa_value = magic(src2_1[6].xy, vec3(1, 0, 0), seed5);
+    float fxb_value = magic(src2_2[6].xy, vec3(1, 0, 0), seed6);
+    float mfx_value = magic(src2_3[6].xy, vec3(1, 0, 0), seed8);
+    float mix_value = magic(src3_1[1].xy, vec3(1, 0, 0), seed7);
+    bool mix_type = magic_trigger(vec3(src3_1[0].x, 0, 0), seed7 + 10);
 
     // logic
 
@@ -1378,12 +1383,12 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed)
 // 6. effects
 // ----------
 
-subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback, int seed);
+subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0);
 
 subroutine uniform fx_stage_sub fx_stage;
 
 // FX 1 : thru
-subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1391,11 +1396,11 @@ subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedb
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float hue = magic(seed + 10);
-    float saturation = magic(seed + 20);
-    float light = magic(seed + 30);
+    float hue = magic(f1, b1, seed + 10);
+    float saturation = magic(f2, b2, seed + 20);
+    float light = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -1409,7 +1414,7 @@ subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 2 : feedback + shift
-vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed)
+vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1419,11 +1424,11 @@ vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed)
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float zoom = magic(seed + 10);
-    float x_shift = magic(seed + 20);
-    float y_shift = magic(seed + 30);
+    float zoom = magic(f1, b1, seed + 10);
+    float x_shift = magic(f2, b2, seed + 20);
+    float y_shift = magic(f3, b3, seed + 30);
 
     // logic
     
@@ -1437,19 +1442,19 @@ vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed)
     return vec4(mix(c0, c, fx), 1.0);
 }
 
-subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
-    return fx_shift(vUV, previous, feedback, seed);
+    return fx_shift(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, f0);
 }
 
 // FX 3 : shift
-subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
-    return fx_shift(vUV, previous, previous, seed);
+    return fx_shift(vUV, previous, previous, seed, b1, f1, b2, f2, b3, f3, f0);
 }
 
 // FX 4 : colorize
-subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1457,13 +1462,13 @@ subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedb
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float c_black = magic(seed + 10);
-    bool c_black_trigger = magic_trigger(seed + 10);
-    float c_white = magic(seed + 20);
-    bool c_white_trigger = magic_trigger(seed + 20);
-    float delta = magic(seed + 30);
+    float c_black = magic(f1, b1, seed + 10);
+    bool c_black_trigger = magic_trigger(b1, seed + 10);
+    float c_white = magic(f2, b2, seed + 20);
+    bool c_white_trigger = magic_trigger(b2, seed + 20);
+    float delta = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -1477,7 +1482,7 @@ subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 5 : quantize
-subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1487,12 +1492,12 @@ subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedb
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float pixel_size = magic(seed + 10);
-    float quantize = magic(seed + 20);
-    bool quantize_trigger = magic_trigger(seed + 20);
-    float blur = magic(seed + 30);
+    float pixel_size = magic(f1, b1, seed + 10);
+    float quantize = magic(f2, b2, seed + 20);
+    bool quantize_trigger = magic_trigger(b2, seed + 20);
+    float blur = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -1512,7 +1517,7 @@ subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 6 : dithering
-subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1522,13 +1527,13 @@ subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedb
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float pixel_size = magic(seed + 10);
-    bool pixel_size_trigger = magic_trigger(seed + 10);
-    float quantize = magic(seed + 20);
-    bool quantize_trigger = magic_trigger(seed + 20);
-    float blur = magic(seed + 30);
+    float pixel_size = magic(f1, b1, seed + 10);
+    bool pixel_size_trigger = magic_trigger(b1, seed + 10);
+    float quantize = magic(f2, b2, seed + 20);
+    bool quantize_trigger = magic_trigger(b2, seed + 20);
+    float blur = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -1556,7 +1561,7 @@ subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 7 : tv
-subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1566,11 +1571,11 @@ subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedb
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float lens_v = magic(seed + 10);
-    float horizontal_noise = magic(seed + 20);
-    float zoom = magic(seed + 30);
+    float lens_v = magic(f1, b1, seed + 10);
+    float horizontal_noise = magic(f2, b2, seed + 20);
+    float zoom = magic(f3, b3, seed + 30);
 
     // logic
     
@@ -1591,7 +1596,7 @@ subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 8 : kaleidoscope
-subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1601,12 +1606,12 @@ subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedb
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float axes = magic(seed + 10);
-    float axes_trigger = magic_b(seed + 10).x;
-    float rotation = magic(seed + 20);
-    float h_scroll = magic(seed + 30);
+    float axes = magic(f1, b1, seed + 10);
+    float axes_trigger = magic_b(b1, seed + 10).x;
+    float rotation = magic(f2, b2, seed + 20);
+    float h_scroll = magic(f3, b3, seed + 30);
 
     // logic
 
@@ -1622,7 +1627,7 @@ subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 9 : cp437
-subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1632,12 +1637,12 @@ subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedb
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float zoom = magic(seed + 10);
-    vec2 charset = magic_f(seed + 20);
-    vec3 charset_ctrl = magic_b(seed + 20);
-    float char_delta = magic(seed + 30);
+    float zoom = magic(f1, b1, seed + 10);
+    vec2 charset = magic_f(f2, b2, seed + 20);
+    vec3 charset_ctrl = magic_b(b2, seed + 20);
+    float char_delta = magic(f3, b3, seed + 30);
     float t = magic(seed + 40); 
 
     // logic
@@ -1664,7 +1669,7 @@ subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedb
 }
 
 // FX 10 : lens
-subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1674,11 +1679,11 @@ subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
-    float lens_v1 = magic(seed + 10);
-    float lens_v2 = magic(seed + 20);
-    float zoom = magic(seed + 30);
+    float lens_v1 = magic(f1, b1, seed + 10);
+    float lens_v2 = magic(f2, b2, seed + 20);
+    float zoom = magic(f3, b3, seed + 30);
     float k = magic(seed + 40);
 
     // logic
@@ -1694,7 +1699,7 @@ subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 11
-subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1704,7 +1709,7 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
     
@@ -1715,7 +1720,7 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 12
-subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1725,7 +1730,7 @@ subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
     
@@ -1736,7 +1741,7 @@ subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 13
-subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1746,7 +1751,7 @@ subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
     
@@ -1757,7 +1762,7 @@ subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 14
-subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1767,7 +1772,7 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
 
@@ -1778,7 +1783,7 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 15
-subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1788,7 +1793,7 @@ subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
     
@@ -1799,7 +1804,7 @@ subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feed
 }
 
 // TODO FX 16
-subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feedback, int seed)
+subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
 {
     // start
 
@@ -1809,7 +1814,7 @@ subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(seed);
+    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
 

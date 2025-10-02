@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
+#include "arr.h"
 #include "config.h"
 #include "config_file.h"
 #include "file.h"
@@ -68,6 +69,7 @@ static void init_context(Parameters params, unsigned int in_count,
   }
 
   memset(context->active, 0, sizeof(context->active));
+  memset(context->values, 0, sizeof(context->values));
 
   context->page = 0;
   context->selected = 0;

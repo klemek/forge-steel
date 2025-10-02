@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include "arr.h"
 #include "config.h"
 #include "config_file.h"
 #include "constants.h"
@@ -234,8 +235,8 @@ static void init_shaders(ShaderProgram *program, FileArray fragment_shaders) {
 }
 
 static void init_single_program(ShaderProgram *program, unsigned int i,
-                                ConfigFile config) {
-  unsigned int j, k;
+                                ConfigFile config, StateConfig state_config) {
+  unsigned int j, k, index1, index2;
   char name[256];
   char *prefix;
   program->programs[i] = glCreateProgram();
@@ -325,6 +326,18 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
         glGetUniformLocation(program->programs[i], name);
   }
 
+  prefix = config_file_get_str(config, "UNIFORM_SRC_PREFIX", "src");
+  index1 = index2 = 0;
+  for (j = 0; j < state_config.src_active_counts.length; j++) {
+    for (k = 0; k < state_config.src_active_counts.values[j]; k++) {
+      program->src_lengths.values[index1++] = state_config.src_counts.values[j];
+      sprintf(name, "%s%d_%d", prefix, j + 1, k + 1);
+      program->isrc_locations[index2++] =
+          glGetUniformLocation(program->programs[i], name);
+    }
+  }
+  program->src_lengths.length = index1;
+
   // create texX uniforms pointer
   prefix = config_file_get_str(config, "UNIFORM_TEX_PREFIX", "tex");
   for (j = 0; j < program->tex_count; j++) {
@@ -340,11 +353,12 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   log_info("Program %d initialized", i + 1);
 }
 
-static void init_programs(ShaderProgram *program, ConfigFile config) {
+static void init_programs(ShaderProgram *program, ConfigFile config,
+                          StateConfig state_config) {
   unsigned int i;
 
   for (i = 0; i < program->frag_count; i++) {
-    init_single_program(program, i, config);
+    init_single_program(program, i, config, state_config);
   }
 }
 
@@ -366,7 +380,7 @@ ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
     program.sub_type_count = config_file_get_int(config, "SUB_TYPE_COUNT", 0);
     program.in_count = config_file_get_int(config, "IN_COUNT", 0);
     program.sub_variant_count = state_config.state_max;
-    program.active_count = state_config.src_count;
+    program.active_count = state_config.src_active_counts.length;
 
     if (program.frag_count > MAX_FRAG) {
       log_error("FRAG_COUNT over %d", MAX_FRAG);
@@ -388,7 +402,7 @@ ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
 
     init_framebuffers(&program, config);
 
-    init_programs(&program, config);
+    init_programs(&program, config, state_config);
 
     init_vertices(&program);
 
@@ -451,16 +465,18 @@ static void write_uniform_2f(GLuint location, vec2 *value) {
   }
 }
 
-// static void write_uniform_3f(GLuint location, vec3 *value) {
-//   if (location != unused_uniform) {
-//     glUniform3fv(location, 1, (const GLfloat *)value);
-//   }
-// }
+static void write_uniform_multi_3f(GLuint location, unsigned int count,
+                                   vec3 *value) {
+  if (location != unused_uniform) {
+    glUniform3fv(location, count, (const GLfloat *)value);
+  }
+}
 
 static void use_program(ShaderProgram program, int i, bool output,
                         SharedContext *context) {
-  unsigned int j, k;
+  unsigned int j, k, offset;
   GLuint subroutines[ARRAY_SIZE];
+  // TODO direct vec2 in context
   vec2 resolution, tex_resolution, in_resolution;
 
   resolution[0] = (float)context->width;
@@ -519,17 +535,25 @@ static void use_program(ShaderProgram program, int i, bool output,
                      context->seeds[j]);
   }
 
+  for (j = 0; j < program.frag_count; j++) {
+    write_uniform_1i(program.istate_locations[i * program.frag_count + j],
+                     context->state[j]);
+  }
+
+  offset = 0;
+  for (j = 0; j < program.src_lengths.length; j++) {
+    write_uniform_multi_3f(program.isrc_locations[j],
+                           program.src_lengths.values[j],
+                           context->values + offset);
+    offset += program.src_lengths.values[j];
+  }
+
   // set subroutines for fragment and update state uniforms
   k = context->state[i];
   for (j = 0; j < program.sub_type_count; j++) {
     subroutines[j] = program.sub_locations[i * program.sub_type_count *
                                                program.sub_variant_count +
                                            j * program.sub_variant_count + k];
-  }
-
-  for (j = 0; j < program.frag_count; j++) {
-    write_uniform_1i(program.istate_locations[i * program.frag_count + j],
-                     context->state[j]);
   }
 
   glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program.sub_type_count,

@@ -40,7 +40,7 @@ void main() {
     c += s(uv2,1,1) * texture(tex6, uv2);
     c += s(uv2,2,1) * texture(tex8, uv2);
 
-    c += s(uv2,0,0) * src_16(mod(uv2, 1), 0);
+    c += s(uv2,0,0) * src_16(mod(uv2, 1), 0, vec3(0), vec2(0), vec3(0), vec2(0), vec3(0), vec2(0));
     c += s(uv2,1,0) * texture(tex9, uv2);
     c += s(uv2,2,0) * texture(tex0, uv2);
 

@@ -14,10 +14,16 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef struct UintArray {
-  unsigned int values[ARRAY_SIZE];
-  unsigned int length;
-} UintArray;
+#define ARRAY(X, Y)                                                            \
+  struct X {                                                                   \
+    Y values[ARRAY_SIZE];                                                      \
+    unsigned int length;                                                       \
+  } X
+
+typedef ARRAY(UintArray, unsigned int);
+typedef ARRAY(StringArray, char *);
+typedef ARRAY(Vec3Array, vec3);
+typedef ARRAY(GLuintArray, GLuint);
 
 typedef struct Parameters {
   bool hot_reload;
@@ -32,6 +38,7 @@ typedef struct Parameters {
   float base_tempo;
   bool demo;
   bool windowed;
+  // TODO use array
   char *video_in[MAX_VIDEO];
   unsigned int video_in_count;
 } Parameters;
@@ -47,10 +54,7 @@ typedef struct File {
   time_t last_write;
 } File;
 
-typedef struct FileArray {
-  File values[ARRAY_SIZE];
-  unsigned int length;
-} FileArray;
+typedef ARRAY(FileArray, File);
 
 typedef struct ShaderProgram {
   bool error;
@@ -71,11 +75,14 @@ typedef struct ShaderProgram {
   unsigned int frag_output_index;
   unsigned int frag_monitor_index;
 
+  // TODO use array
   GLuint programs[ARRAY_SIZE];
 
+  // TODO use array
   GLuint frame_buffers[ARRAY_SIZE];
   GLuint fragment_shaders[ARRAY_SIZE];
 
+  // TODO use array
   GLuint itime_locations[ARRAY_SIZE];
   GLuint itempo_locations[ARRAY_SIZE];
   GLuint ifps_locations[ARRAY_SIZE];
@@ -91,8 +98,13 @@ typedef struct ShaderProgram {
   GLuint iselected_locations[ARRAY_SIZE];
   GLuint iactive_locations[ARRAY_SIZE];
 
+  // TODO rename inputs_xxx
+  UintArray src_lengths;
+  GLuint isrc_locations[ARRAY_SIZE];
+
   GLuint vpos_locations[ARRAY_SIZE];
 
+  // TODO use array
   GLuint textures_locations[ARRAY_SIZE];
 
   unsigned int sub_type_count;
@@ -119,10 +131,7 @@ typedef struct VideoCapture {
   EGLImageKHR dma_image;
 } VideoCapture;
 
-typedef struct VideoCaptureArray {
-  VideoCapture values[ARRAY_SIZE];
-  unsigned int length;
-} VideoCaptureArray;
+typedef ARRAY(VideoCaptureArray, VideoCapture);
 
 typedef GLFWwindow Window;
 
@@ -137,10 +146,12 @@ typedef struct SharedContext {
   double time;
   unsigned int fps;
   float tempo;
+  // TODO use array
   unsigned int state[MAX_FRAG];
   unsigned int page;
   unsigned int selected;
   unsigned int active[ARRAY_SIZE];
+  vec3 values[ARRAY_SIZE];
   bool demo;
   unsigned int seeds[MAX_FRAG];
   bool monitor;
@@ -153,16 +164,19 @@ typedef struct SharedContext {
 
 typedef struct StateConfig {
   unsigned int state_max;
-  unsigned int src_count;
 
   UintArray select_page_codes;
   UintArray select_item_codes;
   UintArray select_frag_codes;
+  // TODO rename input_xxx
+  UintArray src_active_counts;
   UintArray src_active_offsets;
   UintArray src_active_codes;
+  UintArray src_counts;
   UintArray src_offsets;
   UintArray src_codes;
   UintArray fader_codes;
+  UintArray values_offsets;
 
   unsigned int tap_tempo_code;
 } StateConfig;
