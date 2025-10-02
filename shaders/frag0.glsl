@@ -1299,22 +1299,22 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     f += char_at(uv2, vec2(-5.4, 1.45), hex_chars[selected_srca]);
     f += char_at(uv2, vec2(-5.4, -2.55), hex_chars[selected_srcb]);
     f += char_at(uv2, vec2(-2.4, 1.45), hex_chars[selected_fxa]);
-    f += char_at(uv2, vec2(4.6, -0.55), hex_chars[selected_fxb]);
-    f += char_at(uv2, vec2(-2.4, -2.55), hex_chars[selected_mfx]);
+    f += char_at(uv2, vec2(-2.4, -2.55), hex_chars[selected_fxb]);
+    f += char_at(uv2, vec2(4.6, -0.55), hex_chars[selected_mfx]);
 
     // show current selected
     f += iSelected == 3 ? h_rect(uv2, vec2(-5, 2), vec2(1.2), 0.1) : 0;
     f += iSelected == 4 ? h_rect(uv2, vec2(-5, -2), vec2(1.2), 0.1) : 0;
     f += iSelected == 5 ? h_rect(uv2, vec2(-2, 2), vec2(1.2), 0.1) : 0;
-    f += iSelected == 6 ? h_rect(uv2, vec2(5, 0), vec2(1.2), 0.1) : 0;
-    f += iSelected == 8 ? h_rect(uv2, vec2(-2, -2), vec2(1.2), 0.1) : 0;
+    f += iSelected == 6 ? h_rect(uv2, vec2(-2, -2), vec2(1.2), 0.1) : 0;
+    f += iSelected == 8 ? h_rect(uv2, vec2(5, 0), vec2(1.2), 0.1) : 0;
 
     // show selected src/fx
     f += active1 == 1 ? h_rect(uv2, vec2(-5, 0.8), vec2(1, 0), 0.1) : 0;
     f += active1 == 2 ? h_rect(uv2, vec2(-5, -3.2), vec2(1, 0), 0.1) : 0;
     f += active2 == 1 ? h_rect(uv2, vec2(-2, 0.8), vec2(1.2, 0), 0.1) : 0;
-    f += active2 == 2 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
-    f += active2 == 3 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
+    f += active2 == 2 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
+    f += active2 == 3 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
 
     // show inputs / feedback
     float line_a_a = rect(uv2, vec2(-8, 2), vec2(2, 0.1));
@@ -1343,8 +1343,8 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // show fx values
     f = mix(f, 1 - f, rect(uv2, vec2(-2, 1.1 + 0.9 * fxa_value), vec2(0.9, 0.9 * fxa_value)));
-    f = mix(f, 1 - f, rect(uv2, vec2(5, -0.9 + 0.9 * fxb_value), vec2(0.9, 0.9 * fxb_value)));
-    f = mix(f, 1 - f, rect(uv2, vec2(-2, -2.9 + 0.9 * mfx_value), vec2(0.9, 0.9 * mfx_value)));
+    f = mix(f, 1 - f, rect(uv2, vec2(-2, -2.9 + 0.9 * fxb_value), vec2(0.9, 0.9 * fxb_value)));
+    f = mix(f, 1 - f, rect(uv2, vec2(5, -0.9 + 0.9 * mfx_value), vec2(0.9, 0.9 * mfx_value)));
 
     // show mix
     f += char_at(uv2, vec2(1.55, -0.6), mix_type ? 0x4B : 0x4D);

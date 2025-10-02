@@ -326,17 +326,26 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
         glGetUniformLocation(program->programs[i], name);
   }
 
+  if (program->src_lengths.length == 0) {
+    index1 = 0;
+    for (j = 0; j < state_config.src_active_counts.length; j++) {
+      for (k = 0; k < state_config.src_active_counts.values[j]; k++) {
+        program->src_lengths.values[index1++] =
+            state_config.src_counts.values[j];
+      }
+    }
+    program->src_lengths.length = index1;
+  }
+
   prefix = config_file_get_str(config, "UNIFORM_SRC_PREFIX", "src");
-  index1 = index2 = 0;
+  index2 = 0;
   for (j = 0; j < state_config.src_active_counts.length; j++) {
     for (k = 0; k < state_config.src_active_counts.values[j]; k++) {
-      program->src_lengths.values[index1++] = state_config.src_counts.values[j];
       sprintf(name, "%s%d_%d", prefix, j + 1, k + 1);
-      program->isrc_locations[index2++] =
+      program->isrc_locations[i * program->src_lengths.length + index2++] =
           glGetUniformLocation(program->programs[i], name);
     }
   }
-  program->src_lengths.length = index1;
 
   // create texX uniforms pointer
   prefix = config_file_get_str(config, "UNIFORM_TEX_PREFIX", "tex");
@@ -381,6 +390,7 @@ ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
     program.in_count = config_file_get_int(config, "IN_COUNT", 0);
     program.sub_variant_count = state_config.state_max;
     program.active_count = state_config.src_active_counts.length;
+    program.src_lengths.length = 0;
 
     if (program.frag_count > MAX_FRAG) {
       log_error("FRAG_COUNT over %d", MAX_FRAG);
@@ -542,9 +552,9 @@ static void use_program(ShaderProgram program, int i, bool output,
 
   offset = 0;
   for (j = 0; j < program.src_lengths.length; j++) {
-    write_uniform_multi_3f(program.isrc_locations[j],
-                           program.src_lengths.values[j],
-                           context->values + offset);
+    write_uniform_multi_3f(
+        program.isrc_locations[i * program.src_lengths.length + j],
+        program.src_lengths.values[j], context->values + offset);
     offset += program.src_lengths.values[j];
   }
 

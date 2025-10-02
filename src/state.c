@@ -150,91 +150,106 @@ static void update_page(SharedContext *context, StateConfig state_config,
   }
 }
 
-static void update_selected(SharedContext *context, StateConfig state_config,
-                            MidiDevice midi) {
-  unsigned int i;
+static void update_active(SharedContext *context, StateConfig state_config,
+                          MidiDevice midi) {
+  unsigned int i, j, k;
 
-  for (i = 0; i < state_config.select_frag_codes.length; i++) {
-    safe_midi_write(midi, state_config.select_frag_codes.values[i],
-                    i == context->selected ? MIDI_MAX : 0);
+  for (i = 0; i < state_config.src_active_counts.length; i++) {
+    for (j = 0; j < state_config.src_active_counts.values[i]; j++) {
+      k = state_config.src_active_offsets.values[i] + j;
+      safe_midi_write(midi, state_config.src_active_codes.values[k],
+                      context->active[i] == j ? MIDI_MAX : 0);
+    }
+  }
+}
+
+static void update_values(SharedContext *context, StateConfig state_config,
+                          MidiDevice midi) {
+  unsigned int i, j, k, part;
+
+  for (i = 0; i < state_config.src_codes.length; i++) {
+    j = i / 3;
+    part = arr_uint_remap_index(state_config.src_offsets, &j);
+    k = state_config.values_offsets.values[part] +
+        context->active[part] * state_config.src_counts.values[part] + j;
+    safe_midi_write(midi, state_config.src_codes.values[i],
+                    context->values[k][i % 3] * MIDI_MAX);
   }
 }
 
 void state_apply_event(SharedContext *context, StateConfig state_config,
                        MidiDevice midi, unsigned char code,
                        unsigned char value) {
-  unsigned int index, sub_index, src_index, part;
+  unsigned int i, j, k, part;
   bool found;
 
   found = false;
 
   // PAGE CHANGE
-  index = arr_uint_index_of(state_config.select_page_codes, code);
-  if (index != ARRAY_NOT_FOUND) {
+  i = arr_uint_index_of(state_config.select_page_codes, code);
+  if (i != ARRAY_NOT_FOUND) {
     found = true;
     if (value > 0) {
-      context->page = index;
+      context->page = i;
       update_page(context, state_config, midi);
     }
   }
 
   // TARGET CHANGE
-  index = arr_uint_index_of(state_config.select_frag_codes, code);
-  if (index != ARRAY_NOT_FOUND) {
+  i = arr_uint_index_of(state_config.select_frag_codes, code);
+  if (i != ARRAY_NOT_FOUND) {
     found = true;
     if (value > 0) {
-      context->selected = index;
+      context->selected = i;
       update_page(context, state_config, midi);
-      update_selected(context, state_config, midi);
     }
   }
 
   // ITEM CHANGE
-  index = arr_uint_index_of(state_config.select_item_codes, code);
-  if (index != ARRAY_NOT_FOUND) {
+  i = arr_uint_index_of(state_config.select_item_codes, code);
+  if (i != ARRAY_NOT_FOUND) {
     found = true;
     if (value > 0) {
       context->state[context->selected] =
-          context->page * state_config.select_item_codes.length + index;
+          context->page * state_config.select_item_codes.length + i;
       update_page(context, state_config, midi);
     }
   }
 
   // ACTIVE CHANGE
-  index = arr_uint_index_of(state_config.src_active_codes, code);
-  if (index != ARRAY_NOT_FOUND) {
+  i = arr_uint_index_of(state_config.src_active_codes, code);
+  if (i != ARRAY_NOT_FOUND) {
     found = true;
     if (value > 0) {
-      part = arr_uint_remap_index(state_config.src_active_offsets, &index);
-      context->active[part] = index;
-      // TODO update values
+      part = arr_uint_remap_index(state_config.src_active_offsets, &i);
+      context->active[part] = i;
+      update_active(context, state_config, midi);
+      update_values(context, state_config, midi);
     }
   }
 
   // VALUE CHANGE
-  index = arr_uint_index_of(state_config.src_codes, code);
-  if (index != ARRAY_NOT_FOUND) {
+  i = arr_uint_index_of(state_config.src_codes, code);
+  if (i != ARRAY_NOT_FOUND) {
     found = true;
-    sub_index = index / 3;
-    part = arr_uint_remap_index(state_config.src_offsets, &sub_index);
-    src_index = state_config.values_offsets.values[part] +
-                context->active[part] * state_config.src_counts.values[part] +
-                sub_index;
+    j = i / 3;
+    part = arr_uint_remap_index(state_config.src_offsets, &j);
+    k = state_config.values_offsets.values[part] +
+        context->active[part] * state_config.src_counts.values[part] + j;
 
     if (arr_uint_index_of(state_config.fader_codes, code) != ARRAY_NOT_FOUND) {
-      context->values[src_index][index % 3] = (float)value / MIDI_MAX;
+      context->values[k][i % 3] = (float)value / MIDI_MAX;
     } else if (value > 0) {
-      if (context->values[src_index][index % 3] > 0.5) {
-        context->values[src_index][index % 3] = 0;
+      if (context->values[k][i % 3] > 0.5) {
+        context->values[k][i % 3] = 0;
         midi_write(midi, code, 0);
       } else {
-        context->values[src_index][index % 3] = 1;
+        context->values[k][i % 3] = 1;
         midi_write(midi, code, MIDI_MAX);
       }
     }
   }
 
-  // TODO values
   if (!found) {
     log_trace("unknown midi: %d %d", code, value);
     midi_write(midi, code, value);
@@ -258,8 +273,8 @@ bool state_background_midi_write(SharedContext *context,
   log_info("(state) background writing started (pid: %d)", pid);
 
   update_page(context, state_config, midi);
-  update_selected(context, state_config, midi);
-  // TODO init values
+  update_active(context, state_config, midi);
+  update_values(context, state_config, midi);
 
   while (!context->stop) {
     // TODO tap tempo and more
