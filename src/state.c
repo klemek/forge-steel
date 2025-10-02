@@ -270,7 +270,7 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
 bool state_background_midi_write(SharedContext *context,
                                  StateConfig state_config, MidiDevice midi) {
   pid_t pid;
-  bool beat_active, last_active;
+  bool beat_active, last_active, change, last_change;
 
   pid = fork();
   if (pid < 0) {
@@ -289,7 +289,7 @@ bool state_background_midi_write(SharedContext *context,
   last_active = false;
 
   while (!context->stop) {
-    beat_active = tempo_progress(context->tempo) < 0.25;
+    beat_active = tempo_progress(context->tempo, 1.0) < 0.25;
 
     if (beat_active != last_active) {
       safe_midi_write(midi, state_config.tap_tempo_code,
@@ -301,6 +301,14 @@ bool state_background_midi_write(SharedContext *context,
 
       last_active = beat_active;
     }
+
+    change = tempo_progress(context->tempo, 4.0) < 0.25;
+
+    if (change && !last_change && context->demo) {
+      state_randomize(context, state_config);
+    }
+
+    last_change = change;
   }
 
   log_info("(state) background writing stopped by main thread (pid: %d)", pid);

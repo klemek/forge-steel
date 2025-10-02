@@ -113,10 +113,11 @@ void tempo_tap(Tempo *tempo) {
   add_tap_to_chain(tempo, t);
 }
 
-double tempo_progress(Tempo tempo) {
+double tempo_progress(Tempo tempo, double modulo) {
   long t;
 
   t = now();
 
-  return fmod((double)(t - tempo.last_reset) / (double)tempo.beat_length, 1.0);
+  return fmod((double)(t - tempo.last_reset) / (double)tempo.beat_length,
+              modulo);
 }
