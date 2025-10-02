@@ -135,6 +135,17 @@ typedef ARRAY(VideoCaptureArray, VideoCapture);
 
 typedef GLFWwindow Window;
 
+typedef struct Tempo {
+  long last_reset;
+  long last_tap;
+  unsigned int taps_in_chain;
+  unsigned int tap_duration_index;
+  unsigned int tap_durations[MAX_TAP_VALUES];
+  bool last_tap_skipped;
+  unsigned long beat_length;
+  float tempo;
+} Tempo;
+
 typedef struct SharedContext {
   int fd;
 
@@ -145,7 +156,7 @@ typedef struct SharedContext {
   unsigned int internal_height;
   double time;
   unsigned int fps;
-  float tempo;
+  Tempo tempo;
   // TODO use array
   unsigned int state[MAX_FRAG];
   unsigned int page;

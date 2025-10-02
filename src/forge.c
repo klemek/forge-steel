@@ -1,10 +1,11 @@
 #include <log.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 
-#include "arr.h"
 #include "config.h"
 #include "config_file.h"
 #include "file.h"
@@ -14,6 +15,7 @@
 #include "shaders.h"
 #include "shared.h"
 #include "state.h"
+#include "tempo.h"
 #include "timer.h"
 #include "types.h"
 #include "video.h"
@@ -58,7 +60,8 @@ static void init_context(Parameters params, unsigned int in_count,
                          unsigned int frag_count) {
   unsigned int i;
 
-  context->tempo = params.base_tempo;
+  context->tempo = tempo_init();
+  tempo_set(&context->tempo, params.base_tempo);
   context->demo = params.demo;
   context->monitor = params.monitor;
 

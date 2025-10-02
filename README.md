@@ -133,7 +133,7 @@ make -f Makefile.dev release-arch
   - [x] Send midi data to shaders
   - [ ] Save midi state
   - [x] State machine with A/B switch
-  - [ ] Tap-tempo feature
+  - [x] Tap-tempo feature
   - [ ] Clean code and fix things
 - [x] Video input
   - [x] Fixed camera video
@@ -151,5 +151,6 @@ make -f Makefile.dev release-arch
   - [x] Clean code and fix things
   - [x] Share openGL state between monitor and screen
 - [ ] Other
+  - [ ] Update readme with usage documentation
   - [ ] Clone "shaders" and config in system path at setup
   - [ ] Find and fix opengl errors 0500 ?

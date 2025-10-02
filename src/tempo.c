@@ -1,1 +1,122 @@
+#include <math.h>
+#include <string.h>
+#include <sys/time.h>
+
+#include "config.h"
+#include "log.h"
 #include "tempo.h"
+
+static long now() {
+  struct timeval now;
+
+  gettimeofday(&now, NULL);
+
+  return now.tv_sec * 1000 + now.tv_usec / 1000;
+}
+
+static void reset_tap_chain(Tempo *tempo, long t) {
+  tempo->last_reset = t;
+  tempo->last_tap = 0;
+  tempo->taps_in_chain = 0;
+  tempo->tap_duration_index = 0;
+  tempo->last_tap_skipped = false;
+
+  memset(tempo->tap_durations, 0, sizeof(tempo->tap_durations));
+}
+
+Tempo tempo_init() {
+  Tempo tempo;
+  long t;
+
+  t = now();
+
+  reset_tap_chain(&tempo, t);
+
+  return tempo;
+}
+
+static bool is_chain_active(Tempo tempo, long t) {
+  return tempo.last_tap + MAX_BEAT_LENGTH > t &&
+         tempo.last_tap + (tempo.beat_length * BEATS_UNTIL_CHAIN_RESET) > t;
+}
+
+static unsigned long get_average_tap_duration(Tempo tempo) {
+  unsigned int amount, i;
+  unsigned long running_total, average_tap_duration;
+
+  amount = tempo.taps_in_chain - 1;
+  if (amount > TOTAL_TAP_VALUES) {
+    amount = TOTAL_TAP_VALUES;
+  }
+
+  running_total = 0;
+  for (i = 0; i < amount; i++) {
+    running_total += tempo.tap_durations[i];
+  }
+
+  average_tap_duration = running_total / amount;
+  if (average_tap_duration < MIN_BEAT_LENGTH) {
+    log_debug("%ld", average_tap_duration);
+    return MIN_BEAT_LENGTH;
+  }
+
+  return average_tap_duration;
+}
+
+static void add_tap_to_chain(Tempo *tempo, long t) {
+  long duration;
+
+  duration = t - tempo->last_tap;
+
+  tempo->last_tap = t;
+
+  tempo->taps_in_chain++;
+
+  if (tempo->taps_in_chain == 1) {
+    return;
+  }
+
+  if (tempo->taps_in_chain > 2 && !tempo->last_tap_skipped &&
+      duration > tempo->beat_length * SKIPPED_TAP_THRESHOLD_LOW &&
+      duration < tempo->beat_length * SKIPPED_TAP_THRESHOLD_HIGH) {
+    duration = duration >> 1;
+    tempo->last_tap_skipped = true;
+  } else {
+    tempo->last_tap_skipped = false;
+  }
+
+  tempo->tap_durations[tempo->tap_duration_index++] = duration;
+
+  if (tempo->tap_duration_index == TOTAL_TAP_VALUES) {
+    tempo->tap_duration_index = 0;
+  }
+
+  tempo->beat_length = get_average_tap_duration(*tempo);
+
+  tempo->tempo = 60000.0 / tempo->beat_length;
+}
+
+void tempo_set(Tempo *tempo, float value) {
+  tempo->tempo = value;
+  tempo->beat_length = 60000.0 / value;
+}
+
+void tempo_tap(Tempo *tempo) {
+  long t;
+
+  t = now();
+
+  if (!is_chain_active(*tempo, t)) {
+    reset_tap_chain(tempo, t);
+  }
+
+  add_tap_to_chain(tempo, t);
+}
+
+double tempo_progress(Tempo tempo) {
+  long t;
+
+  t = now();
+
+  return fmod((double)(t - tempo.last_reset) / (double)tempo.beat_length, 1.0);
+}

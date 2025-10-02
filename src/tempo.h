@@ -3,4 +3,12 @@
 #ifndef TEMPO_H
 #define TEMPO_H
 
+Tempo tempo_init();
+
+void tempo_tap(Tempo *tempo);
+
+void tempo_set(Tempo *tempo, float value);
+
+double tempo_progress(Tempo tempo);
+
 #endif /* TEMPO_H */

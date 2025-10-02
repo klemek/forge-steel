@@ -514,7 +514,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   }
   // set fragment uniforms
   write_uniform_1f(program.itime_locations[i], context->time);
-  write_uniform_1f(program.itempo_locations[i], context->tempo);
+  write_uniform_1f(program.itempo_locations[i], context->tempo.tempo);
   write_uniform_1i(program.ifps_locations[i], context->fps);
   write_uniform_1i(program.idemo_locations[i], context->demo ? 1 : 0);
   write_uniform_1i(program.ipage_locations[i], context->page);

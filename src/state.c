@@ -6,6 +6,7 @@
 #include "midi.h"
 #include "rand.h"
 #include "state.h"
+#include "tempo.h"
 #include "types.h"
 
 StateConfig state_parse_config(ConfigFile config) {
@@ -250,6 +251,14 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
     }
   }
 
+  if (code == state_config.tap_tempo_code) {
+    found = true;
+    midi_write(midi, code, value);
+    if (value > 0) {
+      tempo_tap(&context->tempo);
+    }
+  }
+
   if (!found) {
     log_trace("unknown midi: %d %d", code, value);
     midi_write(midi, code, value);
@@ -261,6 +270,7 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
 bool state_background_midi_write(SharedContext *context,
                                  StateConfig state_config, MidiDevice midi) {
   pid_t pid;
+  bool beat_active, last_active;
 
   pid = fork();
   if (pid < 0) {
@@ -276,8 +286,21 @@ bool state_background_midi_write(SharedContext *context,
   update_active(context, state_config, midi);
   update_values(context, state_config, midi);
 
+  last_active = false;
+
   while (!context->stop) {
-    // TODO tap tempo and more
+    beat_active = tempo_progress(context->tempo) < 0.25;
+
+    if (beat_active != last_active) {
+      safe_midi_write(midi, state_config.tap_tempo_code,
+                      beat_active ? MIDI_MAX : 0);
+
+      safe_midi_write(midi,
+                      state_config.select_frag_codes.values[context->selected],
+                      beat_active ? MIDI_MAX : 0);
+
+      last_active = beat_active;
+    }
   }
 
   log_info("(state) background writing stopped by main thread (pid: %d)", pid);

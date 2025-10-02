@@ -4,14 +4,13 @@
 #include <log.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "shared.h"
 #include "timer.h"
 #include "types.h"
 #include "video.h"
-#include "window.h"
 
 static void ioctl_error(VideoCapture *video_capture, const char *operation,
                         const char *default_msg) {
