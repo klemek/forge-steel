@@ -14,7 +14,7 @@ jobs:
         with:
           submodules: 'true'
       - name: install libs
-        run: sudo apt install -y libglfw3-dev libgl-dev libv4l-dev libasound2
+        run: sudo apt install -y libglfw3-dev libgl-dev libv4l-dev libasound2t64
       - name: gcc
         run: mkdir -p build && gcc -v -Wall -Wextra -Werror src/*.c src/*.h -lglfw -lGL -lm -lasound -Iinclude hashmap.c/hashmap.c log.c/src/log.c -DGLFW_INCLUDE_NONE -DGLFW_EXPOSE_NATIVE_EGL -DGLFW_NATIVE_INCLUDE_NONE
 
@@ -26,7 +26,7 @@ jobs:
         with:
           submodules: 'true'
       - name: install libs
-        run: sudo apt install -y libglfw3-dev libgl-dev libv4l-dev libasound2
+        run: sudo apt install -y libglfw3-dev libgl-dev libv4l-dev libasound2t64
       - name: aclocal
         run: aclocal
       - name: autoconf
