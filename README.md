@@ -12,6 +12,8 @@ TODO
 
 * libglfw
 * libGL
+* libasound2
+* libv4l
 
 ### From release
 
@@ -127,8 +129,8 @@ make -f Makefile.dev release-arch
 - [ ] Midi
   - [x] Read Midi events
   - [x] Read midi mapping config file
-  - [ ] Write Midi events
-  - [ ] Send midi data to shaders
+  - [x] Write Midi events
+  - [x] Send midi data to shaders
   - [ ] Save midi state
   - [x] State machine with A/B switch
   - [ ] Tap-tempo feature
