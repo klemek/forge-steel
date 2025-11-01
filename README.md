@@ -52,7 +52,7 @@ make install
 ## CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-fc=CFG_PATH] [-is=SIZE] [-mf=FACTOR] [-t=TEMPO] [--demo] [-w] 
+usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
 
 Fusion Of Real-time Generative Effects.
 
@@ -64,9 +64,10 @@ options:
   -m, --monitor             monitor screen number (default: none)
   -mo, --monitor-only       no output screen
   -f, --frag                fragment shaders directory (default: TODO)
-  -fc, --frag-config        fragment shaders config file (default: TODO)
+  -c, --config              fragment shaders config file (default: TODO)
   -is, --internal-size      internal texture height (default: 720)
-  -mf, --monitor-factor     monitor internal texture downscale factor (default: 3)
+  -v, --video-in            path to video capture device (multiple allowed)
+  -vs, --video-size         video capture desired height (default: internal texture height)
   -t, --tempo               base tempo (default: 60)
   --demo                    demonstration mode
   -w, --windowed            not fullscreen
@@ -154,3 +155,6 @@ make -f Makefile.dev release-arch
   - [ ] Update readme with usage documentation
   - [ ] Clone "shaders" and config in system path at setup
   - [ ] Find and fix opengl errors 0500 ?
+- [ ] Bonus
+  - [ ] Record show as text files
+  - [ ] Play from record text file

@@ -39,7 +39,7 @@ static void print_help(int status_code) {
       "  -m, --monitor             monitor screen number (default: none)\n"
       "  -mo, --monitor-only       no output screen\n"
       "  -f, --frag                fragment shaders directory (default: TODO)\n"
-      "  -c, --config        fragment shaders config file (default: "
+      "  -c, --config              fragment shaders config file (default: "
       "TODO)\n"
       "  -is, --internal-size      internal texture height (default: 720)\n"
       "  -v, --video-in            path to video capture device (multiple "
