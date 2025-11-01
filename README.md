@@ -126,6 +126,7 @@ make -f Makefile.dev release-arch
   - [x] Write Midi events
   - [x] Send midi data to shaders
   - [ ] Save midi state
+  - [ ] Load midi state from last save
   - [x] State machine with A/B switch
   - [x] Tap-tempo feature
   - [ ] Clean code and fix things
@@ -146,8 +147,10 @@ make -f Makefile.dev release-arch
   - [x] Share openGL state between monitor and screen
 - [ ] Other
   - [ ] Update readme with usage documentation
+  - [ ] Documentation in default config file
   - [ ] Clone "shaders" and config in system path at setup
   - [ ] Find and fix opengl errors 0500 ?
+  - [ ] Investigate video device fps loss (bad unregister ?)
 - [ ] Bonus
   - [ ] Record show as text files
   - [ ] Play from record text file
