@@ -48,11 +48,11 @@ StateConfig state_parse_config(ConfigFile config) {
   state_config.src_active_counts.length = state_config.src_counts.length =
       state_config.src_active_offsets.length = state_config.src_offsets.length =
           state_config.values_offsets.length =
-              config_file_get_int(config, "SRC_COUNT", 0);
+              config_file_get_int(config, "MIDI_COUNT", 0);
 
   total = 0;
   for (i = 0; i < state_config.src_active_counts.length; i++) {
-    sprintf(name, "SRC_%d_ACTIVE_COUNT", i + 1);
+    sprintf(name, "MIDI_%d_ACTIVE_COUNT", i + 1);
     state_config.src_active_counts.values[i] =
         config_file_get_int(config, name, 1);
     state_config.src_active_offsets.values[i] = total;
@@ -63,7 +63,7 @@ StateConfig state_parse_config(ConfigFile config) {
 
   for (i = 0; i < state_config.src_active_counts.length; i++) {
     for (j = 0; j < state_config.src_active_counts.values[i]; j++) {
-      sprintf(name, "SRC_%d_ACTIVE_%d", i + 1, j + 1);
+      sprintf(name, "MIDI_%d_ACTIVE_%d", i + 1, j + 1);
       state_config.src_active_codes
           .values[state_config.src_active_offsets.values[i] + j] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
@@ -73,7 +73,7 @@ StateConfig state_parse_config(ConfigFile config) {
   total = 0;
   offset = 0;
   for (i = 0; i < state_config.src_counts.length; i++) {
-    sprintf(name, "SRC_%d_COUNT", i + 1);
+    sprintf(name, "MIDI_%d_COUNT", i + 1);
     state_config.src_counts.values[i] = config_file_get_int(config, name, 0);
     state_config.src_offsets.values[i] = total;
     state_config.values_offsets.values[i] = offset;
@@ -87,15 +87,15 @@ StateConfig state_parse_config(ConfigFile config) {
   for (i = 0; i < state_config.src_counts.length; i++) {
     offset = state_config.src_offsets.values[i];
     for (j = 0; j < state_config.src_counts.values[i]; j++) {
-      sprintf(name, "SRC_%d_%d_X", i + 1, j + 1);
+      sprintf(name, "MIDI_%d_%d_X", i + 1, j + 1);
       state_config.src_codes.values[(offset + j) * 3] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
 
-      sprintf(name, "SRC_%d_%d_Y", i + 1, j + 1);
+      sprintf(name, "MIDI_%d_%d_Y", i + 1, j + 1);
       state_config.src_codes.values[(offset + j) * 3 + 1] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
 
-      sprintf(name, "SRC_%d_%d_Z", i + 1, j + 1);
+      sprintf(name, "MIDI_%d_%d_Z", i + 1, j + 1);
       state_config.src_codes.values[(offset + j) * 3 + 2] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
     }
