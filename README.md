@@ -65,8 +65,8 @@ options:
   -s, --screen              output screen number (default: primary)
   -m, --monitor             monitor screen number (default: none)
   -mo, --monitor-only       no output screen
-  -f, --frag                fragment shaders directory (default: TODO)
-  -c, --config              fragment shaders config file (default: TODO)
+  -f, --frag                fragment shaders directory (default: /usr/share/forge/shaders)
+  -c, --config              fragment shaders config file (default: /usr/share/forge/default.cfg)
   -is, --internal-size      internal texture height (default: 720)
   -v, --video-in            path to video capture device (multiple allowed)
   -vs, --video-size         video capture desired height (default: internal texture height)
@@ -148,7 +148,7 @@ make -f Makefile.dev release-arch
 - [ ] Other
   - [ ] Update readme with usage documentation
   - [ ] Documentation in default config file
-  - [ ] Clone "shaders" and config in system path at setup
+  - [x] Clone "shaders" and config in system path at setup
   - [ ] Find and fix opengl errors 0500 ?
   - [ ] Investigate video device fps loss (bad unregister ?)
 - [ ] Bonus

@@ -1,6 +1,6 @@
 TARGET ?= forge
 INSTALL_DIR ?= $(HOME)/.local/bin
-TEST_ARGS ?= --frag=./shaders --config=./config/forge.cfg --video-in=/dev/video0 --video-in=/dev/video1 --video-in=/dev/video2 --video-in=/dev/video3 --video-in=/dev/video4 --video-in=/dev/video5 --video-in=/dev/video6 --video-in=/dev/video7 --video-in=/dev/video8 --video-in=/dev/video9
+TEST_ARGS ?= --video-in=/dev/video0 --video-in=/dev/video1 --video-in=/dev/video2 --video-in=/dev/video3 --video-in=/dev/video4 --video-in=/dev/video5 --video-in=/dev/video6 --video-in=/dev/video7 --video-in=/dev/video8 --video-in=/dev/video9
 SHELL := /bin/bash
 
 .PHONY: build
@@ -42,24 +42,17 @@ valgrind: build
 		--undef-value-errors=no \
 		./build/$(TARGET) $(TEST_ARGS)
 
-.PHONY: release-%
-release-%: clean
-	git pull origin master
-	sed -i -E "s/[0-9]+\\.[0-9]+\\.[0-9]+/$*/g" configure.ac
-	aclocal
-	autoconf
-	automake --add-missing
-	./configure
-	make distcheck
-	mkdir -p build
-	cp "$(TARGET)-steel-$*.tar.gz" build/
-		@rm -rf \
+.PHONY: clean-release
+clean-release:
+	@rm -rf \
 		autom4te.cache \
 		aclocal.m4 \
 		compile \
 		config.* \
 		configure \
+		configure~ \
 		depcomp \
+		**\.deps \
 		$(TARGET) \
 		$(TARGET)-*.tar.gz \
 		$(TARGET)-*.pkg.tar.zst \
@@ -69,6 +62,28 @@ release-%: clean
 		missing \
 		src/.* \
 		src/*.o
+
+.PHONY: test-release
+test-release: clean clean-release
+	aclocal
+	autoconf
+	automake --add-missing
+	./configure
+	make distcheck
+	mkdir -p build
+	cp "$(TARGET)-steel-*.tar.gz" build/
+
+.PHONY: release-%
+release-%: clean clean-release
+	git pull origin master
+	sed -i -E "s/[0-9]+\\.[0-9]+\\.[0-9]+/$*/g" configure.ac
+	aclocal
+	autoconf
+	automake --add-missing
+	./configure
+	make distcheck
+	mkdir -p build
+	cp "$(TARGET)-steel-$*.tar.gz" build/
 	sed -i -E "s/pkgver=[0-9]+\\.[0-9]+\\.[0-9]+/pkgver=$*/g" PKGBUILD
 	sha256sum build/forge-steel-$*.tar.gz | cut -d' ' -f1 | xargs -I{} sed -i -E "s/sha256sums=\\('.*'\\)/sha256sums=\\('{}'\\)/g" PKGBUILD
 	git add configure.ac PKGBUILD

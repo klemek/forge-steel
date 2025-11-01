@@ -11,44 +11,44 @@
 #include "types.h"
 
 static void print_help(int status_code) {
-  puts(
-      PACKAGE
-      " " VERSION "\n\n"
-      "usage: " PACKAGE " "
-      "[-h] "
-      "[-v] "
-      "[-hr] "
-      "[-s=SCREEN] "
-      "[-m=SCREEN] "
-      "[-mo] "
-      "[-f=DIR_PATH] "
-      "[-c=CFG_PATH] "
-      "[-is=SIZE] "
-      "[-v=FILE] "
-      "[-vs=SIZE] "
-      "[-t=TEMPO] "
-      "[--demo] "
-      "[-w] "
-      "\n\n"
-      "Fusion Of Real-time Generative Effects.\n\n"
-      "options:\n"
-      "  -h, --help                show this help message and exit\n"
-      "  -v, --version             print version\n"
-      "  -hr, --hot-reload         hot reload of shaders scripts\n"
-      "  -s, --screen              output screen number (default: primary)\n"
-      "  -m, --monitor             monitor screen number (default: none)\n"
-      "  -mo, --monitor-only       no output screen\n"
-      "  -f, --frag                fragment shaders directory (default: TODO)\n"
-      "  -c, --config              fragment shaders config file (default: "
-      "TODO)\n"
-      "  -is, --internal-size      internal texture height (default: 720)\n"
-      "  -v, --video-in            path to video capture device (multiple "
-      "allowed)\n"
-      "  -vs, --video-size         video capture desired height (default: "
-      "internal texture height)\n"
-      "  -t, --tempo               base tempo (default: 60)\n"
-      "  --demo                    demonstration mode\n"
-      "  -w, --windowed            not fullscreen\n");
+  puts(PACKAGE
+       " " VERSION "\n\n"
+       "usage: " PACKAGE " "
+       "[-h] "
+       "[-v] "
+       "[-hr] "
+       "[-s=SCREEN] "
+       "[-m=SCREEN] "
+       "[-mo] "
+       "[-f=DIR_PATH] "
+       "[-c=CFG_PATH] "
+       "[-is=SIZE] "
+       "[-v=FILE] "
+       "[-vs=SIZE] "
+       "[-t=TEMPO] "
+       "[--demo] "
+       "[-w] "
+       "\n\n"
+       "Fusion Of Real-time Generative Effects.\n\n"
+       "options:\n"
+       "  -h, --help                show this help message and exit\n"
+       "  -v, --version             print version\n"
+       "  -hr, --hot-reload         hot reload of shaders scripts\n"
+       "  -s, --screen              output screen number (default: primary)\n"
+       "  -m, --monitor             monitor screen number (default: none)\n"
+       "  -mo, --monitor-only       no output screen\n"
+       "  -f, --frag                fragment shaders directory "
+       "(default: " DATADIR "/shaders)\n"
+       "  -c, --config              fragment shaders config file "
+       "(default: " DATADIR "/default.cfg)\n"
+       "  -is, --internal-size      internal texture height (default: 720)\n"
+       "  -v, --video-in            path to video capture device (multiple "
+       "allowed)\n"
+       "  -vs, --video-size         video capture desired height (default: "
+       "internal texture height)\n"
+       "  -t, --tempo               base tempo (default: 60)\n"
+       "  --demo                    demonstration mode\n"
+       "  -w, --windowed            not fullscreen\n");
   exit(status_code);
 }
 
@@ -91,8 +91,8 @@ Parameters args_parse(int argc, char **argv) {
   params.output_screen = 0;
   params.monitor = false;
   params.monitor_screen = 0;
-  params.frag_path = 0;
-  params.config_path = 0;
+  params.frag_path = DATADIR "/shaders";
+  params.config_path = DATADIR "/default.cfg";
   params.internal_size = 720;
   params.video_size = 0;
   params.base_tempo = 60.0f;
@@ -150,19 +150,9 @@ Parameters args_parse(int argc, char **argv) {
     }
   }
 
-  if (params.frag_path == 0) {
-    log_error("required argument -f/--frag");
-    exit(EXIT_FAILURE);
-  }
-
   if (params.monitor && params.output &&
       params.monitor_screen == params.output_screen && !params.windowed) {
     log_error("monitor screen cannot be the same as output screen");
-    exit(EXIT_FAILURE);
-  }
-
-  if (params.frag_path == 0) {
-    log_error("required argument -fc/--frag-config");
     exit(EXIT_FAILURE);
   }
 

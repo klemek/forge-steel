@@ -5,11 +5,15 @@
 
 #ifndef PACKAGE
 #define PACKAGE "forge"
-#endif /* PACKAGE */
+#endif
 
 #ifndef VERSION
 #define VERSION "steel-dev"
-#endif /* VERSION */
+#endif
+
+#ifndef DATADIR
+#define DATADIR "."
+#endif
 
 /* TYPES */
 
