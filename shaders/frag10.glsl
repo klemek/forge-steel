@@ -34,22 +34,22 @@ void main() {
 
     vec4 c = vec4(0);
     
-    c += s(uv2,1,2) * texture(tex5, uv2);
-    c += s(uv2,2,2) * texture(tex7, uv2);
+    c += s(uv2,1,2) * texture(iTex5, uv2);
+    c += s(uv2,2,2) * texture(iTex7, uv2);
 
-    c += s(uv2,1,1) * texture(tex6, uv2);
-    c += s(uv2,2,1) * texture(tex8, uv2);
+    c += s(uv2,1,1) * texture(iTex6, uv2);
+    c += s(uv2,2,1) * texture(iTex8, uv2);
 
     c += s(uv2,0,0) * src_16(mod(uv2, 1), 0, vec3(0), vec2(0), vec3(0), vec2(0), vec3(0), vec2(0));
-    c += s(uv2,1,0) * texture(tex9, uv2);
-    c += s(uv2,2,0) * texture(tex0, uv2);
+    c += s(uv2,1,0) * texture(iTex9, uv2);
+    c += s(uv2,2,0) * texture(iTex0, uv2);
 
     float f = 0;
     float t = 0;
 
     
     if (iInputResolution1.x > 0) {
-        c += s(uv2,0,2) * texture(tex3, uv2);
+        c += s(uv2,0,2) * texture(iTex3, uv2);
         f += rect(uv3, vec2(-51, 28.5), vec2(2.1, 0.7));
         t += write_5(uv3, vec2(-53,28), texts[0]);
         f += rect(uv3, vec2(-50.4, 26.5), vec2(2.8, 0.7));
@@ -58,7 +58,7 @@ void main() {
     }
    
     if (iInputResolution2.x > 0) {
-        c += s(uv2,0,1) * texture(tex4, uv2);
+        c += s(uv2,0,1) * texture(iTex4, uv2);
         f += rect(uv3, vec2(-51, 8.5), vec2(2.1, 0.7));
         t += write_5(uv3, vec2(-53,8), texts[1]);
         f += rect(uv3, vec2(-50.4, 6.5), vec2(2.8, 0.7));

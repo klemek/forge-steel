@@ -10,8 +10,8 @@ uniform int iInputFormat2;
 
 void main() {
     if (iInputFormat2 == YUYV_FOURCC) {
-        fragColor = yuyvTex(tex2, vUV, int(iInputResolution2.x));
+        fragColor = yuyvTex(iTex2, vUV, int(iInputResolution2.x));
     } else {
-        fragColor = texture(tex0, vUV);
+        fragColor = texture(iTex0, vUV);
     }
 }

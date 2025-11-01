@@ -293,14 +293,14 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
         glGetUniformLocation(program->programs[i], name);
   }
 
-  prefix = config_file_get_str(config, "UNIFORM_SEED_PREFIX", "seed");
+  prefix = config_file_get_str(config, "UNIFORM_SEED_PREFIX", "iSeed");
   for (j = 0; j < program->frag_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
     program->iseed_locations[i * program->frag_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
-  prefix = config_file_get_str(config, "UNIFORM_STATE_PREFIX", "state");
+  prefix = config_file_get_str(config, "UNIFORM_STATE_PREFIX", "iState");
   for (j = 0; j < program->frag_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
     program->istate_locations[i * program->frag_count + j] =
@@ -319,7 +319,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
     }
   }
 
-  prefix = config_file_get_str(config, "UNIFORM_ACTIVE_PREFIX", "active");
+  prefix = config_file_get_str(config, "UNIFORM_ACTIVE_PREFIX", "iActive");
   for (j = 0; j < program->active_count; j++) {
     sprintf(name, "%s%d", prefix, j + 1);
     program->iactive_locations[i * program->active_count + j] =
@@ -337,7 +337,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
     program->src_lengths.length = index1;
   }
 
-  prefix = config_file_get_str(config, "UNIFORM_SRC_PREFIX", "src");
+  prefix = config_file_get_str(config, "UNIFORM_MIDI_PREFIX", "iMidi");
   index2 = 0;
   for (j = 0; j < state_config.src_active_counts.length; j++) {
     for (k = 0; k < state_config.src_active_counts.values[j]; k++) {
@@ -348,7 +348,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   }
 
   // create texX uniforms pointer
-  prefix = config_file_get_str(config, "UNIFORM_TEX_PREFIX", "tex");
+  prefix = config_file_get_str(config, "UNIFORM_TEX_PREFIX", "iTex");
   for (j = 0; j < program->tex_count; j++) {
     sprintf(name, "%s%d", prefix, j);
     program->textures_locations[i * program->tex_count + j] =

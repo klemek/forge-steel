@@ -17,42 +17,42 @@ uniform int iDemo;
 uniform int iPage;
 uniform int iSelected;
 
-uniform int seed1;
-uniform int seed2;
-uniform int seed3;
-uniform int seed4;
-uniform int seed5;
-uniform int seed6;
-uniform int seed7;
-uniform int seed8;
+uniform int iSeed1;
+uniform int iSeed2;
+uniform int iSeed3;
+uniform int iSeed4;
+uniform int iSeed5;
+uniform int iSeed6;
+uniform int iSeed7;
+uniform int iSeed8;
 
-uniform int state3;
-uniform int state4;
-uniform int state5;
-uniform int state6;
-uniform int state8;
+uniform int iState3;
+uniform int iState4;
+uniform int iState5;
+uniform int iState6;
+uniform int iState8;
 
-uniform int active1;
-uniform int active2;
+uniform int iActive1;
+uniform int iActive2;
 
-uniform vec3 src2_1[7];
-uniform vec3 src2_2[7];
-uniform vec3 src2_3[7];
-uniform vec3 src3_1[2];
+uniform vec3 iMidi2_1[7];
+uniform vec3 iMidi2_2[7];
+uniform vec3 iMidi2_3[7];
+uniform vec3 iMidi3_1[2];
 
 // 2. textures
 // ---------------
 
-uniform sampler2D tex0;
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-uniform sampler2D tex3;
-uniform sampler2D tex4;
-uniform sampler2D tex5;
-uniform sampler2D tex6;
-uniform sampler2D tex7;
-uniform sampler2D tex8;
-uniform sampler2D tex9;
+uniform sampler2D iTex0;
+uniform sampler2D iTex1;
+uniform sampler2D iTex2;
+uniform sampler2D iTex3;
+uniform sampler2D iTex4;
+uniform sampler2D iTex5;
+uniform sampler2D iTex6;
+uniform sampler2D iTex7;
+uniform sampler2D iTex8;
+uniform sampler2D iTex9;
 
 // 3. definitions
 // --------------
@@ -917,7 +917,7 @@ vec4 src_thru(vec2 vUV, sampler2D tex, int seed, vec3 b1, vec2 f1, vec3 b2, vec2
 // SRC 1: feedback + thru
 subroutine(src_stage_sub) vec4 src_1(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_thru(vUV, tex0, seed, b1, f1, b2, f2, b3, f3);
+    return src_thru(vUV, iTex0, seed, b1, f1, b2, f2, b3, f3);
 }
 
 // SRC 2 : lines
@@ -1052,7 +1052,7 @@ subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 // SRC 6 : video in 1 + thru
 subroutine(src_stage_sub) vec4 src_6(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_thru(vUV, tex3, seed, b1, f1, b2, f2, b3, f3);
+    return src_thru(vUV, iTex3, seed, b1, f1, b2, f2, b3, f3);
 }
 
 // SRC 7 : cp437
@@ -1148,7 +1148,7 @@ subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 
     // logic
     
-    return texture(tex0, vUV);
+    return texture(iTex0, vUV);
 }
 
 // TODO SRC 10
@@ -1164,13 +1164,13 @@ subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // logic
     
-    return texture(tex0, vUV);
+    return texture(iTex0, vUV);
 }
 
 // SRC 11 : video in 2 + thru
 subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_thru(vUV, tex4, seed, b1, f1, b2, f2, b3, f3);
+    return src_thru(vUV, iTex4, seed, b1, f1, b2, f2, b3, f3);
 }
 
 // TODO SRC 12
@@ -1186,7 +1186,7 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // logic
     
-    return texture(tex0, vUV);
+    return texture(iTex0, vUV);
 }
 
 // TODO SRC 13
@@ -1202,7 +1202,7 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // logic
     
-    return texture(tex0, vUV);
+    return texture(iTex0, vUV);
 }
 
 // TODO SRC 14
@@ -1218,7 +1218,7 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // logic
     
-    return texture(tex0, vUV);
+    return texture(iTex0, vUV);
 }
 
 // TODO SRC 15
@@ -1234,7 +1234,7 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // logic
     
-    return texture(tex0, vUV);
+    return texture(iTex0, vUV);
 }
 
 // SRC 16 : debug
@@ -1248,16 +1248,16 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // inputs
 
-    int selected_srca = state3;
-    int selected_srcb = state4;
-    int selected_fxa = state5;
-    int selected_fxb = state6;
-    int selected_mfx = state8;
-    float fxa_value = magic(src2_1[6].xy, vec3(1, 0, 0), seed5);
-    float fxb_value = magic(src2_2[6].xy, vec3(1, 0, 0), seed6);
-    float mfx_value = magic(src2_3[6].xy, vec3(1, 0, 0), seed8);
-    float mix_value = magic(src3_1[1].xy, vec3(1, 0, 0), seed7);
-    bool mix_type = magic_trigger(vec3(src3_1[0].x, 0, 0), seed7 + 10);
+    int selected_srca = iState3;
+    int selected_srcb = iState4;
+    int selected_fxa = iState5;
+    int selected_fxb = iState6;
+    int selected_mfx = iState8;
+    float fxa_value = magic(iMidi2_1[6].xy, vec3(1, 0, 0), iSeed5);
+    float fxb_value = magic(iMidi2_2[6].xy, vec3(1, 0, 0), iSeed6);
+    float mfx_value = magic(iMidi2_3[6].xy, vec3(1, 0, 0), iSeed8);
+    float mix_value = magic(iMidi3_1[1].xy, vec3(1, 0, 0), iSeed7);
+    bool mix_type = magic_trigger(vec3(iMidi3_1[0].x, 0, 0), iSeed7 + 10);
 
     // logic
 
@@ -1310,11 +1310,11 @@ subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     f += iSelected == 8 ? h_rect(uv2, vec2(5, 0), vec2(1.2), 0.1) : 0;
 
     // show selected src/fx
-    f += active1 == 1 ? h_rect(uv2, vec2(-5, 0.8), vec2(1, 0), 0.1) : 0;
-    f += active1 == 2 ? h_rect(uv2, vec2(-5, -3.2), vec2(1, 0), 0.1) : 0;
-    f += active2 == 1 ? h_rect(uv2, vec2(-2, 0.8), vec2(1.2, 0), 0.1) : 0;
-    f += active2 == 2 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
-    f += active2 == 3 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
+    f += iActive1 == 1 ? h_rect(uv2, vec2(-5, 0.8), vec2(1, 0), 0.1) : 0;
+    f += iActive1 == 2 ? h_rect(uv2, vec2(-5, -3.2), vec2(1, 0), 0.1) : 0;
+    f += iActive2 == 1 ? h_rect(uv2, vec2(-2, 0.8), vec2(1.2, 0), 0.1) : 0;
+    f += iActive2 == 2 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
+    f += iActive2 == 3 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
 
     // show inputs / feedback
     float line_a_a = rect(uv2, vec2(-8, 2), vec2(2, 0.1));
