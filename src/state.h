@@ -12,6 +12,9 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
 bool state_background_midi_write(SharedContext *context,
                                  StateConfig state_config, MidiDevice midi);
 
+void state_init(SharedContext *context, StateConfig state_config, bool demo,
+                unsigned int base_tempo);
+
 void state_randomize(SharedContext *context, StateConfig state_config);
 
 #endif /* STATE_H */

@@ -158,3 +158,4 @@ make -f Makefile.dev release-arch
 - [ ] Bonus
   - [ ] Record show as text files
   - [ ] Play from record text file
+  - [ ] Try to write NanoKontrol config

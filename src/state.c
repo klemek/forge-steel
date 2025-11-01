@@ -317,6 +317,34 @@ bool state_background_midi_write(SharedContext *context,
   return false;
 }
 
+void state_init(SharedContext *context, StateConfig state_config, bool demo,
+                unsigned int base_tempo) {
+  unsigned int i;
+
+  context->tempo = tempo_init();
+  tempo_set(&context->tempo, base_tempo);
+  context->demo = demo;
+
+  context->state.length = state_config.select_frag_codes.length;
+  memset(context->state.values, 0, sizeof(context->state.values));
+
+  if (demo) {
+    state_randomize(context, state_config);
+  }
+
+  memset(context->active, 0, sizeof(context->active));
+  memset(context->values, 0, sizeof(context->values));
+
+  context->page = 0;
+  context->selected = 0;
+
+  memset(context->seeds, 0, sizeof(context->seeds));
+
+  for (i = 0; i < state_config.select_frag_codes.length; i++) {
+    context->seeds[i] = rand_uint(1000);
+  }
+}
+
 void state_randomize(SharedContext *context, StateConfig state_config) {
   unsigned int i;
 

@@ -11,7 +11,6 @@
 #include "file.h"
 #include "forge.h"
 #include "midi.h"
-#include "rand.h"
 #include "shaders.h"
 #include "shared.h"
 #include "state.h"
@@ -56,33 +55,12 @@ static void compute_fps() {
   }
 }
 
-static void init_context(Parameters params, unsigned int in_count,
-                         unsigned int frag_count) {
+static void init_context(Parameters params, unsigned int in_count) {
   unsigned int i;
 
-  context->tempo = tempo_init();
-  tempo_set(&context->tempo, params.base_tempo);
-  context->demo = params.demo;
+  state_init(context, state_config, params.demo, params.base_tempo);
+
   context->monitor = params.monitor;
-
-  context->state.length = frag_count;
-  memset(context->state.values, 0, sizeof(context->state.values));
-
-  if (params.demo) {
-    state_randomize(context, state_config);
-  }
-
-  memset(context->active, 0, sizeof(context->active));
-  memset(context->values, 0, sizeof(context->values));
-
-  context->page = 0;
-  context->selected = 0;
-
-  memset(context->seeds, 0, sizeof(context->seeds));
-
-  for (i = 0; i < frag_count; i++) {
-    context->seeds[i] = rand_uint(1000);
-  }
 
   memset(context->input_resolutions, 0, sizeof(context->input_resolutions));
   memset(context->input_formats, 0, sizeof(context->input_formats));
@@ -269,7 +247,7 @@ void forge_run(Parameters params) {
 
   init_inputs(params.video_in, params.video_size);
 
-  init_context(params, in_count, frag_count);
+  init_context(params, in_count);
 
   if (!start_video_captures(params.video_in.length)) {
     return;
