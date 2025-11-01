@@ -56,7 +56,6 @@ static long get_average_tap_duration(Tempo tempo) {
 
   average_tap_duration = running_total / amount;
   if (average_tap_duration < MIN_BEAT_LENGTH) {
-    log_debug("%ld", average_tap_duration);
     return MIN_BEAT_LENGTH;
   }
 

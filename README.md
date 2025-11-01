@@ -1,8 +1,10 @@
-[![CI](https://github.com/klemek/forge/actions/workflows/ci.yml/badge.svg)](https://github.com/klemek/forge/actions/workflows/ci.yml)
+[![CI](https://github.com/klemek/forge-steel/actions/workflows/ci.yml/badge.svg)](https://github.com/klemek/forge-steel/actions/workflows/ci.yml)
 
-# F.O.R.G.E.
+# F.O.R.G.E. (Steel)
 
 > **F**usion **O**f **R**eal **T**ime **G**enerative **E**ffects
+
+*Steel version (linux executable)*
 
 TODO
 
@@ -17,11 +19,11 @@ TODO
 
 ### From release
 
-See [Releases](https://github.com/klemek/forge/releases)
+See [Releases](https://github.com/klemek/forge-steel/releases)
 
 ```shell
-tar xvzf forge-x.y.z.tar.gz
-cd forge-x.y.z
+tar xvzf forge-steel-x.y.z.tar.gz
+cd forge-steel-x.y.z
 ./configure
 make
 make install
@@ -30,7 +32,7 @@ make install
 ### From repository (PKGBUILD)
 
 ```shell
-git clone --recursive https://github.com/klemek/forge
+git clone --recursive https://github.com/klemek/forge-steel
 cd forge
 makepkg -si
 ```
@@ -39,7 +41,7 @@ makepkg -si
 ### From repository (dev version)
 
 ```shell
-git clone --recursive https://github.com/klemek/forge
+git clone --recursive https://github.com/klemek/forge-steel
 cd forge
 aclocal
 autoconf
@@ -76,18 +78,9 @@ options:
 ## Release guide
 
 ```shell
-# get latest version
-git pull origin master
-# update configure.ac with new version
-$EDITOR configure.ac
 # make full build
-make -f Makefile.dev release
-# update PKGBUILD with new version and sha256 sum
-sha256sum build/forge-x.y.z.tar.gzx
-$EDITOR PKGBUILD
-# push to repo
-git commit -am "forge vX.Y.Z"
-git tag vX.Y.Z
+make -f Makefile.dev release-1.0.0
+# push release
 git push origin master --tags
 # create release from tag on github
 # attach .tar.gz to the github release

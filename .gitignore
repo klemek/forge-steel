@@ -22,3 +22,5 @@ configure
 *.pkg.tar.zst
 pkg
 forge-*
+confdeps.*
+conftest.*

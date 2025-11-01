@@ -42,16 +42,18 @@ valgrind: build
 		--undef-value-errors=no \
 		./build/$(TARGET) $(TEST_ARGS)
 
-.PHONY: release
-release: clean
+.PHONY: release-%
+release-%: clean
+	git pull origin master
+	sed -i -E "s/[0-9]+\\.[0-9]+\\.[0-9]+/$*/g" configure.ac
 	aclocal
 	autoconf
 	automake --add-missing
 	./configure
 	make distcheck
 	mkdir -p build
-	cp $(TARGET)-*.tar.gz build/
-	@rm -rf \
+	cp "$(TARGET)-steel-$*.tar.gz" build/
+		@rm -rf \
 		autom4te.cache \
 		aclocal.m4 \
 		compile \
@@ -66,7 +68,15 @@ release: clean
 		Makefile.in \
 		missing \
 		src/.* \
-		src/*.o \
+		src/*.o
+	sed -i -E "s/pkgver=[0-9]+\\.[0-9]+\\.[0-9]+/pkgver=$*/g" PKGBUILD
+	sha256sum build/forge-steel-$*.tar.gz | cut -d' ' -f1 | xargs -I{} sed -i -E "s/sha256sums=\\('.*'\\)/sha256sums=\\('{}'\\)/g" PKGBUILD
+	git add configure.ac PKGBUILD
+	git commit -am "forge steel-$*"
+	git tag steel-$* -m "forge steel-$*"
+	@echo "Push release: git push origin master --tags"
+	@echo "Rollback release: git reset HEAD~1 --hard && git tag -d steel-$*"
+
 
 .PHONY: release-arch
 release-arch: clean

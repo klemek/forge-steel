@@ -1,4 +1,4 @@
-AC_INIT([forge], [0.0.0], [klemek.dev@proton.me])
+AC_INIT([forge], [steel-0.0.0], [klemek.dev@proton.me])
 AM_INIT_AUTOMAKE
 AC_PROG_CC
 

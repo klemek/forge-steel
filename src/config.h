@@ -8,7 +8,7 @@
 #endif /* PACKAGE */
 
 #ifndef VERSION
-#define VERSION "(dev)"
+#define VERSION "steel-dev"
 #endif /* VERSION */
 
 /* TYPES */

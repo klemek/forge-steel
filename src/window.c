@@ -129,10 +129,6 @@ void window_use(Window *window, SharedContext *context) {
   context->tex_resolution[0] =
       (int)(context->tex_resolution[1] * context->resolution[0] /
             context->resolution[1]);
-
-  log_debug("Resolution %f %f", context->resolution[0], context->resolution[1]);
-  log_debug("Tex resolution %f %f", context->tex_resolution[0],
-            context->tex_resolution[1]);
 }
 
 void window_close(Window *window) {
