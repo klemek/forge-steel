@@ -36,13 +36,13 @@ Tempo tempo_init() {
 }
 
 static bool is_chain_active(Tempo tempo, long t) {
-  return tempo.last_tap + MAX_BEAT_LENGTH > t &&
-         tempo.last_tap + (tempo.beat_length * BEATS_UNTIL_CHAIN_RESET) > t;
+  return (tempo.last_tap + MAX_BEAT_LENGTH) > t &&
+         (tempo.last_tap + (tempo.beat_length * BEATS_UNTIL_CHAIN_RESET)) > t;
 }
 
-static unsigned long get_average_tap_duration(Tempo tempo) {
+static long get_average_tap_duration(Tempo tempo) {
   unsigned int amount, i;
-  unsigned long running_total, average_tap_duration;
+  long running_total, average_tap_duration;
 
   amount = tempo.taps_in_chain - 1;
   if (amount > TOTAL_TAP_VALUES) {

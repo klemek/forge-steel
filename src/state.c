@@ -287,6 +287,7 @@ bool state_background_midi_write(SharedContext *context,
   update_values(context, state_config, midi);
 
   last_active = false;
+  last_change = false;
 
   while (!context->stop) {
     beat_active = tempo_progress(context->tempo, 1.0) < 0.25;

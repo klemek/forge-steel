@@ -136,7 +136,7 @@ typedef struct Tempo {
   unsigned int tap_duration_index;
   unsigned int tap_durations[MAX_TAP_VALUES];
   bool last_tap_skipped;
-  unsigned long beat_length;
+  long beat_length;
   float tempo;
 } Tempo;
 
