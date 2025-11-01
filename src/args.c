@@ -98,7 +98,7 @@ Parameters args_parse(int argc, char **argv) {
   params.base_tempo = 60.0f;
   params.demo = false;
   params.windowed = false;
-  params.video_in_count = 0;
+  params.video_in.length = 0;
 
   for (i = 1; i < argc; i++) {
     arg = argv[i];
@@ -122,12 +122,12 @@ Parameters args_parse(int argc, char **argv) {
         invalid_value(arg, value);
       }
     } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
-      if (params.video_in_count == MAX_VIDEO) {
+      if (params.video_in.length == MAX_VIDEO) {
         log_error("maximum video input reached");
         exit(EXIT_FAILURE);
       }
 
-      params.video_in[params.video_in_count++] = value;
+      params.video_in.values[params.video_in.length++] = value;
     } else if (is_arg(arg, "-vs") || is_arg(arg, "--video-size")) {
       params.video_size = parse_uint(arg, value);
       if (params.video_size == 0) {

@@ -65,7 +65,8 @@ static void init_context(Parameters params, unsigned int in_count,
   context->demo = params.demo;
   context->monitor = params.monitor;
 
-  memset(context->state, 0, sizeof(context->state));
+  context->state.length = frag_count;
+  memset(context->state.values, 0, sizeof(context->state.values));
 
   if (params.demo) {
     state_randomize(context, state_config);
@@ -83,15 +84,14 @@ static void init_context(Parameters params, unsigned int in_count,
     context->seeds[i] = rand_uint(1000);
   }
 
-  memset(context->input_widths, 0, sizeof(context->input_widths));
-  memset(context->input_heights, 0, sizeof(context->input_heights));
+  memset(context->input_resolutions, 0, sizeof(context->input_resolutions));
   memset(context->input_formats, 0, sizeof(context->input_formats));
   memset(context->input_fps, 0, sizeof(context->input_fps));
 
   for (i = 0; i < in_count; i++) {
     if (!inputs.values[i].error) {
-      context->input_widths[i] = inputs.values[i].width;
-      context->input_heights[i] = inputs.values[i].height;
+      context->input_resolutions[i][0] = inputs.values[i].width;
+      context->input_resolutions[i][1] = inputs.values[i].height;
       context->input_formats[i] = inputs.values[i].pixelformat;
     }
   }
@@ -161,14 +161,13 @@ static void free_files(unsigned int frag_count) {
   file_free(&common_shader_code, true);
 }
 
-static void init_inputs(char *video_in[MAX_VIDEO], unsigned int input_count,
-                        unsigned int video_size) {
+static void init_inputs(StringArray video_in, unsigned int video_size) {
   unsigned int i;
 
-  inputs.length = input_count;
+  inputs.length = video_in.length;
 
-  for (i = 0; i < input_count; i++) {
-    inputs.values[i] = video_init(video_in[i], video_size);
+  for (i = 0; i < video_in.length; i++) {
+    inputs.values[i] = video_init(video_in.values[i], video_size);
   }
 }
 
@@ -207,12 +206,15 @@ static void key_callback(Window *window, int key,
                          __attribute__((unused)) int mods) {
   if (window_escape_key(key, action)) {
     // close window on escape key
+    log_info("[ESC] Closing...");
     window_close(window);
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
+    log_info("[R] Randomizing...");
     state_randomize(context, state_config);
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
+    log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
     context->demo = !context->demo;
   }
 }
@@ -265,11 +267,11 @@ void forge_run(Parameters params) {
 
   init_files(params.frag_path, frag_count);
 
-  init_inputs(params.video_in, params.video_in_count, params.video_size);
+  init_inputs(params.video_in, params.video_size);
 
   init_context(params, in_count, frag_count);
 
-  if (!start_video_captures(params.video_in_count)) {
+  if (!start_video_captures(params.video_in.length)) {
     return;
   }
 
@@ -289,7 +291,7 @@ void forge_run(Parameters params) {
 
   window_startup(error_callback);
 
-  context->internal_height = params.internal_size;
+  context->tex_resolution[1] = params.internal_size;
 
   if (params.output) {
     window_output = window_init(PACKAGE " " VERSION, params.output_screen,
@@ -348,7 +350,7 @@ void forge_run(Parameters params) {
     shaders_free_window(program, params.output);
   }
 
-  free_video_captures(params.video_in_count);
+  free_video_captures(params.video_in.length);
 
   free_context();
 

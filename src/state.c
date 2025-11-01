@@ -10,8 +10,7 @@
 #include "types.h"
 
 StateConfig state_parse_config(ConfigFile config) {
-  unsigned int i, j, offset, total;
-  // TODO rename total var
+  unsigned int i, j, offset, count;
   StateConfig state_config;
   char name[256];
 
@@ -51,16 +50,16 @@ StateConfig state_parse_config(ConfigFile config) {
               state_config.values_offsets.length =
                   config_file_get_int(config, "MIDI_COUNT", 0);
 
-  total = 0;
+  count = 0;
   for (i = 0; i < state_config.midi_active_counts.length; i++) {
     sprintf(name, "MIDI_%d_ACTIVE_COUNT", i + 1);
     state_config.midi_active_counts.values[i] =
         config_file_get_int(config, name, 1);
-    state_config.midi_active_offsets.values[i] = total;
-    total += state_config.midi_active_counts.values[i];
+    state_config.midi_active_offsets.values[i] = count;
+    count += state_config.midi_active_counts.values[i];
   }
 
-  state_config.midi_active_codes.length = total;
+  state_config.midi_active_codes.length = count;
 
   for (i = 0; i < state_config.midi_active_counts.length; i++) {
     for (j = 0; j < state_config.midi_active_counts.values[i]; j++) {
@@ -71,19 +70,19 @@ StateConfig state_parse_config(ConfigFile config) {
     }
   }
 
-  total = 0;
+  count = 0;
   offset = 0;
   for (i = 0; i < state_config.midi_counts.length; i++) {
     sprintf(name, "MIDI_%d_COUNT", i + 1);
     state_config.midi_counts.values[i] = config_file_get_int(config, name, 0);
-    state_config.midi_offsets.values[i] = total;
+    state_config.midi_offsets.values[i] = count;
     state_config.values_offsets.values[i] = offset;
     offset += state_config.midi_counts.values[i] *
               state_config.midi_active_counts.values[i];
-    total += state_config.midi_counts.values[i];
+    count += state_config.midi_counts.values[i];
   }
 
-  state_config.midi_codes.length = total * 3;
+  state_config.midi_codes.length = count * 3;
 
   for (i = 0; i < state_config.midi_counts.length; i++) {
     offset = state_config.midi_offsets.values[i];
@@ -137,11 +136,12 @@ static void update_page(SharedContext *context, StateConfig state_config,
   page_item_min = state_config.select_item_codes.length * context->page;
   page_item_max = page_item_min + state_config.select_item_codes.length;
 
-  if (context->state[context->selected] >= page_item_min &&
-      context->state[context->selected] < page_item_max) {
+  if (context->state.values[context->selected] >= page_item_min &&
+      context->state.values[context->selected] < page_item_max) {
     for (i = 0; i < state_config.select_item_codes.length; i++) {
       safe_midi_write(midi, state_config.select_item_codes.values[i],
-                      i == context->state[context->selected] - page_item_min
+                      i == context->state.values[context->selected] -
+                                  page_item_min
                           ? MIDI_MAX
                           : 0);
     }
@@ -212,7 +212,7 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
   if (i != ARRAY_NOT_FOUND) {
     found = true;
     if (value > 0) {
-      context->state[context->selected] =
+      context->state.values[context->selected] =
           context->page * state_config.select_item_codes.length + i;
       update_page(context, state_config, midi);
     }
@@ -320,7 +320,7 @@ bool state_background_midi_write(SharedContext *context,
 void state_randomize(SharedContext *context, StateConfig state_config) {
   unsigned int i;
 
-  for (i = 0; i < state_config.select_frag_codes.length; i++) {
-    context->state[i] = rand_uint(state_config.state_max);
+  for (i = 0; i < context->state.length; i++) {
+    context->state.values[i] = rand_uint(state_config.state_max);
   }
 }

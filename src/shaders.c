@@ -51,8 +51,8 @@ static void init_textures(ShaderProgram *program, SharedContext *context) {
     glDisable(GL_BLEND);
 
     // define texture image as empty
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->internal_width,
-                 context->internal_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->tex_resolution[0],
+                 context->tex_resolution[1], 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // setup mipmap context
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -378,8 +378,8 @@ ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
 
   if (previous == NULL) {
     program.error = false;
-    program.last_width = context->width;
-    program.last_height = context->height;
+    program.last_resolution[0] = context->resolution[0];
+    program.last_resolution[1] = context->resolution[1];
     program.tex_count = config_file_get_int(config, "TEX_COUNT", 9);
     program.frag_count = config_file_get_int(config, "FRAG_COUNT", 10);
     program.frag_output_index =
@@ -446,13 +446,13 @@ static void update_viewport(ShaderProgram program, SharedContext *context) {
   unsigned int i;
 
   // viewport changed
-  if (context->width != program.last_width ||
-      context->height != program.last_height) {
+  if (context->resolution[0] != program.last_resolution[0] ||
+      context->resolution[1] != program.last_resolution[1]) {
     // clean and resize all textures
     for (i = 0; i < program.tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->internal_width,
-                   context->internal_height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->tex_resolution[0],
+                   context->tex_resolution[1], 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
   }
 }
@@ -486,19 +486,11 @@ static void use_program(ShaderProgram program, int i, bool output,
                         SharedContext *context) {
   unsigned int j, k, offset;
   GLuint subroutines[ARRAY_SIZE];
-  // TODO direct vec2 in context
-  vec2 resolution, tex_resolution, in_resolution;
-
-  resolution[0] = (float)context->width;
-  resolution[1] = (float)context->height;
-  tex_resolution[0] = (float)context->internal_width;
-  tex_resolution[1] = (float)context->internal_height;
-
   // use specific shader program
   glUseProgram(program.programs[i]);
 
   if (output) {
-    glViewport(0, 0, context->width, context->height);
+    glViewport(0, 0, context->resolution[0], context->resolution[1]);
 
     // use default framebuffer (output)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -506,7 +498,7 @@ static void use_program(ShaderProgram program, int i, bool output,
     // clear buffer
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
-    glViewport(0, 0, context->internal_width, context->internal_height);
+    glViewport(0, 0, context->tex_resolution[0], context->tex_resolution[1]);
 
     // use memory framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
@@ -519,8 +511,8 @@ static void use_program(ShaderProgram program, int i, bool output,
   write_uniform_1i(program.idemo_locations[i], context->demo ? 1 : 0);
   write_uniform_1i(program.ipage_locations[i], context->page);
   write_uniform_1i(program.iselected_locations[i], context->selected + 1);
-  write_uniform_2f(program.ires_locations[i], &resolution);
-  write_uniform_2f(program.itexres_locations[i], &tex_resolution);
+  write_uniform_2f(program.ires_locations[i], &context->resolution);
+  write_uniform_2f(program.itexres_locations[i], &context->tex_resolution);
 
   for (j = 0; j < program.active_count; j++) {
     write_uniform_1i(program.iactive_locations[i * program.active_count + j],
@@ -528,11 +520,8 @@ static void use_program(ShaderProgram program, int i, bool output,
   }
 
   for (j = 0; j < program.in_count; j++) {
-    in_resolution[0] = context->input_widths[j];
-    in_resolution[1] = context->input_heights[j];
-
     write_uniform_2f(program.iinres_locations[i * program.in_count + j],
-                     &in_resolution);
+                     &context->input_resolutions[j]);
     write_uniform_1i(program.iinfmt_locations[i * program.in_count + j],
                      context->input_formats[j]);
     write_uniform_1i(program.iinfps_locations[i * program.in_count + j],
@@ -547,7 +536,7 @@ static void use_program(ShaderProgram program, int i, bool output,
 
   for (j = 0; j < program.frag_count; j++) {
     write_uniform_1i(program.istate_locations[i * program.frag_count + j],
-                     context->state[j]);
+                     context->state.values[j]);
   }
 
   offset = 0;
@@ -559,7 +548,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   }
 
   // set subroutines for fragment and update state uniforms
-  k = context->state[i];
+  k = context->state.values[i];
   for (j = 0; j < program.sub_type_count; j++) {
     subroutines[j] = program.sub_locations[i * program.sub_type_count *
                                                program.sub_variant_count +

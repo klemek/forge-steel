@@ -38,9 +38,7 @@ typedef struct Parameters {
   float base_tempo;
   bool demo;
   bool windowed;
-  // TODO use array
-  char *video_in[MAX_VIDEO];
-  unsigned int video_in_count;
+  StringArray video_in;
 } Parameters;
 
 typedef struct Vertex {
@@ -59,8 +57,7 @@ typedef ARRAY(FileArray, File);
 typedef struct ShaderProgram {
   bool error;
 
-  int last_width;
-  int last_height;
+  vec2 last_resolution;
 
   GLuint vertex_shader;
 
@@ -143,16 +140,14 @@ typedef struct Tempo {
 typedef struct SharedContext {
   int fd;
 
-  // TODO use arrays
-  int width;
-  int height;
-  unsigned int internal_width;
-  unsigned int internal_height;
+  vec2 resolution;
+  vec2 tex_resolution;
+  vec2 input_resolutions[MAX_VIDEO];
+
   double time;
   unsigned int fps;
   Tempo tempo;
-  // TODO use array
-  unsigned int state[MAX_FRAG];
+  UintArray state;
   unsigned int page;
   unsigned int selected;
   unsigned int active[ARRAY_SIZE];
@@ -160,8 +155,7 @@ typedef struct SharedContext {
   bool demo;
   unsigned int seeds[MAX_FRAG];
   bool monitor;
-  unsigned int input_widths[MAX_VIDEO];
-  unsigned int input_heights[MAX_VIDEO];
+
   unsigned int input_formats[MAX_VIDEO];
   unsigned int input_fps[MAX_VIDEO];
   bool stop;

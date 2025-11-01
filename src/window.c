@@ -120,10 +120,19 @@ void window_events() { glfwPollEvents(); }
 double window_get_time() { return glfwGetTime(); }
 
 void window_use(Window *window, SharedContext *context) {
+  int width, height;
+
   glfwMakeContextCurrent(window);
-  glfwGetFramebufferSize(window, &context->width, &context->height);
-  context->internal_width = (int)(context->internal_height *
-                                  (float)context->width / (context->height));
+  glfwGetFramebufferSize(window, &width, &height);
+  context->resolution[0] = width;
+  context->resolution[1] = height;
+  context->tex_resolution[0] =
+      (int)(context->tex_resolution[1] * context->resolution[0] /
+            context->resolution[1]);
+
+  log_debug("Resolution %f %f", context->resolution[0], context->resolution[1]);
+  log_debug("Tex resolution %f %f", context->tex_resolution[0],
+            context->tex_resolution[1]);
 }
 
 void window_close(Window *window) {
