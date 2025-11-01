@@ -173,13 +173,12 @@ typedef struct StateConfig {
   UintArray select_page_codes;
   UintArray select_item_codes;
   UintArray select_frag_codes;
-  // TODO rename input_xxx
-  UintArray src_active_counts;
-  UintArray src_active_offsets;
-  UintArray src_active_codes;
-  UintArray src_counts;
-  UintArray src_offsets;
-  UintArray src_codes;
+  UintArray midi_active_counts;
+  UintArray midi_active_offsets;
+  UintArray midi_active_codes;
+  UintArray midi_counts;
+  UintArray midi_offsets;
+  UintArray midi_codes;
   UintArray fader_codes;
   UintArray values_offsets;
 

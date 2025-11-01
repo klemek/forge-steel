@@ -45,58 +45,59 @@ StateConfig state_parse_config(ConfigFile config) {
         config_file_get_int(config, name, UNSET_MIDI_CODE);
   }
 
-  state_config.src_active_counts.length = state_config.src_counts.length =
-      state_config.src_active_offsets.length = state_config.src_offsets.length =
-          state_config.values_offsets.length =
-              config_file_get_int(config, "MIDI_COUNT", 0);
+  state_config.midi_active_counts.length = state_config.midi_counts.length =
+      state_config.midi_active_offsets.length =
+          state_config.midi_offsets.length =
+              state_config.values_offsets.length =
+                  config_file_get_int(config, "MIDI_COUNT", 0);
 
   total = 0;
-  for (i = 0; i < state_config.src_active_counts.length; i++) {
+  for (i = 0; i < state_config.midi_active_counts.length; i++) {
     sprintf(name, "MIDI_%d_ACTIVE_COUNT", i + 1);
-    state_config.src_active_counts.values[i] =
+    state_config.midi_active_counts.values[i] =
         config_file_get_int(config, name, 1);
-    state_config.src_active_offsets.values[i] = total;
-    total += state_config.src_active_counts.values[i];
+    state_config.midi_active_offsets.values[i] = total;
+    total += state_config.midi_active_counts.values[i];
   }
 
-  state_config.src_active_codes.length = total;
+  state_config.midi_active_codes.length = total;
 
-  for (i = 0; i < state_config.src_active_counts.length; i++) {
-    for (j = 0; j < state_config.src_active_counts.values[i]; j++) {
+  for (i = 0; i < state_config.midi_active_counts.length; i++) {
+    for (j = 0; j < state_config.midi_active_counts.values[i]; j++) {
       sprintf(name, "MIDI_%d_ACTIVE_%d", i + 1, j + 1);
-      state_config.src_active_codes
-          .values[state_config.src_active_offsets.values[i] + j] =
+      state_config.midi_active_codes
+          .values[state_config.midi_active_offsets.values[i] + j] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
     }
   }
 
   total = 0;
   offset = 0;
-  for (i = 0; i < state_config.src_counts.length; i++) {
+  for (i = 0; i < state_config.midi_counts.length; i++) {
     sprintf(name, "MIDI_%d_COUNT", i + 1);
-    state_config.src_counts.values[i] = config_file_get_int(config, name, 0);
-    state_config.src_offsets.values[i] = total;
+    state_config.midi_counts.values[i] = config_file_get_int(config, name, 0);
+    state_config.midi_offsets.values[i] = total;
     state_config.values_offsets.values[i] = offset;
-    offset += state_config.src_counts.values[i] *
-              state_config.src_active_counts.values[i];
-    total += state_config.src_counts.values[i];
+    offset += state_config.midi_counts.values[i] *
+              state_config.midi_active_counts.values[i];
+    total += state_config.midi_counts.values[i];
   }
 
-  state_config.src_codes.length = total * 3;
+  state_config.midi_codes.length = total * 3;
 
-  for (i = 0; i < state_config.src_counts.length; i++) {
-    offset = state_config.src_offsets.values[i];
-    for (j = 0; j < state_config.src_counts.values[i]; j++) {
+  for (i = 0; i < state_config.midi_counts.length; i++) {
+    offset = state_config.midi_offsets.values[i];
+    for (j = 0; j < state_config.midi_counts.values[i]; j++) {
       sprintf(name, "MIDI_%d_%d_X", i + 1, j + 1);
-      state_config.src_codes.values[(offset + j) * 3] =
+      state_config.midi_codes.values[(offset + j) * 3] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
 
       sprintf(name, "MIDI_%d_%d_Y", i + 1, j + 1);
-      state_config.src_codes.values[(offset + j) * 3 + 1] =
+      state_config.midi_codes.values[(offset + j) * 3 + 1] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
 
       sprintf(name, "MIDI_%d_%d_Z", i + 1, j + 1);
-      state_config.src_codes.values[(offset + j) * 3 + 2] =
+      state_config.midi_codes.values[(offset + j) * 3 + 2] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
     }
   }
@@ -155,10 +156,10 @@ static void update_active(SharedContext *context, StateConfig state_config,
                           MidiDevice midi) {
   unsigned int i, j, k;
 
-  for (i = 0; i < state_config.src_active_counts.length; i++) {
-    for (j = 0; j < state_config.src_active_counts.values[i]; j++) {
-      k = state_config.src_active_offsets.values[i] + j;
-      safe_midi_write(midi, state_config.src_active_codes.values[k],
+  for (i = 0; i < state_config.midi_active_counts.length; i++) {
+    for (j = 0; j < state_config.midi_active_counts.values[i]; j++) {
+      k = state_config.midi_active_offsets.values[i] + j;
+      safe_midi_write(midi, state_config.midi_active_codes.values[k],
                       context->active[i] == j ? MIDI_MAX : 0);
     }
   }
@@ -168,12 +169,12 @@ static void update_values(SharedContext *context, StateConfig state_config,
                           MidiDevice midi) {
   unsigned int i, j, k, part;
 
-  for (i = 0; i < state_config.src_codes.length; i++) {
+  for (i = 0; i < state_config.midi_codes.length; i++) {
     j = i / 3;
-    part = arr_uint_remap_index(state_config.src_offsets, &j);
+    part = arr_uint_remap_index(state_config.midi_offsets, &j);
     k = state_config.values_offsets.values[part] +
-        context->active[part] * state_config.src_counts.values[part] + j;
-    safe_midi_write(midi, state_config.src_codes.values[i],
+        context->active[part] * state_config.midi_counts.values[part] + j;
+    safe_midi_write(midi, state_config.midi_codes.values[i],
                     context->values[k][i % 3] * MIDI_MAX);
   }
 }
@@ -218,11 +219,11 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
   }
 
   // ACTIVE CHANGE
-  i = arr_uint_index_of(state_config.src_active_codes, code);
+  i = arr_uint_index_of(state_config.midi_active_codes, code);
   if (i != ARRAY_NOT_FOUND) {
     found = true;
     if (value > 0) {
-      part = arr_uint_remap_index(state_config.src_active_offsets, &i);
+      part = arr_uint_remap_index(state_config.midi_active_offsets, &i);
       context->active[part] = i;
       update_active(context, state_config, midi);
       update_values(context, state_config, midi);
@@ -230,13 +231,13 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
   }
 
   // VALUE CHANGE
-  i = arr_uint_index_of(state_config.src_codes, code);
+  i = arr_uint_index_of(state_config.midi_codes, code);
   if (i != ARRAY_NOT_FOUND) {
     found = true;
     j = i / 3;
-    part = arr_uint_remap_index(state_config.src_offsets, &j);
+    part = arr_uint_remap_index(state_config.midi_offsets, &j);
     k = state_config.values_offsets.values[part] +
-        context->active[part] * state_config.src_counts.values[part] + j;
+        context->active[part] * state_config.midi_counts.values[part] + j;
 
     if (arr_uint_index_of(state_config.fader_codes, code) != ARRAY_NOT_FOUND) {
       context->values[k][i % 3] = (float)value / MIDI_MAX;
