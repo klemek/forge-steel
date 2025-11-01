@@ -68,21 +68,17 @@ typedef struct ShaderProgram {
   GLuint vertex_array[2];
 
   unsigned int tex_count;
-  // TODO use arrays
   GLuint textures[ARRAY_SIZE];
 
   unsigned int frag_count;
   unsigned int frag_output_index;
   unsigned int frag_monitor_index;
 
-  // TODO use array
   GLuint programs[ARRAY_SIZE];
 
-  // TODO use array
   GLuint frame_buffers[ARRAY_SIZE];
   GLuint fragment_shaders[ARRAY_SIZE];
 
-  // TODO use array
   GLuint itime_locations[ARRAY_SIZE];
   GLuint itempo_locations[ARRAY_SIZE];
   GLuint ifps_locations[ARRAY_SIZE];
@@ -98,13 +94,11 @@ typedef struct ShaderProgram {
   GLuint iselected_locations[ARRAY_SIZE];
   GLuint iactive_locations[ARRAY_SIZE];
 
-  // TODO rename inputs_xxx
-  UintArray src_lengths;
-  GLuint isrc_locations[ARRAY_SIZE];
+  UintArray midi_lengths;
+  GLuint imidi_locations[ARRAY_SIZE];
 
   GLuint vpos_locations[ARRAY_SIZE];
 
-  // TODO use array
   GLuint textures_locations[ARRAY_SIZE];
 
   unsigned int sub_type_count;

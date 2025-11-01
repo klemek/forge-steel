@@ -326,15 +326,15 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
         glGetUniformLocation(program->programs[i], name);
   }
 
-  if (program->src_lengths.length == 0) {
+  if (program->midi_lengths.length == 0) {
     index1 = 0;
     for (j = 0; j < state_config.src_active_counts.length; j++) {
       for (k = 0; k < state_config.src_active_counts.values[j]; k++) {
-        program->src_lengths.values[index1++] =
+        program->midi_lengths.values[index1++] =
             state_config.src_counts.values[j];
       }
     }
-    program->src_lengths.length = index1;
+    program->midi_lengths.length = index1;
   }
 
   prefix = config_file_get_str(config, "UNIFORM_MIDI_PREFIX", "iMidi");
@@ -342,7 +342,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   for (j = 0; j < state_config.src_active_counts.length; j++) {
     for (k = 0; k < state_config.src_active_counts.values[j]; k++) {
       sprintf(name, "%s%d_%d", prefix, j + 1, k + 1);
-      program->isrc_locations[i * program->src_lengths.length + index2++] =
+      program->imidi_locations[i * program->midi_lengths.length + index2++] =
           glGetUniformLocation(program->programs[i], name);
     }
   }
@@ -390,7 +390,7 @@ ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
     program.in_count = config_file_get_int(config, "IN_COUNT", 0);
     program.sub_variant_count = state_config.state_max;
     program.active_count = state_config.src_active_counts.length;
-    program.src_lengths.length = 0;
+    program.midi_lengths.length = 0;
 
     if (program.frag_count > MAX_FRAG) {
       log_error("FRAG_COUNT over %d", MAX_FRAG);
@@ -551,11 +551,11 @@ static void use_program(ShaderProgram program, int i, bool output,
   }
 
   offset = 0;
-  for (j = 0; j < program.src_lengths.length; j++) {
+  for (j = 0; j < program.midi_lengths.length; j++) {
     write_uniform_multi_3f(
-        program.isrc_locations[i * program.src_lengths.length + j],
-        program.src_lengths.values[j], context->values + offset);
-    offset += program.src_lengths.values[j];
+        program.imidi_locations[i * program.midi_lengths.length + j],
+        program.midi_lengths.values[j], context->values + offset);
+    offset += program.midi_lengths.values[j];
   }
 
   // set subroutines for fragment and update state uniforms
