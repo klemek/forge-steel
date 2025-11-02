@@ -54,7 +54,7 @@ make install
 ## CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
+usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
 
 Fusion Of Real-time Generative Effects.
 
@@ -67,11 +67,16 @@ options:
   -mo, --monitor-only       no output screen
   -f, --frag                fragment shaders directory (default: /usr/share/forge/shaders)
   -c, --config              fragment shaders config file (default: /usr/share/forge/default.cfg)
+  -sf, --state-file         saved state file (default: forge_saved_state.txt)
+  -ls, --load-state         load saved state (default)
+  -nls, --no-load-state     do not load saved state
+  -ss, --save-state         save state (default)
+  -nss, --no-save-state     do not save state
   -is, --internal-size      internal texture height (default: 720)
   -v, --video-in            path to video capture device (multiple allowed)
   -vs, --video-size         video capture desired height (default: internal texture height)
   -t, --tempo               base tempo (default: 60)
-  --demo                    demonstration mode
+  --demo                    demonstration mode (assume --no-save-state and --no-load-state)
   -w, --windowed            not fullscreen
 ```
 
@@ -126,7 +131,7 @@ make -f Makefile.dev release-arch
   - [x] Write Midi events
   - [x] Send midi data to shaders
   - [x] Save midi state
-  - [ ] Load midi state from last save
+  - [x] Load midi state from last save
   - [x] State machine with A/B switch
   - [x] Tap-tempo feature
   - [ ] Clean code and fix things

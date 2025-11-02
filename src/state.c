@@ -321,21 +321,47 @@ bool state_background_midi_write(SharedContext *context,
 
 void state_load(SharedContext *context, StateConfig state_config,
                 char *state_file) {
-  File saved_state;
+  ConfigFile saved_state;
+  char key[100];
+  unsigned int i;
 
-  saved_state = file_read(state_file);
+  saved_state = config_file_read(state_file, false);
 
-  if (saved_state.error) {
-    return;
+  tempo_set(&context->tempo,
+            config_file_get_int(saved_state, "tempo", context->tempo.tempo));
+  context->page = config_file_get_int(saved_state, "page", 0);
+  context->selected = config_file_get_int(saved_state, "selected", 0);
+
+  for (i = 0; i < context->state.length; i++) {
+    sprintf(key, "seed_%d", i);
+    context->seeds[i] =
+        config_file_get_int(saved_state, key, context->seeds[i]);
+    sprintf(key, "state_%d", i);
+    context->state.values[i] = config_file_get_int(saved_state, key, 0);
   }
 
-  // TODO load state
+  for (i = 0; i < state_config.midi_active_counts.length; i++) {
+    sprintf(key, "active_%d", i);
+    context->active[i] = config_file_get_int(saved_state, key, 0);
+  }
 
-  file_free(&saved_state, false);
+  for (i = 0; i < state_config.midi_codes.length; i++) {
+    sprintf(key, "value_%d_x", i);
+    context->values[i][0] =
+        (float)config_file_get_int(saved_state, key, 0) / MIDI_MAX;
+    sprintf(key, "value_%d_y", i);
+    context->values[i][1] =
+        (float)config_file_get_int(saved_state, key, 0) / MIDI_MAX;
+    sprintf(key, "value_%d_z", i);
+    context->values[i][2] =
+        (float)config_file_get_int(saved_state, key, 0) / MIDI_MAX;
+  }
+
+  config_file_free(saved_state);
 }
 
 void state_init(SharedContext *context, StateConfig state_config, bool demo,
-                unsigned int base_tempo, char *state_file, bool empty_state) {
+                unsigned int base_tempo, char *state_file, bool load_state) {
   unsigned int i;
 
   context->tempo = tempo_init();
@@ -361,7 +387,7 @@ void state_init(SharedContext *context, StateConfig state_config, bool demo,
     context->seeds[i] = rand_uint(1000);
   }
 
-  if (!empty_state) {
+  if (load_state) {
     state_load(context, state_config, state_file);
   }
 }

@@ -103,7 +103,7 @@ char *config_file_get_str(ConfigFile config, char *key, char *default_value) {
 }
 
 unsigned int config_file_get_int(ConfigFile config, char *key,
-                                 int default_value) {
+                                 unsigned int default_value) {
   ConfigFileItem c_key;
   ConfigFileItem *item;
 

@@ -23,7 +23,8 @@ static void print_help(int status_code) {
        "[-f=DIR_PATH] "
        "[-c=CFG_PATH] "
        "[-sf=STATE_PATH] "
-       "[-es] "
+       "[-ls / -nls] "
+       "[-ss / -nss] "
        "[-is=SIZE] "
        "[-v=FILE] "
        "[-vs=SIZE] "
@@ -41,17 +42,22 @@ static void print_help(int status_code) {
        "  -mo, --monitor-only       no output screen\n"
        "  -f, --frag                fragment shaders directory "
        "(default: " DATADIR "/shaders)\n"
-       "  -sf, --state-file         state save file (default: state.txt)\n"
-       "  -es, --empty-state             do not load state save file\n"
        "  -c, --config              fragment shaders config file "
        "(default: " DATADIR "/default.cfg)\n"
+       "  -sf, --state-file         saved state file (default: "
+       "forge_saved_state.txt)\n"
+       "  -ls, --load-state         load saved state (default)\n"
+       "  -nls, --no-load-state     do not load saved state\n"
+       "  -ss, --save-state         save state (default)\n"
+       "  -nss, --no-save-state     do not save state\n"
        "  -is, --internal-size      internal texture height (default: 720)\n"
        "  -v, --video-in            path to video capture device (multiple "
        "allowed)\n"
        "  -vs, --video-size         video capture desired height (default: "
        "internal texture height)\n"
        "  -t, --tempo               base tempo (default: 60)\n"
-       "  --demo                    demonstration mode\n"
+       "  --demo                    demonstration mode (assume --no-save-state "
+       "and --no-load-state)\n"
        "  -w, --windowed            not fullscreen\n");
   exit(status_code);
 }
@@ -97,8 +103,9 @@ Parameters args_parse(int argc, char **argv) {
   params.monitor_screen = 0;
   params.frag_path = DATADIR "/shaders";
   params.config_path = DATADIR "/default.cfg";
-  params.state_file = "state.txt";
-  params.empty_state = false;
+  params.state_file = "forge_saved_state.txt";
+  params.load_state = true;
+  params.save_state = false;
   params.internal_size = 720;
   params.video_size = 0;
   params.base_tempo = 60.0f;
@@ -124,8 +131,14 @@ Parameters args_parse(int argc, char **argv) {
       params.config_path = value;
     } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
       params.state_file = value;
-    } else if (is_arg(arg, "-es") || is_arg(arg, "--empty-state")) {
-      params.empty_state = true;
+    } else if (is_arg(arg, "-ls") || is_arg(arg, "--load-state")) {
+      params.load_state = true;
+    } else if (is_arg(arg, "-nls") || is_arg(arg, "--no-load-state")) {
+      params.load_state = false;
+    } else if (is_arg(arg, "-ss") || is_arg(arg, "--save-state")) {
+      params.save_state = true;
+    } else if (is_arg(arg, "-nss") || is_arg(arg, "--no-save-state")) {
+      params.save_state = false;
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
       params.internal_size = parse_uint(arg, value);
       if (params.internal_size == 0) {
@@ -153,6 +166,8 @@ Parameters args_parse(int argc, char **argv) {
       params.monitor = true;
     } else if (is_arg(arg, "--demo")) {
       params.demo = true;
+      params.load_state = false;
+      params.save_state = false;
     } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
       params.windowed = true;
     } else {

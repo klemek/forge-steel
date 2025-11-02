@@ -13,7 +13,7 @@ bool state_background_midi_write(SharedContext *context,
                                  StateConfig state_config, MidiDevice midi);
 
 void state_init(SharedContext *context, StateConfig state_config, bool demo,
-                unsigned int base_tempo, char *state_file, bool empty_state);
+                unsigned int base_tempo, char *state_file, bool load_state);
 
 void state_randomize(SharedContext *context, StateConfig state_config);
 

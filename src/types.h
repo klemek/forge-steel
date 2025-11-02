@@ -39,7 +39,8 @@ typedef struct Parameters {
   char *frag_path;
   char *config_path;
   char *state_file;
-  bool empty_state;
+  bool load_state;
+  bool save_state;
   unsigned int internal_size;
   unsigned int video_size;
   float base_tempo;
