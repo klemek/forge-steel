@@ -125,7 +125,7 @@ make -f Makefile.dev release-arch
   - [x] Read midi mapping config file
   - [x] Write Midi events
   - [x] Send midi data to shaders
-  - [ ] Save midi state
+  - [x] Save midi state
   - [ ] Load midi state from last save
   - [x] State machine with A/B switch
   - [x] Tap-tempo feature

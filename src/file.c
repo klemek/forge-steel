@@ -75,6 +75,28 @@ File file_read(char *path) {
   return file;
 }
 
+void file_write(char *path, ConstStringArray lines) {
+  unsigned int i;
+  FILE *file_pointer;
+
+  log_info("Writing %s...", path);
+
+  // open file
+  file_pointer = fopen(path, "w");
+  if (file_pointer == NULL) {
+    log_warn("Cannot open file '%s'", path);
+    return;
+  }
+
+  // write file
+  for (i = 0; i < lines.length; i++) {
+    fprintf(file_pointer, "%s\n", lines.values[i]);
+  }
+
+  // close file
+  fclose(file_pointer);
+}
+
 void file_prepend(File *src, File extra) {
   char *old_src_content;
 

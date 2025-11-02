@@ -25,6 +25,11 @@ typedef ARRAY(StringArray, char *);
 typedef ARRAY(Vec3Array, vec3);
 typedef ARRAY(GLuintArray, GLuint);
 
+typedef struct ConstStringArray {
+  char values[ARRAY_SIZE][1000];
+  unsigned int length;
+} ConstStringArray;
+
 typedef struct Parameters {
   bool hot_reload;
   bool output;
@@ -33,6 +38,8 @@ typedef struct Parameters {
   unsigned int monitor_screen;
   char *frag_path;
   char *config_path;
+  char *state_file;
+  bool empty_state;
   unsigned int internal_size;
   unsigned int video_size;
   float base_tempo;

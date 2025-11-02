@@ -22,6 +22,8 @@ static void print_help(int status_code) {
        "[-mo] "
        "[-f=DIR_PATH] "
        "[-c=CFG_PATH] "
+       "[-sf=STATE_PATH] "
+       "[-es] "
        "[-is=SIZE] "
        "[-v=FILE] "
        "[-vs=SIZE] "
@@ -39,6 +41,8 @@ static void print_help(int status_code) {
        "  -mo, --monitor-only       no output screen\n"
        "  -f, --frag                fragment shaders directory "
        "(default: " DATADIR "/shaders)\n"
+       "  -sf, --state-file         state save file (default: state.txt)\n"
+       "  -es, --empty-state             do not load state save file\n"
        "  -c, --config              fragment shaders config file "
        "(default: " DATADIR "/default.cfg)\n"
        "  -is, --internal-size      internal texture height (default: 720)\n"
@@ -93,6 +97,8 @@ Parameters args_parse(int argc, char **argv) {
   params.monitor_screen = 0;
   params.frag_path = DATADIR "/shaders";
   params.config_path = DATADIR "/default.cfg";
+  params.state_file = "state.txt";
+  params.empty_state = false;
   params.internal_size = 720;
   params.video_size = 0;
   params.base_tempo = 60.0f;
@@ -116,6 +122,10 @@ Parameters args_parse(int argc, char **argv) {
       params.frag_path = value;
     } else if (is_arg(arg, "-c") || is_arg(arg, "--config")) {
       params.config_path = value;
+    } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
+      params.state_file = value;
+    } else if (is_arg(arg, "-es") || is_arg(arg, "--empty-state")) {
+      params.empty_state = true;
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
       params.internal_size = parse_uint(arg, value);
       if (params.internal_size == 0) {

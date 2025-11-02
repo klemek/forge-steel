@@ -13,4 +13,6 @@ void file_prepend(File *src, File extra);
 
 void file_free(File *file, bool free_path);
 
+void file_write(char *path, ConstStringArray lines);
+
 #endif /* FILE_H */

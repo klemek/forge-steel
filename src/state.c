@@ -1,8 +1,10 @@
 #include <log.h>
+#include <stdio.h>
 
 #include "arr.h"
 #include "config.h"
 #include "config_file.h"
+#include "file.h"
 #include "midi.h"
 #include "rand.h"
 #include "state.h"
@@ -317,8 +319,23 @@ bool state_background_midi_write(SharedContext *context,
   return false;
 }
 
+void state_load(SharedContext *context, StateConfig state_config,
+                char *state_file) {
+  File saved_state;
+
+  saved_state = file_read(state_file);
+
+  if (saved_state.error) {
+    return;
+  }
+
+  // TODO load state
+
+  file_free(&saved_state, false);
+}
+
 void state_init(SharedContext *context, StateConfig state_config, bool demo,
-                unsigned int base_tempo) {
+                unsigned int base_tempo, char *state_file, bool empty_state) {
   unsigned int i;
 
   context->tempo = tempo_init();
@@ -340,8 +357,12 @@ void state_init(SharedContext *context, StateConfig state_config, bool demo,
 
   memset(context->seeds, 0, sizeof(context->seeds));
 
-  for (i = 0; i < state_config.select_frag_codes.length; i++) {
+  for (i = 0; i < context->state.length; i++) {
     context->seeds[i] = rand_uint(1000);
+  }
+
+  if (!empty_state) {
+    state_load(context, state_config, state_file);
   }
 }
 
@@ -351,4 +372,41 @@ void state_randomize(SharedContext *context, StateConfig state_config) {
   for (i = 0; i < context->state.length; i++) {
     context->state.values[i] = rand_uint(state_config.state_max);
   }
+}
+
+void state_save(SharedContext *context, StateConfig state_config,
+                char *state_file) {
+  ConstStringArray lines;
+  unsigned int i;
+
+  log_info("Saving state to '%s'...", state_file);
+
+  lines.length = 0;
+
+  sprintf(lines.values[lines.length++], "tempo=%d",
+          (unsigned int)context->tempo.tempo);
+  sprintf(lines.values[lines.length++], "page=%d", context->page);
+  sprintf(lines.values[lines.length++], "selected=%d", context->selected);
+
+  for (i = 0; i < context->state.length; i++) {
+    sprintf(lines.values[lines.length++], "seed_%d=%d", i, context->seeds[i]);
+    sprintf(lines.values[lines.length++], "state_%d=%d", i,
+            context->state.values[i]);
+  }
+
+  for (i = 0; i < state_config.midi_active_counts.length; i++) {
+    sprintf(lines.values[lines.length++], "active_%d=%d", i,
+            context->active[i]);
+  }
+
+  for (i = 0; i < state_config.midi_codes.length; i++) {
+    sprintf(lines.values[lines.length++], "value_%d_x=%d", i,
+            (unsigned int)(context->values[i][0] * MIDI_MAX));
+    sprintf(lines.values[lines.length++], "value_%d_y=%d", i,
+            (unsigned int)(context->values[i][1] * MIDI_MAX));
+    sprintf(lines.values[lines.length++], "value_%d_z=%d", i,
+            (unsigned int)(context->values[i][2] * MIDI_MAX));
+  }
+
+  file_write(state_file, lines);
 }
