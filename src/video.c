@@ -70,6 +70,7 @@ static VideoCapture open_device(char *name) {
   strncpy(video_capture.name, name, STR_LEN);
   video_capture.error = false;
   video_capture.fd = -1;
+  video_capture.exp_fd = -1;
 
   video_capture.fd = open(name, O_RDWR);
   if (video_capture.fd == -1) {
@@ -151,7 +152,7 @@ static bool get_available_sizes(VideoCapture *video_capture,
   }
 
   if (video_capture->height == 0) {
-    log_warn("(%s) No format found");
+    log_warn("(%s) No format found", video_capture->name);
     video_capture->error = true;
     return false;
   }
