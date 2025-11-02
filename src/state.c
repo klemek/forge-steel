@@ -319,13 +319,13 @@ bool state_background_midi_write(SharedContext *context,
   return false;
 }
 
-void state_load(SharedContext *context, StateConfig state_config,
-                char *state_file) {
+static void state_load(SharedContext *context, StateConfig state_config,
+                       char *state_file) {
   ConfigFile saved_state;
   char key[100];
   unsigned int i;
 
-  saved_state = config_file_read(state_file, false);
+  saved_state = config_file_read(state_file);
 
   tempo_set(&context->tempo,
             config_file_get_int(saved_state, "tempo", context->tempo.tempo));
@@ -402,7 +402,7 @@ void state_randomize(SharedContext *context, StateConfig state_config) {
 
 void state_save(SharedContext *context, StateConfig state_config,
                 char *state_file) {
-  ConstStringArray lines;
+  StringArray lines;
   unsigned int i;
 
   log_info("Saving state to '%s'...", state_file);

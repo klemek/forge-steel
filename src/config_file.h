@@ -3,7 +3,7 @@
 #ifndef CONFIG_FILE_H
 #define CONFIG_FILE_H
 
-ConfigFile config_file_read(char *path, bool free_path);
+ConfigFile config_file_read(char *path);
 
 char *config_file_get_str(ConfigFile config, char *key, char *default_value);
 

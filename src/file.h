@@ -11,8 +11,8 @@ void file_update(File *file);
 
 void file_prepend(File *src, File extra);
 
-void file_free(File *file, bool free_path);
+void file_write(char *path, StringArray lines);
 
-void file_write(char *path, ConstStringArray lines);
+void file_free(File *file);
 
 #endif /* FILE_H */

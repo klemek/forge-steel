@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "config_file.h"
 #include "file.h"
 #include "string.h"
@@ -61,7 +62,7 @@ static void parse_config_file_line(ConfigFile config, char *line) {
   hashmap_set(config.map, &item);
 }
 
-ConfigFile config_file_read(char *path, bool free_path) {
+ConfigFile config_file_read(char *path) {
   File file;
   ConfigFile config;
   char *line;
@@ -82,7 +83,7 @@ ConfigFile config_file_read(char *path, bool free_path) {
     line = strtok(NULL, "\n");
   }
 
-  file_free(&file, free_path);
+  file_free(&file);
 
   return config;
 }
@@ -91,7 +92,7 @@ char *config_file_get_str(ConfigFile config, char *key, char *default_value) {
   ConfigFileItem c_key;
   ConfigFileItem *item;
 
-  strcpy(c_key.key, key);
+  strncpy(c_key.key, key, STR_LEN);
 
   item = (ConfigFileItem *)hashmap_get(config.map, &c_key);
 
@@ -107,7 +108,7 @@ unsigned int config_file_get_int(ConfigFile config, char *key,
   ConfigFileItem c_key;
   ConfigFileItem *item;
 
-  strcpy(c_key.key, key);
+  strncpy(c_key.key, key, STR_LEN);
 
   item = (ConfigFileItem *)hashmap_get(config.map, &c_key);
 

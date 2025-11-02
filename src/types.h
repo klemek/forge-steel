@@ -21,14 +21,13 @@
   } X
 
 typedef ARRAY(UintArray, unsigned int);
-typedef ARRAY(StringArray, char *);
 typedef ARRAY(Vec3Array, vec3);
 typedef ARRAY(GLuintArray, GLuint);
 
-typedef struct ConstStringArray {
-  char values[ARRAY_SIZE][1000];
+typedef struct StringArray {
+  char values[ARRAY_SIZE][STR_LEN];
   unsigned int length;
-} ConstStringArray;
+} StringArray;
 
 typedef struct Parameters {
   bool hot_reload;
@@ -36,9 +35,9 @@ typedef struct Parameters {
   unsigned int output_screen;
   bool monitor;
   unsigned int monitor_screen;
-  char *frag_path;
-  char *config_path;
-  char *state_file;
+  char frag_path[STR_LEN];
+  char config_path[STR_LEN];
+  char state_file[STR_LEN];
   bool load_state;
   bool save_state;
   unsigned int internal_size;
@@ -54,8 +53,9 @@ typedef struct Vertex {
 } Vertex;
 
 typedef struct File {
-  char *path;
+  char path[STR_LEN];
   char *content;
+  unsigned int length;
   bool error;
   time_t last_write;
 } File;
@@ -117,7 +117,7 @@ typedef struct ShaderProgram {
 } ShaderProgram;
 
 typedef struct VideoCapture {
-  char *name;
+  char name[STR_LEN];
   bool error;
   int fd;
   int exp_fd;
@@ -198,13 +198,13 @@ typedef struct ConfigFile {
 } ConfigFile;
 
 typedef struct ConfigFileItem {
-  char key[256];
-  char value[2048];
+  char key[STR_LEN];
+  char value[STR_LEN];
 } ConfigFileItem;
 
 typedef struct MidiDevice {
   bool error;
-  char *name;
+  char name[STR_LEN];
   snd_rawmidi_t *input;
   snd_rawmidi_t *output;
 } MidiDevice;

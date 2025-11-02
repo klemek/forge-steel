@@ -66,7 +66,7 @@ void file_update(File *file) {
 File file_read(char *path) {
   File file;
 
-  file.path = path;
+  sprintf(file.path, path, STR_LEN);
   file.content = NULL;
   file.error = false;
   file.last_write = 0;
@@ -75,7 +75,7 @@ File file_read(char *path) {
   return file;
 }
 
-void file_write(char *path, ConstStringArray lines) {
+void file_write(char *path, StringArray lines) {
   unsigned int i;
   FILE *file_pointer;
 
@@ -105,9 +105,4 @@ void file_prepend(File *src, File extra) {
   free(old_src_content);
 }
 
-void file_free(File *file, bool free_path) {
-  free(file->content);
-  if (free_path) {
-    free(file->path);
-  }
-}
+void file_free(File *file) { free(file->content); }

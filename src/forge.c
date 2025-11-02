@@ -101,11 +101,9 @@ static void hot_reload() {
 
 File read_fragment_shader_file(char *frag_path, unsigned int i) {
   File fragment_shader;
-  char *file_path;
+  char file_path[STR_LEN];
 
-  file_path = malloc(sizeof(char) * 1024);
-
-  sprintf(file_path, "%s/frag%d.glsl", frag_path, i);
+  snprintf(file_path, STR_LEN, "%s/frag%d.glsl", frag_path, i);
   fragment_shader = file_read(file_path);
   if (fragment_shader.error) {
     exit(EXIT_FAILURE);
@@ -134,10 +132,10 @@ static void free_files(unsigned int frag_count) {
   unsigned int i;
 
   for (i = 0; i < frag_count; i++) {
-    file_free(&fragment_shaders.values[i], true);
+    file_free(&fragment_shaders.values[i]);
   }
 
-  file_free(&common_shader_code, true);
+  file_free(&common_shader_code);
 }
 
 static void init_inputs(StringArray video_in, unsigned int video_size) {
@@ -237,7 +235,7 @@ void forge_run(Parameters params) {
 
   context->stop = false;
 
-  config = config_file_read(params.config_path, false);
+  config = config_file_read(params.config_path);
 
   frag_count = config_file_get_int(config, "FRAG_COUNT", 1);
   in_count = config_file_get_int(config, "IN_COUNT", 0);

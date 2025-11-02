@@ -8,6 +8,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "timer.h"
 #include "types.h"
 #include "video.h"
@@ -66,7 +67,7 @@ static void ioctl_error(VideoCapture *video_capture, const char *operation,
 static VideoCapture open_device(char *name) {
   VideoCapture video_capture;
 
-  video_capture.name = name;
+  strncpy(video_capture.name, name, STR_LEN);
   video_capture.error = false;
   video_capture.fd = -1;
 

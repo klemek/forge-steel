@@ -72,7 +72,9 @@ static void invalid_value(char *arg, char *value) {
   print_help(EXIT_FAILURE);
 }
 
-static bool is_arg(char *arg, char *ref) { return strcoll(arg, ref) == 0; }
+static bool is_arg(char *arg, const char *ref) {
+  return strcoll(arg, ref) == 0;
+}
 
 static char *split_arg_value(char *arg) {
   strtok(arg, "=");
@@ -101,9 +103,9 @@ Parameters args_parse(int argc, char **argv) {
   params.output_screen = 0;
   params.monitor = false;
   params.monitor_screen = 0;
-  params.frag_path = DATADIR "/shaders";
-  params.config_path = DATADIR "/default.cfg";
-  params.state_file = "forge_saved_state.txt";
+  strncpy(params.frag_path, DATADIR "/shaders", STR_LEN);
+  strncpy(params.config_path, DATADIR "/default.cfg", STR_LEN);
+  strncpy(params.state_file, "forge_saved_state.txt", STR_LEN);
   params.load_state = true;
   params.save_state = false;
   params.internal_size = 720;
@@ -126,11 +128,11 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
       params.output_screen = parse_uint(arg, value);
     } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {
-      params.frag_path = value;
+      strncpy(params.frag_path, value, STR_LEN);
     } else if (is_arg(arg, "-c") || is_arg(arg, "--config")) {
-      params.config_path = value;
+      strncpy(params.config_path, value, STR_LEN);
     } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
-      params.state_file = value;
+      strncpy(params.state_file, value, STR_LEN);
     } else if (is_arg(arg, "-ls") || is_arg(arg, "--load-state")) {
       params.load_state = true;
     } else if (is_arg(arg, "-nls") || is_arg(arg, "--no-load-state")) {
@@ -149,8 +151,7 @@ Parameters args_parse(int argc, char **argv) {
         log_error("maximum video input reached");
         exit(EXIT_FAILURE);
       }
-
-      params.video_in.values[params.video_in.length++] = value;
+      strncpy(params.video_in.values[params.video_in.length++], value, STR_LEN);
     } else if (is_arg(arg, "-vs") || is_arg(arg, "--video-size")) {
       params.video_size = parse_uint(arg, value);
       if (params.video_size == 0) {

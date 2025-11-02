@@ -15,6 +15,12 @@
 #define DATADIR "."
 #endif
 
+/* STRINGS */
+
+#ifndef STR_LEN
+#define STR_LEN 1024
+#endif
+
 /* TYPES */
 
 #ifndef MAX_VIDEO

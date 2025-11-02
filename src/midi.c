@@ -1,13 +1,14 @@
 #include <GLFW/glfw3.h>
 #include <alsa/asoundlib.h>
 
+#include "config.h"
 #include "log.h"
 #include "types.h"
 
 MidiDevice midi_open(char *name) {
   MidiDevice device;
 
-  device.name = name;
+  strncpy(device.name, name, STR_LEN);
   device.input = NULL;
   device.output = NULL;
 
