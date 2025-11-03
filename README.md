@@ -127,7 +127,7 @@ make -f Makefile.dev release-arch
   - [x] debug shader (and in monitor)
   - [x] random mode / demo mode with R/D key
   - [x] Clean code and fix things
-- [ ] Midi
+- [x] Midi
   - [x] Read Midi events
   - [x] Read midi mapping config file
   - [x] Write Midi events
@@ -136,7 +136,7 @@ make -f Makefile.dev release-arch
   - [x] Load midi state from last save
   - [x] State machine with A/B switch
   - [x] Tap-tempo feature
-  - [ ] Clean code and fix things
+  - [x] Clean code and fix things
 - [x] Video input
   - [x] Fixed camera video
   - [x] Pass video info to shaders
