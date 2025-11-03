@@ -78,6 +78,8 @@ options:
   -t, --tempo               base tempo (default: 60)
   --demo                    demonstration mode (assume --no-save-state and --no-load-state)
   -w, --windowed            not fullscreen
+  --trace-midi              print midi code and values
+  --trace-fps               print fps status of subsystems
 ```
 
 ## Release guide

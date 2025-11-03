@@ -6,7 +6,7 @@
 VideoCapture video_init(char *name, unsigned int preferred_height);
 
 bool video_background_read(VideoCapture *video_capture, SharedContext *context,
-                           int input_index);
+                           int input_index, bool trace_fps);
 
 void video_free(VideoCapture video_capture);
 

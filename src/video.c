@@ -329,7 +329,7 @@ static bool read_video(VideoCapture *video_capture) {
 }
 
 bool video_background_read(VideoCapture *video_capture, SharedContext *context,
-                           int input_index) {
+                           int input_index, bool trace_fps) {
   pid_t pid;
   Timer timer;
   double fps;
@@ -352,7 +352,9 @@ bool video_background_read(VideoCapture *video_capture, SharedContext *context,
       fps = timer_reset(&timer);
 
       context->input_fps[input_index] = (unsigned int)round(fps);
-      log_trace("(%s) %.2ffps", video_capture->name, fps);
+      if (trace_fps) {
+        log_trace("(%s) %.2ffps", video_capture->name, fps);
+      }
     }
   }
   if (context->stop) {

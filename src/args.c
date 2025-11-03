@@ -58,7 +58,9 @@ static void print_help(int status_code) {
        "  -t, --tempo               base tempo (default: 60)\n"
        "  --demo                    demonstration mode (assume --no-save-state "
        "and --no-load-state)\n"
-       "  -w, --windowed            not fullscreen\n");
+       "  -w, --windowed            not fullscreen\n"
+       "  --trace-midi              print midi code and values\n"
+       "  --trace-fps               print fps status of subsystems\n");
   exit(status_code);
 }
 
@@ -107,13 +109,15 @@ Parameters args_parse(int argc, char **argv) {
   strncpy(params.config_path, DATADIR "/default.cfg", STR_LEN);
   strncpy(params.state_file, "forge_saved_state.txt", STR_LEN);
   params.load_state = true;
-  params.save_state = false;
+  params.save_state = true;
   params.internal_size = 720;
   params.video_size = 0;
   params.base_tempo = 60.0f;
   params.demo = false;
   params.windowed = false;
   params.video_in.length = 0;
+  params.trace_midi = false;
+  params.trace_fps = false;
 
   for (i = 1; i < argc; i++) {
     arg = argv[i];
@@ -171,6 +175,10 @@ Parameters args_parse(int argc, char **argv) {
       params.save_state = false;
     } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
       params.windowed = true;
+    } else if (is_arg(arg, "--trace-midi")) {
+      params.trace_midi = true;
+    } else if (is_arg(arg, "--trace-fps")) {
+      params.trace_fps = true;
     } else {
       invalid_arg(arg);
     }

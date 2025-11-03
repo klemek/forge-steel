@@ -182,8 +182,8 @@ static void update_values(SharedContext *context, StateConfig state_config,
 }
 
 void state_apply_event(SharedContext *context, StateConfig state_config,
-                       MidiDevice midi, unsigned char code,
-                       unsigned char value) {
+                       MidiDevice midi, unsigned char code, unsigned char value,
+                       bool trace_midi) {
   unsigned int i, j, k, part;
   bool found;
 
@@ -263,9 +263,11 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
   }
 
   if (!found) {
-    log_trace("unknown midi: %d %d", code, value);
+    if (trace_midi) {
+      log_trace("unknown midi: %d %d", code, value);
+    }
     midi_write(midi, code, value);
-  } else {
+  } else if (trace_midi) {
     log_trace("midi: %d %d", code, value);
   }
 }

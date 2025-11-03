@@ -46,6 +46,8 @@ typedef struct Parameters {
   bool demo;
   bool windowed;
   StringArray video_in;
+  bool trace_midi;
+  bool trace_fps;
 } Parameters;
 
 typedef struct Vertex {

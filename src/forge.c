@@ -31,15 +31,18 @@ static Timer timer;
 static ConfigFile config;
 static MidiDevice midi;
 static StateConfig state_config;
+static bool trace_midi;
 
-static void compute_fps() {
+static void compute_fps(bool trace_fps) {
   double fps;
   char title[100];
 
   if (timer_inc(&timer)) {
     fps = timer_reset(&timer);
 
-    log_trace("(main) %.2ffps", fps);
+    if (trace_fps) {
+      log_trace("(main) %.2ffps", fps);
+    }
 
     if (window_output != NULL) {
       sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
@@ -148,12 +151,12 @@ static void init_inputs(StringArray video_in, unsigned int video_size) {
   }
 }
 
-static bool start_video_captures(unsigned int video_count) {
+static bool start_video_captures(unsigned int video_count, bool trace_fps) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
     if (!inputs.values[i].error &&
-        !video_background_read(&inputs.values[i], context, i)) {
+        !video_background_read(&inputs.values[i], context, i, trace_fps)) {
       return false;
     }
   }
@@ -197,15 +200,15 @@ static void key_callback(Window *window, int key,
 }
 
 static void midi_callback(unsigned char code, unsigned char value) {
-  state_apply_event(context, state_config, midi, code, value);
+  state_apply_event(context, state_config, midi, code, value, trace_midi);
 }
 
-static void loop(bool hr) {
+static void loop(bool hr, bool trace_fps) {
   if (hr) {
     hot_reload();
   }
 
-  compute_fps();
+  compute_fps(trace_fps);
 
   context->time = window_get_time();
 
@@ -248,7 +251,7 @@ void forge_run(Parameters params) {
 
   init_context(params, in_count);
 
-  if (!start_video_captures(params.video_in.length)) {
+  if (!start_video_captures(params.video_in.length, params.trace_fps)) {
     return;
   }
 
@@ -257,6 +260,8 @@ void forge_run(Parameters params) {
   if (midi.error) {
     params.demo = true;
   } else {
+    trace_midi = params.trace_midi;
+
     if (!midi_background_listen(midi, context, midi_callback)) {
       return;
     }
@@ -308,7 +313,7 @@ void forge_run(Parameters params) {
 
   while ((window_output == NULL || !window_should_close(window_output)) &&
          (window_monitor == NULL || !window_should_close(window_monitor))) {
-    loop(params.hot_reload);
+    loop(params.hot_reload, params.trace_fps);
   }
 
   context->stop = true;
