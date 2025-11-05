@@ -9,9 +9,9 @@
 
 TODO cool image and youtube link
 
+<!-- omit from toc -->
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
 - [What is FORGE ?](#what-is-forge-)
 - [Install](#install)
   - [Prerequisites](#prerequisites)
