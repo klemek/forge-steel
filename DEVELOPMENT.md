@@ -86,7 +86,7 @@ make -f Makefile.dev release-arch
   - [x] Share openGL state between monitor and screen
 - [ ] Other
   - [ ] Update readme with usage documentation
-  - [ ] Documentation in default config file
+  - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup
   - [ ] Minimal sample shaders
   - [ ] Find and fix opengl errors 0500 ?

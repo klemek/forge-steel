@@ -1221,24 +1221,8 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     return texture(iTex0, vUV);
 }
 
-// TODO SRC 15
+// SRC 15 : debug
 subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
-{
-    // start
-
-	vec2 uv0 = vUV.st;
-    float ratio = iResolution.x / iResolution.y;
-    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
-
-    // controls
-
-    // logic
-    
-    return texture(iTex0, vUV);
-}
-
-// SRC 16 : debug
-subroutine(src_stage_sub) vec4 src_16(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
 
@@ -1797,27 +1781,6 @@ subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feed
 
     // logic
     
-    vec3 c0 = texture(previous, uv0).xyz;
-    vec3 c = c0;
-
-    return vec4(mix(c0, c, fx), 1.0);
-}
-
-// TODO FX 16
-subroutine(fx_stage_sub) vec4 fx_16(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
-{
-    // start
-
-	vec2 uv0 = vUV.st;
-    float ratio = iResolution.x / iResolution.y;
-    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
-
-    // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
-
-    // logic
-
     vec3 c0 = texture(previous, uv0).xyz;
     vec3 c = c0;
 
