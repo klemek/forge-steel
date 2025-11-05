@@ -18,7 +18,7 @@ TODO cool image and youtube link
   - [From release](#from-release)
   - [From repository (PKGBUILD)](#from-repository-pkgbuild)
   - [From repository (dev version)](#from-repository-dev-version)
-- [Usage](#usage)
+- [CLI usage](#cli-usage)
 - [Default Shaders and Config](#default-shaders-and-config)
   - [Sources and Effects](#sources-and-effects)
   - [Debug View](#debug-view)
@@ -81,7 +81,7 @@ make
 make install
 ```
 
-## Usage
+## CLI usage
 
 ```txt
 usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 

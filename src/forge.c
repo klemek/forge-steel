@@ -265,10 +265,10 @@ void forge_run(Parameters params) {
     if (!midi_background_listen(midi, context, midi_callback)) {
       return;
     }
+  }
 
-    if (!state_background_midi_write(context, state_config, midi)) {
-      return;
-    }
+  if (!state_background_write(context, state_config, midi)) {
+    return;
   }
 
   window_startup(error_callback);

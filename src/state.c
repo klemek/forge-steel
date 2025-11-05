@@ -272,8 +272,8 @@ void state_apply_event(SharedContext *context, StateConfig state_config,
   }
 }
 
-bool state_background_midi_write(SharedContext *context,
-                                 StateConfig state_config, MidiDevice midi) {
+bool state_background_write(SharedContext *context, StateConfig state_config,
+                            MidiDevice midi) {
   pid_t pid;
   bool beat_active, last_active, change, last_change;
 
@@ -287,9 +287,11 @@ bool state_background_midi_write(SharedContext *context,
   }
   log_info("(state) background writing started (pid: %d)", pid);
 
-  update_page(context, state_config, midi);
-  update_active(context, state_config, midi);
-  update_values(context, state_config, midi);
+  if (!midi.error) {
+    update_page(context, state_config, midi);
+    update_active(context, state_config, midi);
+    update_values(context, state_config, midi);
+  }
 
   last_active = false;
   last_change = false;
@@ -297,20 +299,20 @@ bool state_background_midi_write(SharedContext *context,
   while (!context->stop) {
     beat_active = tempo_progress(context->tempo, 1.0) < 0.25;
 
-    if (beat_active != last_active) {
+    if (!midi.error && beat_active != last_active) {
       safe_midi_write(midi, state_config.tap_tempo_code,
                       beat_active ? MIDI_MAX : 0);
 
       safe_midi_write(midi,
                       state_config.select_frag_codes.values[context->selected],
                       beat_active ? MIDI_MAX : 0);
-
-      last_active = beat_active;
     }
+
+    last_active = beat_active;
 
     change = tempo_progress(context->tempo, 4.0) < 0.25;
 
-    if (change && !last_change && context->demo) {
+    if (context->demo && change && !last_change) {
       state_randomize(context, state_config);
     }
 
