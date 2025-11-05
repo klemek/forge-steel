@@ -19,12 +19,11 @@ TODO cool image and youtube link
     - [From repository (PKGBUILD)](#from-repository-pkgbuild)
     - [From repository (dev version)](#from-repository-dev-version)
   - [Usage](#usage)
-    - [CLI arguments](#cli-arguments)
-    - [Default Shaders and Config](#default-shaders-and-config)
-      - [Sources and Effects](#sources-and-effects)
-      - [Debug View](#debug-view)
-      - [NanoKontrol2 Controller mapping](#nanokontrol2-controller-mapping)
-    - [Making your own FORGE config](#making-your-own-forge-config)
+  - [Default Shaders and Config](#default-shaders-and-config)
+    - [Sources and Effects](#sources-and-effects)
+    - [Debug View](#debug-view)
+    - [NanoKontrol2 Controller mapping](#nanokontrol2-controller-mapping)
+  - [Making your own FORGE config](#making-your-own-forge-config)
     - [Working with `frag0.glsl`](#working-with-frag0glsl)
   - [Frequently Asked Questions](#frequently-asked-questions)
     - [Why "steel"?](#why-steel)
@@ -84,8 +83,6 @@ make install
 
 ## Usage
 
-### CLI arguments
-
 ```txt
 usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
 
@@ -115,13 +112,13 @@ options:
   --trace-fps               print fps status of subsystems
 ```
 
-### Default Shaders and Config
+## Default Shaders and Config
 
 > A.K.A Kleπek's shaders
 
 ![](./images/preview.png)
 
-#### Sources and Effects
+### Sources and Effects
 
 | P     | #     | SRC               | _COL2_            | _COL3_          | _COL4_             | FX               | _COL6_          | _COL7_        | _COL8_         |
 | ----- | ----- | ----------------- | ----------------- | --------------- | ------------------ | ---------------- | --------------- | ------------- | -------------- |
@@ -143,11 +140,11 @@ options:
 
 TODO update
 
-#### Debug View
+### Debug View
 
 ![](./images/debug.jpg)
 
-#### NanoKontrol2 Controller mapping
+### NanoKontrol2 Controller mapping
 
 ![](./images/nanokontrol.jpg)
 
@@ -155,7 +152,7 @@ TODO update
 
 > ⚠️ you'll need to change your NanoKontrol2 settings to remove the "toggle" behavior of the buttons and use "external" led control
 
-### Making your own FORGE config
+## Making your own FORGE config
 
 TODO
 
