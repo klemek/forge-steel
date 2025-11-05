@@ -1,5 +1,6 @@
 [![CI](https://github.com/klemek/forge-steel/actions/workflows/ci.yml/badge.svg)](https://github.com/klemek/forge-steel/actions/workflows/ci.yml)
 
+<!-- omit from toc -->
 # F.O.R.G.E. (Steel)
 
 > **F**usion **O**f **R**eal **T**ime **G**enerative **E**ffects
@@ -10,25 +11,24 @@ TODO cool image and youtube link
 
 ## Table of Contents
 
-- [F.O.R.G.E. (Steel)](#forge-steel)
-  - [Table of Contents](#table-of-contents)
-  - [What is FORGE ?](#what-is-forge-)
-  - [Install](#install)
-    - [Prerequisites](#prerequisites)
-    - [From release](#from-release)
-    - [From repository (PKGBUILD)](#from-repository-pkgbuild)
-    - [From repository (dev version)](#from-repository-dev-version)
-  - [Usage](#usage)
-  - [Default Shaders and Config](#default-shaders-and-config)
-    - [Sources and Effects](#sources-and-effects)
-    - [Debug View](#debug-view)
-    - [NanoKontrol2 Controller mapping](#nanokontrol2-controller-mapping)
-  - [Making your own FORGE config](#making-your-own-forge-config)
-    - [Working with `frag0.glsl`](#working-with-frag0glsl)
-  - [Frequently Asked Questions](#frequently-asked-questions)
-    - [Why "steel"?](#why-steel)
-    - [How do I report a bug?](#how-do-i-report-a-bug)
-    - [Help I got low FPS on my video device](#help-i-got-low-fps-on-my-video-device)
+- [Table of Contents](#table-of-contents)
+- [What is FORGE ?](#what-is-forge-)
+- [Install](#install)
+  - [Prerequisites](#prerequisites)
+  - [From release](#from-release)
+  - [From repository (PKGBUILD)](#from-repository-pkgbuild)
+  - [From repository (dev version)](#from-repository-dev-version)
+- [Usage](#usage)
+- [Default Shaders and Config](#default-shaders-and-config)
+  - [Sources and Effects](#sources-and-effects)
+  - [Debug View](#debug-view)
+  - [NanoKontrol2 Controller mapping](#nanokontrol2-controller-mapping)
+- [Making your own FORGE config](#making-your-own-forge-config)
+  - [Working with `frag0.glsl`](#working-with-frag0glsl)
+- [Frequently Asked Questions](#frequently-asked-questions)
+  - [Why "steel"?](#why-steel)
+  - [How do I report a bug?](#how-do-i-report-a-bug)
+  - [Help I got low FPS on my video device](#help-i-got-low-fps-on-my-video-device)
 
 ## What is FORGE ?
 
