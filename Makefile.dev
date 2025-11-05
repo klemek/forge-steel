@@ -31,10 +31,6 @@ run: build
 demo: build
 	./build/$(TARGET) $(TEST_ARGS) --demo
 
-.PHONY: install
-install: build
-	cp -f build/$(TARGET) $(INSTALL_DIR)/$(TARGET)
-
 .PHONY: valgrind
 valgrind: build
 	valgrind \

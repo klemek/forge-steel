@@ -4,7 +4,33 @@
 
 > **F**usion **O**f **R**eal **T**ime **G**enerative **E**ffects
 
-*Steel version (linux executable)*
+*Steel version (PC executable)*
+
+TODO cool image and youtube link
+
+## Table of Contents
+
+- [F.O.R.G.E. (Steel)](#forge-steel)
+  - [Table of Contents](#table-of-contents)
+  - [What is FORGE ?](#what-is-forge-)
+  - [Install](#install)
+    - [Prerequisites](#prerequisites)
+    - [From release](#from-release)
+    - [From repository (PKGBUILD)](#from-repository-pkgbuild)
+    - [From repository (dev version)](#from-repository-dev-version)
+  - [Usage](#usage)
+    - [CLI arguments](#cli-arguments)
+    - [Included Shaders and Config](#included-shaders-and-config)
+    - [Making your own FORGE config](#making-your-own-forge-config)
+    - [Working with `frag0.glsl`](#working-with-frag0glsl)
+  - [Frequently Asked Questions](#frequently-asked-questions)
+    - [Why "steel"?](#why-steel)
+    - [How do I report a bug?](#how-do-i-report-a-bug)
+    - [Help I got low FPS on my video device](#help-i-got-low-fps-on-my-video-device)
+
+## What is FORGE ?
+
+![](images/forge.drawio.png)
 
 TODO
 
@@ -12,10 +38,12 @@ TODO
 
 ### Prerequisites
 
-* libglfw
-* libGL
-* libasound2
-* libv4l
+| library | apt | pacman |
+| --- | --- | --- |
+| libglfw | libglfw3-dev | extra/glfw |
+| libGL | libgl-dev | extra/libglvnd |
+| libasound | libasound2-dev | extra/alsa-lib |
+| libv4l2 | libv4l-dev | extra/v4l-utils |
 
 ### From release
 
@@ -51,7 +79,9 @@ make
 make install
 ```
 
-## CLI arguments
+## Usage
+
+### CLI arguments
 
 ```txt
 usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
@@ -82,83 +112,30 @@ options:
   --trace-fps               print fps status of subsystems
 ```
 
-## Release guide
+### Included Shaders and Config
 
-```shell
-# make full build
-make -f Makefile.dev release-1.0.0
-# push release
-git push origin master --tags
-# create release from tag on github
-# attach .tar.gz to the github release
-make -f Makefile.dev release-arch
-# attach .pkg.tar.zst to the github release
-```
+TODO
 
-## Roadmap
+### Making your own FORGE config
 
-- [x] Basics
-  - [x] Create GLSL Window
-  - [x] Load static fragment shader into GLSL
-  - [x] Add default uniforms
-  - [x] Read fragment shader from file
-  - [x] Handle compilation errors
-  - [x] Minimal working fragment sample
-  - [x] Hot-reload fragment shader (with arg)
-  - [x] Specify fragment shader path
-  - [x] Force fullscreen
-  - [x] Select screen as argument / config
-  - [x] fps in window title
-  - [x] Clean code
-- [x] Multi-stage shaders
-  - [x] Test 2 stages with render to texture
-  - [x] 2 in 2 fx 1 mix 1 fx layout
-  - [x] Include common code
-  - [x] 16 input + 16 fx definition and selection (with const param)
-  - [x] Feedback texture
-  - [x] Shaders config file
-    - [x] uniform config
-    - [x] fragment config
-    - [x] subroutines config
-  - [x] demo mode
-  - [x] random seed injected into shaders
-  - [x] internal texture size for speed
-  - [x] pass state as uniform
-  - [x] debug shader (and in monitor)
-  - [x] random mode / demo mode with R/D key
-  - [x] Clean code and fix things
-- [x] Midi
-  - [x] Read Midi events
-  - [x] Read midi mapping config file
-  - [x] Write Midi events
-  - [x] Send midi data to shaders
-  - [x] Save midi state
-  - [x] Load midi state from last save
-  - [x] State machine with A/B switch
-  - [x] Tap-tempo feature
-  - [x] Clean code and fix things
-- [x] Video input
-  - [x] Fixed camera video
-  - [x] Pass video info to shaders
-  - [x] Sub process video reading
-  - [x] Shader based format mapping
-  - [x] Video mapping config file
-  - [x] Get first video size matching internal size
-  - [x] Other internal size for video
-  - [x] Pass input fps into shaders for debug
-  - [x] Clean code and fix things
-- [x] Monitor screen
-  - [x] 2nd window
-  - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
-  - [x] Clean code and fix things
-  - [x] Share openGL state between monitor and screen
-- [ ] Other
-  - [ ] Update readme with usage documentation
-  - [ ] Documentation in default config file
-  - [x] Clone "shaders" and config in system path at setup
-  - [ ] Find and fix opengl errors 0500 ?
-  - [ ] Investigate video device fps loss (bad unregister ?)
-- [ ] Bonus
-  - [ ] Record show as text files
-  - [ ] Play from record text file
-  - [ ] Try to write NanoKontrol config
+TODO
+
+### Working with `frag0.glsl`
+
+TODO
+
+## Frequently Asked Questions
+
+### Why "steel"?
+
+FORGE is a concept which is intended to be derived onto other forms (like Raspberry PI). In order to differentiate between them each would be name after a different alloy.
+
+FORGE (steel) describe the linux version.
+
+### How do I report a bug?
+
+TODO
+
+### Help I got low FPS on my video device
+
+TODO

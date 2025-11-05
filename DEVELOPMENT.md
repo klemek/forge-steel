@@ -1,0 +1,98 @@
+# Working on this project
+
+## Makefile.dev targets
+
+```text
+clean         remove build folder
+build         build project into build/forge
+run           run project with test args
+demo          run project with demo mode
+valgrind      valgrind analysis
+clean-release remove autoconf/automake files
+test-release  try to build release
+release-%     make full release of version %
+release-arch  make arch-linux release package
+```
+
+## Release guide
+
+```shell
+# make full build
+make -f Makefile.dev release-1.0.0
+# push release
+git push origin master --tags
+# create release from tag on github
+# attach .tar.gz to the github release
+make -f Makefile.dev release-arch
+# attach .pkg.tar.zst to the github release
+```
+
+## Roadmap
+
+- [x] Basics
+  - [x] Create GLSL Window
+  - [x] Load static fragment shader into GLSL
+  - [x] Add default uniforms
+  - [x] Read fragment shader from file
+  - [x] Handle compilation errors
+  - [x] Minimal working fragment sample
+  - [x] Hot-reload fragment shader (with arg)
+  - [x] Specify fragment shader path
+  - [x] Force fullscreen
+  - [x] Select screen as argument / config
+  - [x] fps in window title
+  - [x] Clean code
+- [x] Multi-stage shaders
+  - [x] Test 2 stages with render to texture
+  - [x] 2 in 2 fx 1 mix 1 fx layout
+  - [x] Include common code
+  - [x] 16 input + 16 fx definition and selection (with const param)
+  - [x] Feedback texture
+  - [x] Shaders config file
+    - [x] uniform config
+    - [x] fragment config
+    - [x] subroutines config
+  - [x] demo mode
+  - [x] random seed injected into shaders
+  - [x] internal texture size for speed
+  - [x] pass state as uniform
+  - [x] debug shader (and in monitor)
+  - [x] random mode / demo mode with R/D key
+  - [x] Clean code and fix things
+- [x] Midi
+  - [x] Read Midi events
+  - [x] Read midi mapping config file
+  - [x] Write Midi events
+  - [x] Send midi data to shaders
+  - [x] Save midi state
+  - [x] Load midi state from last save
+  - [x] State machine with A/B switch
+  - [x] Tap-tempo feature
+  - [x] Clean code and fix things
+- [x] Video input
+  - [x] Fixed camera video
+  - [x] Pass video info to shaders
+  - [x] Sub process video reading
+  - [x] Shader based format mapping
+  - [x] Video mapping config file
+  - [x] Get first video size matching internal size
+  - [x] Other internal size for video
+  - [x] Pass input fps into shaders for debug
+  - [x] Clean code and fix things
+- [x] Monitor screen
+  - [x] 2nd window
+  - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
+  - [x] Clean code and fix things
+  - [x] Share openGL state between monitor and screen
+- [ ] Other
+  - [ ] Update readme with usage documentation
+  - [ ] Documentation in default config file
+  - [x] Clone "shaders" and config in system path at setup
+  - [ ] Minimal sample shaders
+  - [ ] Find and fix opengl errors 0500 ?
+  - [ ] Investigate video device fps loss (bad unregister ?)
+    -  explore libv4l directly [github](https://github.com/philips/libv4l) (with `-lv4l2`)
+- [ ] Bonus
+  - [ ] Record show as text files
+  - [ ] Play from record text file
+  - [ ] Try to write NanoKontrol config
