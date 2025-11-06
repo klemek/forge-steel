@@ -3,7 +3,7 @@
 <!-- omit from toc -->
 # F.O.R.G.E. (Steel)
 
-> **F**usion **O**f **R**eal **T**ime **G**enerative **E**ffects
+> **F**usion **O**f **R**eal-time **G**enerative **E**ffects
 
 *Steel version (PC executable)*
 
