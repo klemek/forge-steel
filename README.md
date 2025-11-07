@@ -22,7 +22,9 @@ See [1H demo on YouTube](https://youtu.be/HgErrasSs-w)
   - [From release](#from-release)
   - [From repository (PKGBUILD)](#from-repository-pkgbuild)
   - [From repository (dev version)](#from-repository-dev-version)
-- [CLI usage](#cli-usage)
+- [Usage](#usage)
+  - [Runtime keybindings](#runtime-keybindings)
+  - [CLI arguments](#cli-arguments)
 - [Default Shaders and Config](#default-shaders-and-config)
   - [Sources and Effects](#sources-and-effects)
   - [Debug View](#debug-view)
@@ -85,7 +87,17 @@ make
 make install
 ```
 
-## CLI usage
+## Usage
+
+### Runtime keybindings
+
+When running, the following keybindings are available:
+
+* <kbd>Esc</kbd>: Exit window
+* <kbd>R</kbd>: Randomize shader state
+* <kbd>D</kbd>: Demo mode On/Off
+
+### CLI arguments
 
 ```txt
 usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 

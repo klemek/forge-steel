@@ -83,8 +83,9 @@ make -f Makefile.dev release-arch
   - [x] 2nd window
   - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
   - [x] Clean code and fix things
-  - [x] Share openGL state between monitor and screen
+  - [x] Share openGL state between monitor and screen  
 - [ ] Other
+  - [ ] Use custom `#include xxx.glsl` preprocessor
   - [ ] Update readme with usage documentation
   - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup
