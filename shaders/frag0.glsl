@@ -13,6 +13,8 @@ uniform vec2 iResolution;
 uniform vec2 iTexResolution;
 uniform vec2 iInputResolution1;
 uniform vec2 iInputResolution2;
+uniform int iInputFormat1;
+uniform int iInputFormat2;
 uniform int iDemo;
 uniform int iPage;
 uniform int iSelected;
@@ -57,7 +59,8 @@ uniform sampler2D iTex9;
 // 3. definitions
 // --------------
 
-#define PI 3.1415927
+const float PI = 3.1415927;
+const int YUYV_FOURCC = 1448695129;
 
 // 4. functions
 // ------------
@@ -1145,6 +1148,8 @@ subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 // TODO SRC 9
 subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    return src_2(vUV, seed, b1, f1, b2, f2, b3, f3);
+
     // start
 
     vec2 uv0 = vUV.st;
@@ -1161,6 +1166,7 @@ subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 // TODO SRC 10
 subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    return src_3(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1183,6 +1189,7 @@ subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // TODO SRC 12
 subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    return src_4(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1199,6 +1206,7 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // TODO SRC 13
 subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    return src_5(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1215,6 +1223,7 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // TODO SRC 14
 subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    return src_7(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1239,14 +1248,17 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // inputs
 
-    int selected_srca = iState3;
-    int selected_srcb = iState4;
-    int selected_fxa = iState5;
-    int selected_fxb = iState6;
-    int selected_mfx = iState8;
+    int selected_srca = iState3 - 1;
+    int selected_srcb = iState4 - 1;
+    int selected_fxa = iState5 - 1;
+    int selected_fxb = iState6 - 1;
+    int selected_mfx = iState8 - 1;
     float fxa_value = magic(iMidi2_1[6].xy, vec3(1, 0, 0), iSeed5);
+    bool fxa_invert = magic_trigger(vec3(iMidi2_1[6].z, 0, 0), iSeed5);
     float fxb_value = magic(iMidi2_2[6].xy, vec3(1, 0, 0), iSeed6);
+    bool fxb_invert = magic_trigger(vec3(iMidi2_2[6].z, 0, 0), iSeed6);
     float mfx_value = magic(iMidi2_3[6].xy, vec3(1, 0, 0), iSeed8);
+    bool mfx_invert = magic_trigger(vec3(iMidi2_3[6].z, 0, 0), iSeed8);
     float mix_value = magic(iMidi3_1[1].xy, vec3(1, 0, 0), iSeed7);
     bool mix_type = magic_trigger(vec3(iMidi3_1[0].x, 0, 0), iSeed7 + 10);
 
@@ -1290,8 +1302,11 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     f += char_at(uv2, vec2(-5.4, 1.45), hex_chars[selected_srca]);
     f += char_at(uv2, vec2(-5.4, -2.55), hex_chars[selected_srcb]);
     f += char_at(uv2, vec2(-2.4, 1.45), hex_chars[selected_fxa]);
+    f += fxa_invert ? rect(uv2, vec2(-2, 2.7), vec2(0.5, 0.05)) : 0;
     f += char_at(uv2, vec2(-2.4, -2.55), hex_chars[selected_fxb]);
+    f += fxb_invert ? rect(uv2, vec2(-2, -1.3), vec2(0.5, 0.05)) : 0;
     f += char_at(uv2, vec2(4.6, -0.55), hex_chars[selected_mfx]);
+    f += mfx_invert ? rect(uv2, vec2(5, 0.7), vec2(0.5, 0.05)) : 0;
 
     // show current selected
     f += iSelected == 3 ? h_rect(uv2, vec2(-5, 2), vec2(1.2), 0.1) : 0;
@@ -1311,21 +1326,21 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     float line_a_a = rect(uv2, vec2(-8, 2), vec2(2, 0.1));
     float line_a_b = rect(uv2, vec2(-7, 2), vec2(1, 0.1)) + rect(uv2, vec2(-8, 0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-9, -1), vec2(1, 0.1));
     float line_a_f = rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 4), vec2(7, 0.1)) + rect(uv2, vec2(-7, 3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, 2), vec2(0.1, 2.1));
-    if (selected_srca == 5) {
+    if (selected_srca == 5 && iInputFormat1 == YUYV_FOURCC) {
         f += iInputResolution1.x > 0 ? line_a_a : line_a_f;
-    } else if (selected_srca == 10) {
+    } else if (selected_srca == 10 && iInputFormat2 == YUYV_FOURCC) {
         f += iInputResolution2.x > 0 ? line_a_b : line_a_f;
-    } else if (selected_srca == 0 || selected_srca >= 8) {
+    } else if (selected_srca % 5 == 0) {
         f += line_a_f;
     }
     float line_b_a = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(-7, -0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-8.5, 1), vec2(1.5, 0.1));
     float line_b_b = rect(uv2, vec2(-8, -2), vec2(2, 0.1));
     float line_b_f = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1));
-    if (selected_srcb == 5) {
+    if (selected_srcb == 5 && iInputFormat1 == YUYV_FOURCC) {
         f += iInputResolution1.x > 0 ? line_b_a : line_b_f;
-    } else if (selected_srcb == 10) {
+    } else if (selected_srcb == 10 && iInputFormat2 == YUYV_FOURCC) {
         f += iInputResolution2.x > 0 ? line_b_b : line_b_f;
-    } else if (selected_srcb == 0 || selected_srcb >= 8) {
+    } else if (selected_srcb % 5 == 0) {
         f += line_b_f;
     }
 
@@ -1333,6 +1348,8 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     f += char_at(uv2, vec2(-9.2, -4.3), hex_chars[iPage]);
 
     // show fx values
+    float fx_rect = 0;
+
     f = mix(f, 1 - f, rect(uv2, vec2(-2, 1.1 + 0.9 * fxa_value), vec2(0.9, 0.9 * fxa_value)));
     f = mix(f, 1 - f, rect(uv2, vec2(-2, -2.9 + 0.9 * fxb_value), vec2(0.9, 0.9 * fxb_value)));
     f = mix(f, 1 - f, rect(uv2, vec2(5, -0.9 + 0.9 * mfx_value), vec2(0.9, 0.9 * mfx_value)));
@@ -1374,20 +1391,29 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // 6. effects
 // ----------
 
-subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0);
+vec4 fx_master(vec3 c0, vec3 c, int seed, vec3 m0) {
+    float fx = magic(m0.xy, vec3(1,0,0), seed);
+    bool invert = magic_trigger(vec3(m0.z, 0, 0), seed);
+
+    vec3 c_out = mix(c0, c, fx);
+
+    c_out = mix(c_out, 1 - c_out, invert ? 1 : 0);
+
+    return vec4(c_out, 1.0);
+}
+
+subroutine vec4 fx_stage_sub(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0);
 
 subroutine uniform fx_stage_sub fx_stage;
 
 // FX 1 : thru
-subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
 	vec2 uv0 = vUV.st;
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float hue = magic(f1, b1, seed + 10);
     float saturation = magic(f2, b2, seed + 20);
@@ -1401,11 +1427,11 @@ subroutine(fx_stage_sub) vec4 fx_1(vec2 vUV, sampler2D previous, sampler2D feedb
     c *= 1 + saturation;
     c = mix(c + light * 2.0, c - (1 - light) * 2.0, step(0.5, light));
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // FX 2 : feedback + shift
-vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
@@ -1414,8 +1440,6 @@ vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed, vec3 b1, vec2 
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float zoom = magic(f1, b1, seed + 10);
     float x_shift = magic(f2, b2, seed + 20);
@@ -1430,30 +1454,28 @@ vec4 fx_shift(vec2 vUV, sampler2D src0, sampler2D src1, int seed, vec3 b1, vec2 
     uv2 += vec2(x_shift * ratio, y_shift) * 2;
     vec3 c = reframe(src1, uv2).xyz;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
-subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_2(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_shift(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, f0);
+    return fx_shift(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
 }
 
 // FX 3 : shift
-subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_3(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_shift(vUV, previous, previous, seed, b1, f1, b2, f2, b3, f3, f0);
+    return fx_shift(vUV, previous, previous, seed, b1, f1, b2, f2, b3, f3, m0);
 }
 
 // FX 4 : colorize
-subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
 	vec2 uv0 = vUV.st;
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float c_black = magic(f1, b1, seed + 10);
     bool c_black_trigger = magic_trigger(b1, seed + 10);
@@ -1469,11 +1491,11 @@ subroutine(fx_stage_sub) vec4 fx_4(vec2 vUV, sampler2D previous, sampler2D feedb
     float c_mix = mix(c_black, c_white, f) + delta;
     vec3 c = mix(c_black_trigger ? col(c_mix) : vec3(0), c_white_trigger ? col(c_mix) : vec3(1), f);
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // FX 5 : quantize
-subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
@@ -1482,8 +1504,6 @@ subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedb
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float pixel_size = magic(f1, b1, seed + 10);
     float quantize = magic(f2, b2, seed + 20);
@@ -1504,11 +1524,11 @@ subroutine(fx_stage_sub) vec4 fx_5(vec2 vUV, sampler2D previous, sampler2D feedb
     }
     // c = mix(c, 1 - c, step(noise_f(uv0 * 10 + vec2(iTime * 0.1, 0), 5), 0.5));
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // FX 6 : dithering
-subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
@@ -1517,8 +1537,6 @@ subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedb
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float pixel_size = magic(f1, b1, seed + 10);
     bool pixel_size_trigger = magic_trigger(b1, seed + 10);
@@ -1548,11 +1566,11 @@ subroutine(fx_stage_sub) vec4 fx_6(vec2 vUV, sampler2D previous, sampler2D feedb
         c /= k3;
     }
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // FX 7 : tv
-subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
@@ -1561,8 +1579,6 @@ subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedb
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float lens_v = magic(f1, b1, seed + 10);
     float horizontal_noise = magic(f2, b2, seed + 20);
@@ -1583,11 +1599,11 @@ subroutine(fx_stage_sub) vec4 fx_7(vec2 vUV, sampler2D previous, sampler2D feedb
         reframe_b(previous, uv2).z
     );
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // FX 8 : kaleidoscope
-subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
@@ -1596,8 +1612,6 @@ subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedb
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float axes = magic(f1, b1, seed + 10);
     float axes_trigger = magic_b(b1, seed + 10).x;
@@ -1614,11 +1628,11 @@ subroutine(fx_stage_sub) vec4 fx_8(vec2 vUV, sampler2D previous, sampler2D feedb
     uv2.x = (saw(uv2.x / ratio + 0.5 + h_scroll * 2) - 0.5) * ratio;
     vec3 c = reframe(previous, uv2).xyz;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // FX 9 : cp437
-subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
@@ -1627,8 +1641,6 @@ subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedb
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float zoom = magic(f1, b1, seed + 10);
     vec2 charset = magic_f(f2, b2, seed + 20);
@@ -1656,11 +1668,11 @@ subroutine(fx_stage_sub) vec4 fx_9(vec2 vUV, sampler2D previous, sampler2D feedb
         + reframe(previous, uv2 + vec2(0.5, 0.5) * inv_k * 0.125).xyz * 0.2;
     c = char(mod(uv1 * k1, 1), code) ? c : vec3(0);
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // FX 10 : lens
-subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
 
@@ -1669,8 +1681,6 @@ subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feed
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     float lens_v1 = magic(f1, b1, seed + 10);
     float lens_v2 = magic(f2, b2, seed + 20);
@@ -1686,12 +1696,13 @@ subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feed
     uv2 = lens(uv2, -lens_v2 * 10, lens_v1 * 10);
     vec3 c = reframe(previous, uv2).xyz;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // TODO FX 11
-subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
+    return fx_1(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1700,19 +1711,18 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(f0, vec3(1,0,0), seed);
-
     // logic
     
     vec3 c0 = texture(previous, uv0).xyz;
     vec3 c = c0;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // TODO FX 12
-subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
+    return fx_2(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1721,19 +1731,18 @@ subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(f0, vec3(1,0,0), seed);
-
     // logic
     
     vec3 c0 = texture(previous, uv0).xyz;
     vec3 c = c0;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // TODO FX 13
-subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
+    return fx_3(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1742,19 +1751,18 @@ subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
-    float fx = magic(f0, vec3(1,0,0), seed);
-
     // logic
     
     vec3 c0 = texture(previous, uv0).xyz;
     vec3 c = c0;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // TODO FX 14
-subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
+    return fx_4(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1762,20 +1770,19 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
 
     vec3 c0 = texture(previous, uv0).xyz;
     vec3 c = c0;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 // TODO FX 15
-subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec2 f0)
+subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
+    return fx_5(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -1783,20 +1790,16 @@ subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feed
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
-
-    float fx = magic(f0, vec3(1,0,0), seed);
 
     // logic
     
     vec3 c0 = texture(previous, uv0).xyz;
     vec3 c = c0;
 
-    return vec4(mix(c0, c, fx), 1.0);
+    return fx_master(c0, c, seed, m0);
 }
 
 const mat3x3 yuv_to_rgb = {{1,1,1},{0,-0.39465,2.03211},{1.13983,-0.5806,0}};
-
-const int YUYV_FOURCC = 1448695129;
 
 vec4 yuyvTex(sampler2D tex, vec2 vUV, int base_width) {
     float w = base_width - 1;

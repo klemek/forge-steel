@@ -6,8 +6,6 @@
 in vec2 vUV;
 out vec4 fragColor;
 
-uniform int iInputFormat1;
-
 void main() {
     if (iInputFormat1 == YUYV_FOURCC) {
         fragColor = yuyvTex(iTex1, vUV, int(iInputResolution1.x));

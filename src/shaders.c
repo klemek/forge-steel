@@ -536,7 +536,7 @@ static void use_program(ShaderProgram program, int i, bool output,
 
   for (j = 0; j < program.frag_count; j++) {
     write_uniform_1i(program.istate_locations[i * program.frag_count + j],
-                     context->state.values[j]);
+                     context->state.values[j] + 1);
   }
 
   offset = 0;

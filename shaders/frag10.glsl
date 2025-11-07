@@ -12,7 +12,7 @@ float s(vec2 uv, float x0, float y0) {
 step(-y0 - 1, -uv.y);
 }
 
-const int texts[9][5] = {
+const int texts[10][5] = {
     {0x49, 0x4E, 0x20, 0x41, 0x00}, // IN A
     {0x49, 0x4E, 0x20, 0x42, 0x00}, // IN B
     {0x53, 0x52, 0x43, 0x20, 0x41}, // SRC A
@@ -22,6 +22,7 @@ const int texts[9][5] = {
     {0x41, 0x2B, 0x42, 0x00, 0x00}, // A+B
     {0x4D, 0x46, 0x58, 0x00, 0x00}, // MFX
     {0x46, 0x50, 0x53, 0x00, 0x00}, // FPS
+    {0x4F, 0x46, 0x46, 0x00, 0x00}, // OFF
 };
 
 void main() {
@@ -47,23 +48,30 @@ void main() {
     float f = 0;
     float t = 0;
 
+    f += rect(uv3, vec2(-51, 28.5), vec2(2.1, 0.7));
+    t += write_5(uv3, vec2(-53,28), texts[0]);
     
     if (iInputResolution1.x > 0) {
         c += s(uv2,0,2) * texture(iTex3, uv2);
-        f += rect(uv3, vec2(-51, 28.5), vec2(2.1, 0.7));
-        t += write_5(uv3, vec2(-53,28), texts[0]);
         f += rect(uv3, vec2(-50.4, 26.5), vec2(2.8, 0.7));
         t += write_int(uv3, vec2(-53,26), iInputFPS1, 2);
         t += write_5(uv3, vec2(-50.5,26), texts[8]);
+    } else {
+        f += rect(uv3, vec2(-51.5, 26.5), vec2(1.6, 0.7));
+        t += write_5(uv3, vec2(-53,26), texts[9]);
     }
    
+    f += rect(uv3, vec2(-51, 8.5), vec2(2.1, 0.7));
+    t += write_5(uv3, vec2(-53,8), texts[1]);
+
     if (iInputResolution2.x > 0) {
         c += s(uv2,0,1) * texture(iTex4, uv2);
-        f += rect(uv3, vec2(-51, 8.5), vec2(2.1, 0.7));
-        t += write_5(uv3, vec2(-53,8), texts[1]);
         f += rect(uv3, vec2(-50.4, 6.5), vec2(2.8, 0.7));
         t += write_int(uv3, vec2(-53,6), iInputFPS2, 2);
         t += write_5(uv3, vec2(-50.5,6), texts[8]);
+    } else {
+        f += rect(uv3, vec2(-51.5, 6.5), vec2(1.6, 0.7));
+        t += write_5(uv3, vec2(-53,6), texts[9]);
     }
     f += rect(uv3, vec2(-14.5, 28.5), vec2(2.6, 0.7));
     t += write_5(uv3, vec2(-17,28), texts[2]);
