@@ -11,7 +11,7 @@ Discover an engine where user-defined fragment shaders collide to produce stunni
 
 ![](./images/preview.png)
 
-See [1H demo on YouTube](https://youtu.be/HgErrasSs-w)
+See [Demo #1 - 1H](https://youtu.be/HgErrasSs-w) and [Demo #2 - Monitor View](https://youtu.be/RW9Pno7YAzg) on YouTube
 
 <!-- omit from toc -->
 ## Table of Contents
