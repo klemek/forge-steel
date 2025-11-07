@@ -12,7 +12,7 @@ Discover an engine where user-defined fragment shaders collide to produce stunni
 ![](./images/preview.png)
 
 See [Demo #1 - 1H](https://youtu.be/HgErrasSs-w) and [Demo #2 - Monitor View](https://youtu.be/RW9Pno7YAzg) on YouTube
-
+b
 <!-- omit from toc -->
 ## Table of Contents
 
@@ -25,11 +25,12 @@ See [Demo #1 - 1H](https://youtu.be/HgErrasSs-w) and [Demo #2 - Monitor View](ht
 - [Usage](#usage)
   - [Runtime keybindings](#runtime-keybindings)
   - [CLI arguments](#cli-arguments)
-- [Default Shaders and Config](#default-shaders-and-config)
+- [Default Project](#default-project)
   - [Sources and Effects](#sources-and-effects)
   - [Debug View](#debug-view)
   - [NanoKontrol2 Controller mapping](#nanokontrol2-controller-mapping)
-- [Making your own FORGE config](#making-your-own-forge-config)
+- [Making your own FORGE project](#making-your-own-forge-project)
+  - [`forge_project.cfg`](#forge_projectcfg)
   - [Working with `frag0.glsl`](#working-with-frag0glsl)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [Why "steel"?](#why-steel)
@@ -100,7 +101,7 @@ When running, the following keybindings are available:
 ### CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-f=DIR_PATH] [-c=CFG_PATH] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
+usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-p=PROJECT_PATH] [-c=CFG_FILE] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
 
 Fusion Of Real-time Generative Effects.
 
@@ -111,8 +112,8 @@ options:
   -s, --screen              output screen number (default: primary)
   -m, --monitor             monitor screen number (default: none)
   -mo, --monitor-only       no output screen
-  -f, --frag                fragment shaders directory (default: /usr/share/forge/shaders)
-  -c, --config              fragment shaders config file (default: /usr/share/forge/default.cfg)
+  -p, --project             forge project directory (default: /usr/share/forge/default)
+  -c, --config              config file name (default: forge_project.cfg)
   -sf, --state-file         saved state file (default: forge_saved_state.txt)
   -ls, --load-state         load saved state (default)
   -nls, --no-load-state     do not load saved state
@@ -128,7 +129,7 @@ options:
   --trace-fps               print fps status of subsystems
 ```
 
-## Default Shaders and Config
+## Default Project
 
 > A.K.A Kleπek's shaders
 
@@ -166,7 +167,11 @@ TODO update
 
 > ⚠️ you'll need to change your NanoKontrol2 settings to remove the "toggle" behavior of the buttons and use "external" led control
 
-## Making your own FORGE config
+## Making your own FORGE project
+
+TODO
+
+### `forge_project.cfg`
 
 TODO
 

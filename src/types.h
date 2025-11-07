@@ -35,8 +35,8 @@ typedef struct Parameters {
   unsigned int output_screen;
   bool monitor;
   unsigned int monitor_screen;
-  char frag_path[STR_LEN];
-  char config_path[STR_LEN];
+  char project_path[STR_LEN];
+  char config_file[STR_LEN];
   char state_file[STR_LEN];
   bool load_state;
   bool save_state;

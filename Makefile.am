@@ -5,6 +5,6 @@ forge_CFLAGS = -Ofast -march=native -flto -funroll-loops -fprefetch-loop-arrays 
 forge_LDADD = -lm -lGL -lglfw -lasound
 include_HEADERS = src/main.h src/args.h src/config.h src/types.h src/forge.h src/file.h src/constants.h src/window.h src/shaders.h src/timer.h src/string.h src/config_file.h src/rand.h src/video.h src/shared.h src/midi.h src/state.h src/arr.h src/tempo.h $(top_srcdir)/include/glad/gl.h $(top_srcdir)/include/glad/egl.h $(top_srcdir)/include/linmath.h $(top_srcdir)/include/hashmap.h $(top_srcdir)/include/log.h
 
-EXTRA_DIST = default.cfg shaders/frag0.glsl shaders/frag1.glsl shaders/frag2.glsl shaders/frag3.glsl shaders/frag4.glsl shaders/frag5.glsl shaders/frag6.glsl shaders/frag7.glsl shaders/frag8.glsl shaders/frag9.glsl shaders/frag10.glsl
+EXTRA_DIST = default/forge_project.cfg default/frag0.glsl default/frag1.glsl default/frag2.glsl default/frag3.glsl default/frag4.glsl default/frag5.glsl default/frag6.glsl default/frag7.glsl default/frag8.glsl default/frag9.glsl default/frag10.glsl
 confdir = $(prefix)/share/$(PACKAGE)
-conf_DATA = default.cfg shaders/frag0.glsl shaders/frag1.glsl shaders/frag2.glsl shaders/frag3.glsl shaders/frag4.glsl shaders/frag5.glsl shaders/frag6.glsl shaders/frag7.glsl shaders/frag8.glsl shaders/frag9.glsl shaders/frag10.glsl
+conf_DATA = default/forge_project.cfg default/frag0.glsl default/frag1.glsl default/frag2.glsl default/frag3.glsl default/frag4.glsl default/frag5.glsl default/frag6.glsl default/frag7.glsl default/frag8.glsl default/frag9.glsl default/frag10.glsl

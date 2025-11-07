@@ -233,19 +233,24 @@ static void loop(bool hr, bool trace_fps) {
 
 void forge_run(Parameters params) {
   unsigned int frag_count, in_count;
+  char config_path[STR_LEN];
 
   context = shared_init_context("/" PACKAGE "_context");
 
   context->stop = false;
 
-  config = config_file_read(params.config_path);
+  strncpy(config_path, params.project_path, STR_LEN);
+  strcat(config_path, "/");
+  strcat(config_path, params.config_file);
+
+  config = config_file_read(config_path);
 
   frag_count = config_file_get_int(config, "FRAG_COUNT", 1);
   in_count = config_file_get_int(config, "IN_COUNT", 0);
 
   state_config = state_parse_config(config);
 
-  init_files(params.frag_path, frag_count);
+  init_files(params.project_path, frag_count);
 
   init_inputs(params.video_in, params.video_size);
 

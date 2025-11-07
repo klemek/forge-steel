@@ -20,8 +20,8 @@ static void print_help(int status_code) {
        "[-s=SCREEN] "
        "[-m=SCREEN] "
        "[-mo] "
-       "[-f=DIR_PATH] "
-       "[-c=CFG_PATH] "
+       "[-p=PROJECT_PATH] "
+       "[-c=CFG_FILE] "
        "[-sf=STATE_PATH] "
        "[-ls / -nls] "
        "[-ss / -nss] "
@@ -40,10 +40,10 @@ static void print_help(int status_code) {
        "  -s, --screen              output screen number (default: primary)\n"
        "  -m, --monitor             monitor screen number (default: none)\n"
        "  -mo, --monitor-only       no output screen\n"
-       "  -f, --frag                fragment shaders directory "
-       "(default: " DATADIR "/shaders)\n"
-       "  -c, --config              fragment shaders config file "
-       "(default: " DATADIR "/default.cfg)\n"
+       "  -p, --project             forge project directory "
+       "(default: " DATADIR "/default)\n"
+       "  -c, --config              config file name "
+       "(default: forge_project.cfg)\n"
        "  -sf, --state-file         saved state file (default: "
        "forge_saved_state.txt)\n"
        "  -ls, --load-state         load saved state (default)\n"
@@ -105,8 +105,8 @@ Parameters args_parse(int argc, char **argv) {
   params.output_screen = 0;
   params.monitor = false;
   params.monitor_screen = 0;
-  strncpy(params.frag_path, DATADIR "/shaders", STR_LEN);
-  strncpy(params.config_path, DATADIR "/default.cfg", STR_LEN);
+  strncpy(params.project_path, DATADIR "/default", STR_LEN);
+  strncpy(params.config_file, "forge_project.cfg", STR_LEN);
   strncpy(params.state_file, "forge_saved_state.txt", STR_LEN);
   params.load_state = true;
   params.save_state = true;
@@ -131,10 +131,10 @@ Parameters args_parse(int argc, char **argv) {
       params.hot_reload = true;
     } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
       params.output_screen = parse_uint(arg, value);
-    } else if (is_arg(arg, "-f") || is_arg(arg, "--frag")) {
-      strncpy(params.frag_path, value, STR_LEN);
+    } else if (is_arg(arg, "-p") || is_arg(arg, "--project")) {
+      strncpy(params.project_path, value, STR_LEN);
     } else if (is_arg(arg, "-c") || is_arg(arg, "--config")) {
-      strncpy(params.config_path, value, STR_LEN);
+      strncpy(params.config_file, value, STR_LEN);
     } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
       strncpy(params.state_file, value, STR_LEN);
     } else if (is_arg(arg, "-ls") || is_arg(arg, "--load-state")) {
