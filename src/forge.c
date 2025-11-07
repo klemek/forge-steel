@@ -35,7 +35,7 @@ static bool trace_midi;
 
 static void compute_fps(bool trace_fps) {
   double fps;
-  char title[100];
+  char title[STR_LEN];
 
   if (timer_inc(&timer)) {
     fps = timer_reset(&timer);
@@ -102,11 +102,12 @@ static void hot_reload() {
   }
 }
 
-File read_fragment_shader_file(char *frag_path, unsigned int i) {
+File read_fragment_shader_file(char *frag_path, char *frag_prefix,
+                               unsigned int i) {
   File fragment_shader;
   char file_path[STR_LEN];
 
-  snprintf(file_path, STR_LEN, "%s/frag%d.glsl", frag_path, i);
+  snprintf(file_path, STR_LEN, "%s/%s%d.glsl", frag_path, frag_prefix, i);
   fragment_shader = file_read(file_path);
   if (fragment_shader.error) {
     exit(EXIT_FAILURE);
@@ -115,16 +116,18 @@ File read_fragment_shader_file(char *frag_path, unsigned int i) {
   return fragment_shader;
 }
 
-static void init_files(char *frag_path, unsigned int frag_count) {
+static void init_files(char *frag_path, char *frag_prefix,
+                       unsigned int frag_count) {
   unsigned int i;
 
   fragment_shaders.length = frag_count;
 
   for (i = 0; i < frag_count + 1; i++) {
     if (i == 0) {
-      common_shader_code = read_fragment_shader_file(frag_path, i);
+      common_shader_code = read_fragment_shader_file(frag_path, frag_prefix, i);
     } else {
-      fragment_shaders.values[i - 1] = read_fragment_shader_file(frag_path, i);
+      fragment_shaders.values[i - 1] =
+          read_fragment_shader_file(frag_path, frag_prefix, i);
 
       file_prepend(&fragment_shaders.values[i - 1], common_shader_code);
     }
@@ -233,24 +236,24 @@ static void loop(bool hr, bool trace_fps) {
 
 void forge_run(Parameters params) {
   unsigned int frag_count, in_count;
-  char config_path[STR_LEN];
+  char config_path[STR_LEN * 2 + 1];
+  char *frag_prefix;
 
   context = shared_init_context("/" PACKAGE "_context");
 
   context->stop = false;
 
-  strncpy(config_path, params.project_path, STR_LEN);
-  strcat(config_path, "/");
-  strcat(config_path, params.config_file);
+  sprintf(config_path, "%s/%s", params.project_path, params.config_file);
 
   config = config_file_read(config_path);
 
-  frag_count = config_file_get_int(config, "FRAG_COUNT", 1);
-  in_count = config_file_get_int(config, "IN_COUNT", 0);
-
   state_config = state_parse_config(config);
 
-  init_files(params.project_path, frag_count);
+  frag_count = config_file_get_int(config, "FRAG_COUNT", 1);
+  in_count = config_file_get_int(config, "IN_COUNT", 0);
+  frag_prefix = config_file_get_str(config, "FRAG_FILE_PREFIX", "frag");
+
+  init_files(params.project_path, frag_prefix, frag_count);
 
   init_inputs(params.video_in, params.video_size);
 

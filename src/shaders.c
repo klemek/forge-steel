@@ -116,7 +116,7 @@ static void init_input(ShaderProgram *program, ConfigFile config,
                        VideoCaptureArray inputs) {
   unsigned int i;
   unsigned tex_i;
-  char name[256];
+  char name[STR_LEN];
 
   for (i = 0; i < program->in_count; i++) {
     if (i < inputs.length && !inputs.values[i].error) {
@@ -132,7 +132,7 @@ static void init_input(ShaderProgram *program, ConfigFile config,
 static void init_framebuffers(ShaderProgram *program, ConfigFile config) {
   unsigned int i;
   unsigned tex_i;
-  char name[256];
+  char name[STR_LEN];
 
   glGenFramebuffers(program->frag_count, program->frame_buffers);
 
@@ -190,7 +190,7 @@ static void bind_vertices(ShaderProgram *program, unsigned int index) {
 
 static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   GLint status_params;
-  char log[1024];
+  char log[STR_LEN];
 
   log_info("Compiling '%s'...", name);
 
@@ -237,7 +237,7 @@ static void init_shaders(ShaderProgram *program, FileArray fragment_shaders) {
 static void init_single_program(ShaderProgram *program, unsigned int i,
                                 ConfigFile config, StateConfig state_config) {
   unsigned int j, k, index1, index2;
-  char name[256];
+  char name[STR_LEN];
   char *prefix;
   program->programs[i] = glCreateProgram();
 

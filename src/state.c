@@ -14,7 +14,7 @@
 StateConfig state_parse_config(ConfigFile config) {
   unsigned int i, j, offset, count;
   StateConfig state_config;
-  char name[256];
+  char name[STR_LEN];
 
   state_config.select_page_codes.length =
       config_file_get_int(config, "SELECT_PAGE_COUNT", 0);
@@ -326,7 +326,7 @@ bool state_background_write(SharedContext *context, StateConfig state_config,
 static void state_load(SharedContext *context, StateConfig state_config,
                        char *state_file) {
   ConfigFile saved_state;
-  char key[100];
+  char key[STR_LEN];
   unsigned int i;
 
   saved_state = config_file_read(state_file);

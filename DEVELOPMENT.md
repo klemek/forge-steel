@@ -86,7 +86,7 @@ make -f Makefile.dev release-arch
   - [x] Share openGL state between monitor and screen  
 - [ ] Other
   - [x] `forge_project.cfg`
-  - [ ] Define frag prefix in config
+  - [x] Define frag prefix in config
   - [ ] Use custom `#include xxx.glsl` preprocessor
   - [ ] Update readme with usage documentation
   - [x] Documentation in default config file
