@@ -7,7 +7,11 @@
 
 *Steel version (PC executable)*
 
-TODO cool image and youtube link
+Discover an engine where user-defined fragment shaders collide to produce stunning visuals.
+
+![](./images/preview.png)
+
+See [1H demo on YouTube](https://youtu.be/HgErrasSs-w)
 
 <!-- omit from toc -->
 ## Table of Contents
@@ -40,12 +44,12 @@ TODO
 
 ### Prerequisites
 
-| library | apt | pacman |
-| --- | --- | --- |
-| libglfw | libglfw3-dev | extra/glfw |
-| libGL | libgl-dev | extra/libglvnd |
-| libasound | libasound2-dev | extra/alsa-lib |
-| libv4l2 | libv4l-dev | extra/v4l-utils |
+| library   | apt            | pacman          |
+| --------- | -------------- | --------------- |
+| libglfw   | libglfw3-dev   | extra/glfw      |
+| libGL     | libgl-dev      | extra/libglvnd  |
+| libasound | libasound2-dev | extra/alsa-lib  |
+| libv4l2   | libv4l-dev     | extra/v4l-utils |
 
 ### From release
 
@@ -115,8 +119,6 @@ options:
 ## Default Shaders and Config
 
 > A.K.A Kleπek's shaders
-
-![](./images/preview.png)
 
 ### Sources and Effects
 
