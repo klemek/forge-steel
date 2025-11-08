@@ -83,11 +83,22 @@ make -f Makefile.dev release-arch
   - [x] 2nd window
   - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
   - [x] Clean code and fix things
-  - [x] Share openGL state between monitor and screen  
+  - [x] Share openGL state between monitor and screen
+- [ ] Default project
+  - [ ] src 9: game of life
+  - [ ] src 10 : ?
+  - [ ] src 11 : ?
+  - [ ] src 12 : ?
+  - [ ] src 13 : ?
+  - [ ] src 15 : debug -> calibration screen
+  - [ ] fx 11 : colorize range (pretty color ranges)
+  - [ ] fx 12 : spill
+  - [ ] frag 10 : move debug screen here + add src/fx/A/B indicators
 - [ ] Other
   - [x] `forge_project.cfg`
   - [x] Define frag prefix in config
   - [ ] Use custom `#include xxx.glsl` preprocessor
+  - [ ] `--auto-random` / `--no-auto-random`
   - [ ] Update readme with usage documentation
   - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup
