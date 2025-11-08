@@ -151,7 +151,7 @@ options:
 |       | **7** | Sentences         | _Zoom_            | _Sentence_      | _Vertical repeat_  | Kaleidoscope     | _Axes_          | _Rotation_    | _Horz. Scroll_ |
 |       | **8** |                   |                   |                 |                    | CP437            | _Zoom_          | _Charset_     | _Char. Delta_  |
 |       | **9** |                   |                   |                 |                    | Lens             | _Lens limit_    | _Lens power_  | _Pre Zoom_     |
-| **3** | **A** | Video In 2 + Thru | _Hue_             | _Saturation_    | _Light_            |                  |                 |               |                |
+| **3** | **A** | Video In 2 + Thru | _Hue_             | _Saturation_    | _Light_            | Spill                 | _Bottom limit_                | _Top Limit_              | _Rotation_               |
 |       | **B** |                   |                   |                 |                    |                  |                 |               |                |
 |       | **C** |                   |                   |                 |                    |                  |                 |               |                |
 |       | **D** |                   |                   |                 |                    |                  |                 |               |                |

@@ -315,10 +315,9 @@ subroutine(fx_stage_sub) vec4 fx_10(vec2 vUV, sampler2D previous, sampler2D feed
     return fx_master(c0, c, seed, m0);
 }
 
-// TODO FX 11
+// FX 11 : spill
 subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_1(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -327,10 +326,20 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
+    float wall1 = magic(f1, b1, seed + 10);
+    float wall2 = magic(f2, b2, seed + 20);
+    float angle = magic(f3, b3, seed + 30);
+
     // logic
     
     vec3 c0 = texture(previous, uv0).xyz;
-    vec3 c = c0;
+
+    vec2 uv2 = uv1;
+    uv2 *= rot(angle);
+    uv2.y = min(uv2.y, 1 - wall1);
+    uv2.y = -min(-uv2.y, 1 - wall2);
+    uv2 *= rot(-angle);
+    vec3 c = reframe(previous, uv2).xyz;
 
     return fx_master(c0, c, seed, m0);
 }
