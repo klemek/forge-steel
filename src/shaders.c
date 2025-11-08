@@ -3,12 +3,14 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include "types.h"
+
 #include "arr.h"
 #include "config.h"
 #include "config_file.h"
 #include "constants.h"
 #include "shaders.h"
-#include "types.h"
+#include "tempo.h"
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
@@ -252,6 +254,9 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   program->itempo_locations[i] = glGetUniformLocation(
       program->programs[i],
       config_file_get_str(config, "UNIFORM_TEMPO", "iTempo"));
+  program->ibeats_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(config, "UNIFORM_BEATS", "iBeats"));
   program->ifps_locations[i] = glGetUniformLocation(
       program->programs[i], config_file_get_str(config, "UNIFORM_FPS", "iFPS"));
   program->ires_locations[i] = glGetUniformLocation(
@@ -507,6 +512,7 @@ static void use_program(ShaderProgram program, int i, bool output,
   // set fragment uniforms
   write_uniform_1f(program.itime_locations[i], context->time);
   write_uniform_1f(program.itempo_locations[i], context->tempo.tempo);
+  write_uniform_1f(program.ibeats_locations[i], context->tempo_total);
   write_uniform_1i(program.ifps_locations[i], context->fps);
   write_uniform_1i(program.idemo_locations[i], context->demo ? 1 : 0);
   write_uniform_1i(program.ipage_locations[i], context->page);

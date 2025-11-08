@@ -8,6 +8,7 @@
 
 uniform float iTime;
 uniform float iTempo;
+uniform float iBeats;
 uniform int iFPS;
 uniform vec2 iResolution;
 uniform vec2 iTexResolution;
@@ -150,7 +151,7 @@ float mean(vec4 v)
 // TIME
 
 float randTime(float seed){
-    return rand(seed + mod(floor(iTime * iTempo / 240), 1000));
+    return rand(seed + floor(iBeats / 4));
 }
 
 float divider(float x)
@@ -166,7 +167,7 @@ float divider(float x)
 
 float modTime(float k, float k2)
 {
-    return mod(divider(k) * iTime * iTempo * k2 / 240, 1);
+    return mod(divider(k) * iBeats * k2 / 4, 1);
 }
 
 float modTime(float k)
@@ -309,8 +310,8 @@ float v_index(vec2 uv) {
 }
 
 vec2 v_pos(float i) {
-    int iTimeId = int(iTime * iTempo / 60);
-    float iTimeV = iTime * iTempo / 60 - iTimeId;
+    int iTimeId = int(iBeats);
+    float iTimeV = iBeats - iTimeId;
 
     float x0 = rand(i + 823 + iTimeId);
     float y0 = rand(i + 328 + iTimeId);
@@ -942,7 +943,7 @@ subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 
     vec2 uv2 = uv1;
     uv2.y *= cos(uv2.x * 5 * distort);
-    uv2 *= rot(rotation + iTime * iTempo / 960);
+    uv2 *= rot(rotation + iBeats / 16);
     float k = thickness * 2;
     uv2.y = cmod(uv2.y, k * 2 + 0.1);
     float f = step(uv2.y, k * 0.125 + 0.05) * step(-uv2.y, k * 0.125 + 0.01);
@@ -971,7 +972,7 @@ subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     float k1 = lens_v * 5;
     uv2 = lens(uv2, -k1, k1);
     uv2 = kal(uv2, 5);
-    uv2 *= rot(rotation + iTime * iTempo / 960);
+    uv2 *= rot(rotation + iBeats / 16);
     float k = zoom * 0.1 + 0.05;
     uv2 = cmod(uv2, k * 2);
     float f = step(length(uv2), k / (1 + length(uv1) * 2));
@@ -1002,7 +1003,7 @@ subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     uv2 = vec2((uv2.x + 1) * 0.5, -uv2.y);
     float m1 = spacing * 4.5 + 0.5;
     float y = log(-uv2.y) * m1;
-    y = mod(y + scroll * 5.0 - iTime * iTempo / 960, 5.);
+    y = mod(y + scroll * 5.0 - iBeats / 16, 5.);
     float id = floor(y) * 32;
     float s = cos(uv2.x * rand(id + 837) * 100 + rand(id + 281) * PI)
                 + cos(uv2.x * rand(id + 231) * 100 + rand(id + 526) * PI)
@@ -1042,7 +1043,7 @@ subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 
     vec2 uv2 = uv1;
     uv2 *= zoom * 20 + 3;
-    uv2.x += iTime * iTempo / 60;
+    uv2.x += iBeats;
     vec4 data = voronoi(uv2, voronoi_distort);
     float f = data.x / (data.x + data.y);
     f = sin(f * PI * (details * 20)) * 0.5 + 1;
@@ -1078,7 +1079,7 @@ subroutine(src_stage_sub) vec4 src_7(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 
     vec2 uv2 = uv1;
     uv2 *= zoom * 20 + 3;
-    uv2 += iTime * iTempo / 60;
+    uv2 += iBeats;
     uv2 = mod(uv2, 100) + 100;
     int start_char = charset_ctrl.x > 0 ? charsets[int(charset.x * CHARSETS) * 2] : 0x01;
     int char_span = int((charset_ctrl.x > 0 ? charsets[int(charset.x * CHARSETS) * 2 + 1] : 255));
@@ -1372,7 +1373,7 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     x = 0;
     f += write_5(uv3, vec2(x,13), texts[1]);
     f += write_int(uv3, vec2(x - 3.5,13), int(iTempo), 3);
-    v = modTime(1);
+    v = fract(iBeats);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
 

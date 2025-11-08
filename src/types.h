@@ -88,6 +88,7 @@ typedef struct ShaderProgram {
 
   GLuint itime_locations[ARRAY_SIZE];
   GLuint itempo_locations[ARRAY_SIZE];
+  GLuint ibeats_locations[ARRAY_SIZE];
   GLuint ifps_locations[ARRAY_SIZE];
   GLuint ires_locations[ARRAY_SIZE];
   GLuint itexres_locations[ARRAY_SIZE];
@@ -157,6 +158,7 @@ typedef struct SharedContext {
   double time;
   unsigned int fps;
   Tempo tempo;
+  double tempo_total;
   UintArray state;
   unsigned int page;
   unsigned int selected;

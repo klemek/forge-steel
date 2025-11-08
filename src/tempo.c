@@ -3,7 +3,6 @@
 #include <sys/time.h>
 
 #include "config.h"
-#include "log.h"
 #include "tempo.h"
 
 static long now() {
@@ -112,11 +111,14 @@ void tempo_tap(Tempo *tempo) {
   add_tap_to_chain(tempo, t);
 }
 
-double tempo_progress(Tempo tempo, double modulo) {
+double tempo_total(Tempo tempo) {
   long t;
 
   t = now();
 
-  return fmod((double)(t - tempo.last_reset) / (double)tempo.beat_length,
-              modulo);
+  return (double)(t - tempo.last_reset) / (double)tempo.beat_length;
+}
+
+double tempo_progress(Tempo tempo, double modulo) {
+  return fmod(tempo_total(tempo), modulo);
 }

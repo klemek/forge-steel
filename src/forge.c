@@ -214,6 +214,7 @@ static void loop(bool hr, bool trace_fps) {
   compute_fps(trace_fps);
 
   context->time = window_get_time();
+  context->tempo_total = (float)tempo_total(context->tempo);
 
   if (window_output != NULL) {
     window_use(window_output, context);
