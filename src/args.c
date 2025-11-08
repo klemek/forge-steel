@@ -16,22 +16,22 @@ static void print_help(int status_code) {
        "usage: " PACKAGE " "
        "[-h] "
        "[-v] "
+       "[-p=PROJECT_PATH] "
+       "[-c=CFG_FILE] "
        "[-hr] "
        "[-s=SCREEN] "
        "[-m=SCREEN] "
        "[-mo] "
-       "[-p=PROJECT_PATH] "
-       "[-c=CFG_FILE] "
-       "[-sf=STATE_PATH] "
-       "[-ls / -nls] "
-       "[-ss / -nss] "
-       "[-is=SIZE] "
-       "[-v=FILE] "
-       "[-vs=SIZE] "
+       "[-w] "
        "[-t=TEMPO] "
        "[-d] "
        "[-ar / -nar] "
-       "[-w] "
+       "[-v=FILE] "
+       "[-vs=SIZE] "
+       "[-is=SIZE] "
+       "[-sf=STATE_PATH] "
+       "[-ls / -nls] "
+       "[-ss / -nss] "
        "[-tm] "
        "[-tf] "
        "\n\n"
@@ -39,31 +39,31 @@ static void print_help(int status_code) {
        "options:\n"
        "  -h, --help                show this help message and exit\n"
        "  -v, --version             print version\n"
+       "  -p, --project             forge project directory (default: " DATADIR
+       "/default)\n"
+       "  -c, --config              config file name (default: "
+       "forge_project.cfg)\n"
        "  -hr, --hot-reload         hot reload of shaders scripts\n"
        "  -s, --screen              output screen number (default: primary)\n"
        "  -m, --monitor             monitor screen number (default: none)\n"
        "  -mo, --monitor-only       no output screen\n"
-       "  -p, --project             forge project directory "
-       "(default: " DATADIR "/default)\n"
-       "  -c, --config              config file name "
-       "(default: forge_project.cfg)\n"
+       "  -w, --windowed            not fullscreen\n"
+       "  -t, --tempo               base tempo (default: 60)\n"
+       "  -d, --demo                demonstration mode (assume "
+       "--no-save-state, --no-load-state, --auto-random)\n"
+       "  -ar, --auto-random        randomize state every 4 beats\n"
+       "  -nar, --no-auto-random    do not randomize state (default)\n"
+       "  -v, --video-in            path to video capture device (multiple "
+       "allowed)\n"
+       "  -vs, --video-size         video capture desired height (default: "
+       "internal texture height)\n"
+       "  -is, --internal-size      internal texture height (default: 720)\n"
        "  -sf, --state-file         saved state file (default: "
        "forge_saved_state.txt)\n"
        "  -ls, --load-state         load saved state (default)\n"
        "  -nls, --no-load-state     do not load saved state\n"
        "  -ss, --save-state         save state (default)\n"
        "  -nss, --no-save-state     do not save state\n"
-       "  -is, --internal-size      internal texture height (default: 720)\n"
-       "  -v, --video-in            path to video capture device (multiple "
-       "allowed)\n"
-       "  -vs, --video-size         video capture desired height (default: "
-       "internal texture height)\n"
-       "  -t, --tempo               base tempo (default: 60)\n"
-       "  -d, --demo                demonstration mode (assume --no-save-state "
-       ", --no-load-state, --auto-random)\n"
-       "  -ar, --auto-random        randomize state every 4 beats\n"
-       "  -nar, --no-auto-random    do not randomize state (default)\n"
-       "  -w, --windowed            not fullscreen\n"
        "  -tm, --trace-midi         print midi code and values\n"
        "  -tf, --trace-fps          print fps status of subsystems\n");
   exit(status_code);
@@ -105,23 +105,23 @@ Parameters args_parse(int argc, char **argv) {
   char *arg;
   char *value;
 
+  strncpy(params.project_path, DATADIR "/default", STR_LEN);
+  strncpy(params.config_file, "forge_project.cfg", STR_LEN);
   params.hot_reload = false;
   params.output = true;
   params.output_screen = 0;
   params.monitor = false;
   params.monitor_screen = 0;
-  strncpy(params.project_path, DATADIR "/default", STR_LEN);
-  strncpy(params.config_file, "forge_project.cfg", STR_LEN);
-  strncpy(params.state_file, "forge_saved_state.txt", STR_LEN);
-  params.load_state = true;
-  params.save_state = true;
-  params.internal_size = 720;
-  params.video_size = 0;
+  params.windowed = false;
   params.base_tempo = 60.0f;
   params.demo = false;
   params.auto_random = false;
-  params.windowed = false;
   params.video_in.length = 0;
+  params.video_size = 0;
+  params.internal_size = 720;
+  strncpy(params.state_file, "forge_saved_state.txt", STR_LEN);
+  params.load_state = true;
+  params.save_state = true;
   params.trace_midi = false;
   params.trace_fps = false;
 
@@ -133,29 +133,33 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-v") || is_arg(arg, "--version")) {
       puts(PACKAGE " " VERSION);
       exit(EXIT_SUCCESS);
-    } else if (is_arg(arg, "-hr") || is_arg(arg, "--hot-reload")) {
-      params.hot_reload = true;
-    } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
-      params.output_screen = parse_uint(arg, value);
     } else if (is_arg(arg, "-p") || is_arg(arg, "--project")) {
       strncpy(params.project_path, value, STR_LEN);
     } else if (is_arg(arg, "-c") || is_arg(arg, "--config")) {
       strncpy(params.config_file, value, STR_LEN);
-    } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
-      strncpy(params.state_file, value, STR_LEN);
-    } else if (is_arg(arg, "-ls") || is_arg(arg, "--load-state")) {
-      params.load_state = true;
-    } else if (is_arg(arg, "-nls") || is_arg(arg, "--no-load-state")) {
+    } else if (is_arg(arg, "-hr") || is_arg(arg, "--hot-reload")) {
+      params.hot_reload = true;
+    } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
+      params.output_screen = parse_uint(arg, value);
+    } else if (is_arg(arg, "-m") || is_arg(arg, "--monitor")) {
+      params.monitor = true;
+      params.monitor_screen = parse_uint(arg, value);
+    } else if (is_arg(arg, "-mo") || is_arg(arg, "--monitor-only")) {
+      params.output = false;
+      params.monitor = true;
+    } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
+      params.windowed = true;
+    } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
+      params.base_tempo = (float)parse_uint(arg, value);
+    } else if (is_arg(arg, "-d") || is_arg(arg, "--demo")) {
+      params.demo = true;
       params.load_state = false;
-    } else if (is_arg(arg, "-ss") || is_arg(arg, "--save-state")) {
-      params.save_state = true;
-    } else if (is_arg(arg, "-nss") || is_arg(arg, "--no-save-state")) {
       params.save_state = false;
-    } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
-      params.internal_size = parse_uint(arg, value);
-      if (params.internal_size == 0) {
-        invalid_value(arg, value);
-      }
+      params.auto_random = true;
+    } else if (is_arg(arg, "-ar") || is_arg(arg, "--auto-random")) {
+      params.auto_random = true;
+    } else if (is_arg(arg, "-nar") || is_arg(arg, "--no-auto-random")) {
+      params.auto_random = false;
     } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
       if (params.video_in.length == MAX_VIDEO) {
         log_error("maximum video input reached");
@@ -167,25 +171,21 @@ Parameters args_parse(int argc, char **argv) {
       if (params.video_size == 0) {
         invalid_value(arg, value);
       }
-    } else if (is_arg(arg, "-t") || is_arg(arg, "--tempo")) {
-      params.base_tempo = (float)parse_uint(arg, value);
-    } else if (is_arg(arg, "-m") || is_arg(arg, "--monitor")) {
-      params.monitor = true;
-      params.monitor_screen = parse_uint(arg, value);
-    } else if (is_arg(arg, "-mo") || is_arg(arg, "--monitor-only")) {
-      params.output = false;
-      params.monitor = true;
-    } else if (is_arg(arg, "-d") || is_arg(arg, "--demo")) {
-      params.demo = true;
+    } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
+      params.internal_size = parse_uint(arg, value);
+      if (params.internal_size == 0) {
+        invalid_value(arg, value);
+      }
+    } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
+      strncpy(params.state_file, value, STR_LEN);
+    } else if (is_arg(arg, "-ls") || is_arg(arg, "--load-state")) {
+      params.load_state = true;
+    } else if (is_arg(arg, "-nls") || is_arg(arg, "--no-load-state")) {
       params.load_state = false;
+    } else if (is_arg(arg, "-ss") || is_arg(arg, "--save-state")) {
+      params.save_state = true;
+    } else if (is_arg(arg, "-nss") || is_arg(arg, "--no-save-state")) {
       params.save_state = false;
-      params.auto_random = true;
-    } else if (is_arg(arg, "-ar") || is_arg(arg, "--auto-random")) {
-      params.auto_random = true;
-    } else if (is_arg(arg, "-nar") || is_arg(arg, "--no-auto-random")) {
-      params.auto_random = false;
-    } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
-      params.windowed = true;
     } else if (is_arg(arg, "-tm") || is_arg(arg, "--trace-midi")) {
       params.trace_midi = true;
     } else if (is_arg(arg, "-tf") || is_arg(arg, "--trace-fps")) {

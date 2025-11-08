@@ -98,7 +98,7 @@ make -f Makefile.dev release-arch
   - [x] `forge_project.cfg`
   - [x] Define frag prefix in config
   - [ ] Use custom `#include xxx.glsl` preprocessor
-  - [ ] Clean and sort args
+  - [x] Clean and sort args
   - [x] `--auto-random` / `--no-auto-random`
   - [ ] Update readme with usage documentation
   - [x] Documentation in default config file

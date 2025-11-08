@@ -30,23 +30,23 @@ typedef struct StringArray {
 } StringArray;
 
 typedef struct Parameters {
+  char project_path[STR_LEN];
+  char config_file[STR_LEN];
   bool hot_reload;
   bool output;
   unsigned int output_screen;
   bool monitor;
   unsigned int monitor_screen;
-  char project_path[STR_LEN];
-  char config_file[STR_LEN];
-  char state_file[STR_LEN];
-  bool load_state;
-  bool save_state;
-  unsigned int internal_size;
-  unsigned int video_size;
+  bool windowed;
   float base_tempo;
   bool demo;
   bool auto_random;
-  bool windowed;
   StringArray video_in;
+  unsigned int video_size;
+  unsigned int internal_size;
+  char state_file[STR_LEN];
+  bool load_state;
+  bool save_state;
   bool trace_midi;
   bool trace_fps;
 } Parameters;
