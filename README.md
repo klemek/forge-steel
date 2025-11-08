@@ -155,7 +155,7 @@ options:
 |       | **B** |                   |                   |                 |                    |                  |                 |               |                |
 |       | **C** |                   |                   |                 |                    |                  |                 |               |                |
 |       | **D** |                   |                   |                 |                    |                  |                 |               |                |
-|       | **E** | Debug             | ---               | ---             | ---                |                  |                 |               |                |
+|       | **E** | Calibration             | _Circle size_               | _X scroll_             | _Grid size_                |                  |                 |               |                |
 
 TODO update
 

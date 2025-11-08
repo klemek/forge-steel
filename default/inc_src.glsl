@@ -336,10 +336,9 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     return texture(iTex0, vUV);
 }
 
-// SRC 15 : TODO
+// SRC 15 : Calibration
 subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_8(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -348,9 +347,39 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // controls
 
+    float circle = magic(f1, b1, seed + 10);
+    float x_shift = magic(f2, b2, seed + 20);
+    float grid_size = 0.1 + magic(f3, b3, seed + 30) * 0.9;
+    bool show_grid = magic_trigger(b3, seed + 30);
+
     // logic
+
+    float f = 0;
+
+    f += step(length(uv1), circle * 0.5);
+
+    float txt = 0;
+    float txt_rect = rect(uv1 * 10, vec2(0), vec2(2, 1));
+
+    txt += write_int(uv1 * 10, vec2(-1.33,-0.5), int(mod(iBeats, 4) + 1), 1);
+    txt += char_at(uv1 * 10, vec2(-0.33, -0.5), 0x2E);
+    txt += write_int(uv1 * 10, vec2(0.66,-0.5), int((mod(iBeats, 4) + 1) * 10), 1);
+
+    float grid = 0;
+
+    grid = step(mod(uv1.x + grid_size * 0.05, grid_size), grid_size * 0.1) + step(mod(uv1.y + grid_size * 0.05, grid_size), grid_size * 0.1);
+
+    grid = mix(grid, 0, show_grid ? min(1, f + txt_rect) : 1);
+
+    vec3 c = vec3(step(mod(uv0.x + x_shift, 0.5), 0.25), step(mod(uv0.x + 0.125 + x_shift, 0.5), 0.25), step(mod(uv0.x + x_shift, 1.0), 0.5));
+
+    c = mix(c, 1 - c, f);
+
+    c = mix(c, vec3(txt), txt_rect);
+
+    c = mix(c, vec3(grid) * 0.5, grid);
     
-    return texture(iTex0, vUV);
+    return vec4(c, 1);
 }
 
 #endif

@@ -91,7 +91,7 @@ make -f Makefile.dev release-arch
   - [ ] src 11 : ?
   - [ ] src 12 : ?
   - [ ] src 13 : ?
-  - [ ] src 15 : debug -> calibration screen
+  - [x] src 15 : debug -> calibration screen
   - [ ] fx 10 : colorize range (pretty color ranges)
   - [x] fx 11 : spill
   - [x] frag 10 : move debug screen here
