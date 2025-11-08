@@ -1,6 +1,8 @@
 #include <log.h>
 #include <stdio.h>
 
+#include "types.h"
+
 #include "arr.h"
 #include "config.h"
 #include "config_file.h"
@@ -9,7 +11,6 @@
 #include "rand.h"
 #include "state.h"
 #include "tempo.h"
-#include "types.h"
 
 StateConfig state_parse_config(ConfigFile config) {
   unsigned int i, j, offset, count;

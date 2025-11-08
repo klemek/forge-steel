@@ -1,9 +1,10 @@
 #include <GLFW/glfw3.h>
 #include <alsa/asoundlib.h>
 
+#include "types.h"
+
 #include "config.h"
 #include "log.h"
-#include "types.h"
 
 MidiDevice midi_open(char *name) {
   MidiDevice device;

@@ -5,9 +5,10 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#include "types.h"
+
 #include "file.h"
 #include "string.h"
-#include "types.h"
 
 static time_t get_file_time(File file) {
   struct stat attr;

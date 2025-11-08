@@ -1,7 +1,8 @@
 #include <sys/time.h>
 
-#include "timer.h"
 #include "types.h"
+
+#include "timer.h"
 
 Timer timer_init(const unsigned int target) {
   Timer output;

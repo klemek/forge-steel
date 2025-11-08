@@ -3,8 +3,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "shared.h"
 #include "types.h"
+
+#include "shared.h"
 
 static void *open_shared(const char *key, size_t size, int *fd) {
   *fd = shm_open(key, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);

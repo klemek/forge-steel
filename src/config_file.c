@@ -3,11 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "types.h"
+
 #include "config.h"
 #include "config_file.h"
 #include "file.h"
 #include "string.h"
-#include "types.h"
 
 static int item_compare(const void *a, const void *b,
                         __attribute__((unused)) void *udata) {

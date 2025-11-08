@@ -1,3 +1,5 @@
+#include "types.h"
+
 #include "arr.h"
 
 unsigned int arr_uint_index_of(UintArray array, unsigned int value) {

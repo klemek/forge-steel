@@ -5,12 +5,10 @@
 
 #include "types.h"
 
-#include "arr.h"
 #include "config.h"
 #include "config_file.h"
 #include "constants.h"
 #include "shaders.h"
-#include "tempo.h"
 
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>

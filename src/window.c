@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "types.h"
+
 #include "window.h"
 
 static void init_glfw(void (*error_callback)(int, const char *)) {

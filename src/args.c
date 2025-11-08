@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "types.h"
+
 #include "args.h"
 #include "config.h"
 #include "string.h"
-#include "types.h"
 
 static void print_help(int status_code) {
   puts(PACKAGE

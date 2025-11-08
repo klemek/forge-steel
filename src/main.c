@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "types.h"
+
 #include "args.h"
 #include "config.h"
 #include "forge.h"
 #include "main.h"
 #include "rand.h"
-#include "types.h"
 
 int main(int argc, char **argv) {
   Parameters params;

@@ -6,6 +6,8 @@
 #include <string.h>
 #include <sys/wait.h>
 
+#include "types.h"
+
 #include "config.h"
 #include "config_file.h"
 #include "file.h"
@@ -16,7 +18,6 @@
 #include "state.h"
 #include "tempo.h"
 #include "timer.h"
-#include "types.h"
 #include "video.h"
 #include "window.h"
 

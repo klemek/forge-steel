@@ -2,6 +2,8 @@
 #include <string.h>
 #include <sys/time.h>
 
+#include "types.h"
+
 #include "config.h"
 #include "tempo.h"
 
