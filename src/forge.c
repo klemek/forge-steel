@@ -99,7 +99,7 @@ static bool start_video_captures(unsigned int video_count, bool trace_fps) {
 
   for (i = 0; i < video_count; i++) {
     if (!inputs.values[i].error &&
-        !video_background_read(inputs.values[i], context, i, trace_fps)) {
+        !video_background_read(&inputs.values[i], context, i, trace_fps)) {
       return false;
     }
   }
@@ -207,12 +207,12 @@ void forge_run(Parameters *params) {
   } else {
     trace_midi = params->trace_midi;
 
-    if (!midi_background_listen(midi, context, midi_callback)) {
+    if (!midi_background_listen(&midi, context, midi_callback)) {
       return;
     }
   }
 
-  if (!state_background_write(context, project.state_config, midi)) {
+  if (!state_background_write(context, &project.state_config, &midi)) {
     return;
   }
 

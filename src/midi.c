@@ -28,7 +28,7 @@ void midi_write(MidiDevice *device, unsigned char code, unsigned char value) {
   snd_rawmidi_write(device->output, buffer, 3);
 }
 
-bool midi_background_listen(MidiDevice device, SharedContext *context,
+bool midi_background_listen(MidiDevice *device, SharedContext *context,
                             void (*event_callback)(unsigned char code,
                                                    unsigned char value)) {
   pid_t pid;
@@ -43,16 +43,16 @@ bool midi_background_listen(MidiDevice device, SharedContext *context,
   if (pid == 0) {
     return true;
   }
-  log_info("(%s) background acquisition started (pid: %d)", device.name, pid);
+  log_info("(%s) background acquisition started (pid: %d)", device->name, pid);
 
   while (!context->stop) {
-    bytes_read = snd_rawmidi_read(device.input, buffer, 3);
+    bytes_read = snd_rawmidi_read(device->input, buffer, 3);
     if (bytes_read == 3) {
       event_callback(buffer[1], buffer[2]);
     }
   }
 
   log_info("(%s) background acquisition stopped by main thread (pid: %d)",
-           device.name, pid);
+           device->name, pid);
   return false;
 }

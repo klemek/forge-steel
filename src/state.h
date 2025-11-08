@@ -9,8 +9,8 @@ void state_apply_event(SharedContext *context, StateConfig *state_config,
                        MidiDevice *midi, unsigned char code,
                        unsigned char value, bool trace_midi);
 
-bool state_background_write(SharedContext *context, StateConfig state_config,
-                            MidiDevice midi);
+bool state_background_write(SharedContext *context, StateConfig *state_config,
+                            MidiDevice *midi);
 
 void state_init(SharedContext *context, StateConfig *state_config, bool demo,
                 bool auto_random, unsigned int base_tempo, char *state_file,

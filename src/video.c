@@ -322,7 +322,7 @@ static bool read_video(VideoCapture *video_capture) {
   return true;
 }
 
-bool video_background_read(VideoCapture video_capture, SharedContext *context,
+bool video_background_read(VideoCapture *video_capture, SharedContext *context,
                            int input_index, bool trace_fps) {
   pid_t pid;
   Timer timer;
@@ -336,27 +336,27 @@ bool video_background_read(VideoCapture video_capture, SharedContext *context,
   if (pid == 0) {
     return true;
   }
-  log_info("(%s) background acquisition started (pid: %d)", video_capture.name,
+  log_info("(%s) background acquisition started (pid: %d)", video_capture->name,
            pid);
   timer_init(&timer, 30);
 
-  while (!context->stop && read_video(&video_capture)) {
+  while (!context->stop && read_video(video_capture)) {
     // repeat infinitely
     if (timer_inc(&timer)) {
       fps = timer_reset(&timer);
 
       context->input_fps[input_index] = (unsigned int)round(fps);
       if (trace_fps) {
-        log_trace("(%s) %.2ffps", video_capture.name, fps);
+        log_trace("(%s) %.2ffps", video_capture->name, fps);
       }
     }
   }
   if (context->stop) {
     log_info("(%s) background acquisition stopped by main thread (pid: %d)",
-             video_capture.name, pid);
+             video_capture->name, pid);
   } else {
     log_info("(%s) background acquisition stopped after error (pid: %d)",
-             video_capture.name, pid);
+             video_capture->name, pid);
   }
   exit(context->stop ? EXIT_SUCCESS : EXIT_FAILURE);
   return false;

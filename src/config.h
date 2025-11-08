@@ -18,7 +18,7 @@
 /* STRINGS */
 
 #ifndef STR_LEN
-#define STR_LEN 1024
+#define STR_LEN 2048
 #endif
 
 /* TYPES */
@@ -32,7 +32,7 @@
 #endif
 
 #ifndef MAX_SUB_FILE
-#define MAX_SUB_FILE 32
+#define MAX_SUB_FILE 63
 #endif
 
 /* MIDI */
@@ -48,7 +48,7 @@
 /* ARRAY */
 
 #ifndef ARRAY_SIZE
-#define ARRAY_SIZE 512
+#define ARRAY_SIZE 1024
 #endif
 
 #ifndef ARRAY_NOT_FOUND
@@ -63,8 +63,8 @@
 #endif
 
 #ifndef MIN_BEAT_LENGTH
-// 240.0 bpm
-#define MIN_BEAT_LENGTH 250
+// 480.0 bpm
+#define MIN_BEAT_LENGTH 125
 #endif
 
 #ifndef BEATS_UNTIL_CHAIN_RESET
