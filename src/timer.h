@@ -3,7 +3,7 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-Timer timer_init(const unsigned int target);
+void timer_init(Timer *timer, const unsigned int target);
 
 bool timer_inc(Timer *timer);
 

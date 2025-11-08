@@ -100,7 +100,7 @@ make -f Makefile.dev release-arch
   - [x] Define frag prefix in config
   - [x] Use custom `#include xxx.glsl` preprocessor
   - [x] Use snprintf isntead of sprintf (and strlcpy instand of strncpy)
-  - [ ] Pass "heavy" struct as pointer to avoid stack overload
+  - [x] Pass "heavy" struct as pointer to avoid stack overload
   - [x] Clean and sort args
   - [x] `--auto-random` / `--no-auto-random`
   - [ ] Update readme with usage documentation

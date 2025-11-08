@@ -77,18 +77,19 @@ void project_init(Project *project, char *project_path, char *config_file) {
   char *frag_prefix;
   unsigned int i;
 
-  strlcpy(project->path, project_path, STR_LEN);
+  strncpy(project->path, project_path, STR_LEN);
 
   snprintf(config_path, STR_LEN, "%s/%s", project_path, config_file);
 
-  project->config = config_file_read(config_path);
+  config_file_read(&project->config, config_path);
 
-  project->state_config = state_parse_config(project->config);
+  state_parse_config(&project->state_config, &project->config);
 
-  project->frag_count = config_file_get_int(project->config, "FRAG_COUNT", 1);
-  project->in_count = config_file_get_int(project->config, "IN_COUNT", 0);
+  project->frag_count = config_file_get_int(&project->config, "FRAG_COUNT", 1);
+
+  project->in_count = config_file_get_int(&project->config, "IN_COUNT", 0);
   frag_prefix =
-      config_file_get_str(project->config, "FRAG_FILE_PREFIX", "frag");
+      config_file_get_str(&project->config, "FRAG_FILE_PREFIX", "frag");
 
   if (project->frag_count > MAX_FRAG) {
     log_error("FRAG_COUNT over %d", MAX_FRAG);
@@ -113,11 +114,11 @@ void project_reload(Project *project, void (*reload_callback)(unsigned int)) {
   bool should_update;
 
   for (i = 0; i < project->frag_count; i++) {
-    should_update = file_should_update(project->fragment_shaders[i][0]);
+    should_update = file_should_update(&project->fragment_shaders[i][0]);
 
     for (j = 0; j < project->sub_counts.values[i]; j++) {
       should_update = should_update ||
-                      file_should_update(project->fragment_shaders[i][j + 1]);
+                      file_should_update(&project->fragment_shaders[i][j + 1]);
     }
 
     should_update =
@@ -138,5 +139,5 @@ void project_free(Project *project) {
     file_free(&project->fragment_shaders[i][0]);
   }
 
-  config_file_free(project->config);
+  config_file_free(&project->config);
 }

@@ -6,30 +6,26 @@
 #include "config.h"
 #include "log.h"
 
-MidiDevice midi_open(char *name) {
-  MidiDevice device;
+void midi_open(MidiDevice *device, char *name) {
+  strncpy(device->name, name, STR_LEN);
+  device->input = NULL;
+  device->output = NULL;
 
-  strlcpy(device.name, name, STR_LEN);
-  device.input = NULL;
-  device.output = NULL;
+  snd_rawmidi_open(&device->input, &device->output, name, SND_RAWMIDI_NONBLOCK);
 
-  snd_rawmidi_open(&device.input, &device.output, name, SND_RAWMIDI_NONBLOCK);
-
-  device.error = device.input == NULL || device.output == NULL;
+  device->error = device->input == NULL || device->output == NULL;
 
   log_info("(%s) MIDI open", name);
-
-  return device;
 }
 
-void midi_write(MidiDevice device, unsigned char code, unsigned char value) {
+void midi_write(MidiDevice *device, unsigned char code, unsigned char value) {
   unsigned char buffer[3];
 
   buffer[0] = 0xB0;
   buffer[1] = code;
   buffer[2] = value;
 
-  snd_rawmidi_write(device.output, buffer, 3);
+  snd_rawmidi_write(device->output, buffer, 3);
 }
 
 bool midi_background_listen(MidiDevice device, SharedContext *context,

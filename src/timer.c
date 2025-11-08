@@ -4,15 +4,11 @@
 
 #include "timer.h"
 
-Timer timer_init(const unsigned int target) {
-  Timer output;
+void timer_init(Timer *timer, const unsigned int target) {
+  timer->counter = 0;
+  timer->target = target;
 
-  output.counter = 0;
-  output.target = target;
-
-  gettimeofday(&output.start, NULL);
-
-  return output;
+  gettimeofday(&timer->start, NULL);
 }
 
 bool timer_inc(Timer *timer) {

@@ -25,15 +25,12 @@ static void reset_tap_chain(Tempo *tempo, long t) {
   memset(tempo->tap_durations, 0, sizeof(tempo->tap_durations));
 }
 
-Tempo tempo_init() {
-  Tempo tempo;
+void tempo_init(Tempo *tempo) {
   long t;
 
   t = now();
 
-  reset_tap_chain(&tempo, t);
-
-  return tempo;
+  reset_tap_chain(tempo, t);
 }
 
 static bool is_chain_active(Tempo tempo, long t) {
@@ -113,14 +110,14 @@ void tempo_tap(Tempo *tempo) {
   add_tap_to_chain(tempo, t);
 }
 
-double tempo_total(Tempo tempo) {
+double tempo_total(Tempo *tempo) {
   long t;
 
   t = now();
 
-  return (double)(t - tempo.last_reset) / (double)tempo.beat_length;
+  return (double)(t - tempo->last_reset) / (double)tempo->beat_length;
 }
 
-double tempo_progress(Tempo tempo, double modulo) {
+double tempo_progress(Tempo *tempo, double modulo) {
   return fmod(tempo_total(tempo), modulo);
 }

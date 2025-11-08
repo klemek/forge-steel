@@ -57,13 +57,13 @@ static void compute_fps(bool trace_fps) {
   }
 }
 
-static void init_context(Parameters params, unsigned int in_count) {
+static void init_context(Parameters *params, unsigned int in_count) {
   unsigned int i;
 
-  state_init(context, project.state_config, params.demo, params.auto_random,
-             params.base_tempo, params.state_file, params.load_state);
+  state_init(context, &project.state_config, params->demo, params->auto_random,
+             params->base_tempo, params->state_file, params->load_state);
 
-  context->monitor = params.monitor;
+  context->monitor = params->monitor;
 
   memset(context->input_resolutions, 0, sizeof(context->input_resolutions));
   memset(context->input_formats, 0, sizeof(context->input_formats));
@@ -81,16 +81,16 @@ static void init_context(Parameters params, unsigned int in_count) {
 static void free_context() { shared_close_context(context); }
 
 static void reload_shader(unsigned int i) {
-  shaders_update(program, project.fragment_shaders[i][0], i);
+  shaders_update(&program, &project.fragment_shaders[i][0], i);
 }
 
-static void init_inputs(StringArray video_in, unsigned int video_size) {
+static void init_inputs(StringArray *video_in, unsigned int video_size) {
   unsigned int i;
 
-  inputs.length = video_in.length;
+  inputs.length = video_in->length;
 
-  for (i = 0; i < video_in.length; i++) {
-    inputs.values[i] = video_init(video_in.values[i], video_size);
+  for (i = 0; i < video_in->length; i++) {
+    video_init(&inputs.values[i], video_in->values[i], video_size);
   }
 }
 
@@ -99,7 +99,7 @@ static bool start_video_captures(unsigned int video_count, bool trace_fps) {
 
   for (i = 0; i < video_count; i++) {
     if (!inputs.values[i].error &&
-        !video_background_read(&inputs.values[i], context, i, trace_fps)) {
+        !video_background_read(inputs.values[i], context, i, trace_fps)) {
       return false;
     }
   }
@@ -111,9 +111,9 @@ static void free_video_captures(unsigned int video_count) {
   unsigned int i;
 
   for (i = 0; i < video_count; i++) {
-    shaders_free_input(program, inputs.values[i]);
+    shaders_free_input(&program, &inputs.values[i]);
 
-    video_free(inputs.values[i]);
+    video_free(&inputs.values[i]);
   }
 }
 
@@ -134,7 +134,7 @@ static void key_callback(Window *window, int key,
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
     log_info("[R] Randomizing...");
-    state_randomize(context, project.state_config);
+    state_randomize(context, &project.state_config);
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
     log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
@@ -148,7 +148,7 @@ static void key_callback(Window *window, int key,
 }
 
 static void midi_callback(unsigned char code, unsigned char value) {
-  state_apply_event(context, project.state_config, midi, code, value,
+  state_apply_event(context, &project.state_config, &midi, code, value,
                     trace_midi);
 }
 
@@ -160,12 +160,12 @@ static void loop(bool hr, bool trace_fps) {
   compute_fps(trace_fps);
 
   context->time = window_get_time();
-  context->tempo_total = (float)tempo_total(context->tempo);
+  context->tempo_total = (float)tempo_total(&context->tempo);
 
   if (window_output != NULL) {
     window_use(window_output, context);
 
-    shaders_compute(program, context, false, false);
+    shaders_compute(&program, context, false, false);
 
     window_refresh(window_output);
   }
@@ -173,7 +173,7 @@ static void loop(bool hr, bool trace_fps) {
   if (window_monitor != NULL) {
     window_use(window_monitor, context);
 
-    shaders_compute(program, context, true, window_output != NULL);
+    shaders_compute(&program, context, true, window_output != NULL);
 
     window_refresh(window_monitor);
   }
@@ -181,31 +181,31 @@ static void loop(bool hr, bool trace_fps) {
   window_events();
 }
 
-void forge_run(Parameters params) {
+void forge_run(Parameters *params) {
   context = shared_init_context("/" PACKAGE "_context");
 
   context->stop = false;
 
-  project_init(&project, params.project_path, params.config_file);
+  project_init(&project, params->project_path, params->config_file);
 
   if (project.error) {
     return;
   }
 
-  init_inputs(params.video_in, params.video_size);
+  init_inputs(&params->video_in, params->video_size);
 
   init_context(params, project.in_count);
 
-  if (!start_video_captures(params.video_in.length, params.trace_fps)) {
+  if (!start_video_captures(params->video_in.length, params->trace_fps)) {
     return;
   }
 
-  midi = midi_open(config_file_get_str(project.config, "MIDI_HW", "hw"));
+  midi_open(&midi, config_file_get_str(&project.config, "MIDI_HW", "hw"));
 
   if (midi.error) {
-    params.demo = true;
+    params->demo = true;
   } else {
-    trace_midi = params.trace_midi;
+    trace_midi = params->trace_midi;
 
     if (!midi_background_listen(midi, context, midi_callback)) {
       return;
@@ -218,27 +218,27 @@ void forge_run(Parameters params) {
 
   window_startup(error_callback);
 
-  context->tex_resolution[1] = params.internal_size;
+  context->tex_resolution[1] = params->internal_size;
 
-  if (params.output) {
-    window_output = window_init(PACKAGE " " VERSION, params.output_screen,
-                                params.windowed, NULL, key_callback);
+  if (params->output) {
+    window_output = window_init(PACKAGE " " VERSION, params->output_screen,
+                                params->windowed, NULL, key_callback);
 
     window_use(window_output, context);
 
-    shaders_init(&program, &project, context, inputs, false);
+    shaders_init(&program, &project, context, &inputs, false);
   } else {
     window_output = NULL;
   }
 
-  if (params.monitor) {
+  if (params->monitor) {
     window_monitor =
-        window_init(PACKAGE " " VERSION " (monitor)", params.monitor_screen,
-                    params.windowed, window_output, key_callback);
+        window_init(PACKAGE " " VERSION " (monitor)", params->monitor_screen,
+                    params->windowed, window_output, key_callback);
 
     window_use(window_monitor, context);
 
-    shaders_init(&program, &project, context, inputs, window_output != NULL);
+    shaders_init(&program, &project, context, &inputs, window_output != NULL);
   } else {
     window_monitor = NULL;
   }
@@ -249,36 +249,36 @@ void forge_run(Parameters params) {
     exit(EXIT_FAILURE);
   }
 
-  timer = timer_init(30);
+  timer_init(&timer, 30);
 
   log_info("Initialized");
 
   while ((window_output == NULL || !window_should_close(window_output)) &&
          (window_monitor == NULL || !window_should_close(window_monitor))) {
-    loop(params.hot_reload, params.trace_fps);
+    loop(params->hot_reload, params->trace_fps);
   }
 
   context->stop = true;
 
-  if (params.save_state) {
-    state_save(context, project.state_config, params.state_file);
+  if (params->save_state) {
+    state_save(context, &project.state_config, params->state_file);
   }
 
-  shaders_free(program);
+  shaders_free(&program);
 
   if (window_output != NULL) {
     window_use(window_output, context);
 
-    shaders_free_window(program, false);
+    shaders_free_window(&program, false);
   }
 
   if (window_monitor != NULL) {
     window_use(window_monitor, context);
 
-    shaders_free_window(program, params.output);
+    shaders_free_window(&program, params->output);
   }
 
-  free_video_captures(params.video_in.length);
+  free_video_captures(params->video_in.length);
 
   free_context();
 

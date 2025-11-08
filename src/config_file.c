@@ -29,7 +29,7 @@ static uint64_t item_hash(const void *item, uint64_t seed0, uint64_t seed1) {
   return hashmap_sip(c_item->key, strlen(c_item->key), seed0, seed1);
 }
 
-static void parse_config_file_line(ConfigFile config, char *line) {
+static void parse_config_file_line(ConfigFile *config, char *line) {
   unsigned int size;
   char *equal_pos;
   unsigned int key_size;
@@ -52,29 +52,28 @@ static void parse_config_file_line(ConfigFile config, char *line) {
   key_size = equal_pos - line;
   value_size = size - key_size - 1;
 
-  strlcpy(item.key, line, key_size);
+  strncpy(item.key, line, key_size);
   item.key[key_size] = '\0';
 
   if (value_size > 0) {
-    strlcpy(item.value, line + key_size + 1, value_size);
+    strncpy(item.value, line + key_size + 1, value_size);
     item.value[value_size] = '\0';
   }
 
-  hashmap_set(config.map, &item);
+  hashmap_set(config->map, &item);
 }
 
-ConfigFile config_file_read(char *path) {
+void config_file_read(ConfigFile *config, char *path) {
   File file;
-  ConfigFile config;
   char *line;
 
-  config.map = hashmap_new(sizeof(ConfigFileItem), 0, 0, 0, item_hash,
-                           item_compare, NULL, NULL);
+  config->map = hashmap_new(sizeof(ConfigFileItem), 0, 0, 0, item_hash,
+                            item_compare, NULL, NULL);
 
   file = file_read(path);
 
   if (file.error) {
-    return config;
+    return;
   }
 
   line = strtok(file.content, "\n");
@@ -85,17 +84,15 @@ ConfigFile config_file_read(char *path) {
   }
 
   file_free(&file);
-
-  return config;
 }
 
-char *config_file_get_str(ConfigFile config, char *key, char *default_value) {
+char *config_file_get_str(ConfigFile *config, char *key, char *default_value) {
   ConfigFileItem c_key;
   ConfigFileItem *item;
 
-  strlcpy(c_key.key, key, STR_LEN);
+  strncpy(c_key.key, key, STR_LEN);
 
-  item = (ConfigFileItem *)hashmap_get(config.map, &c_key);
+  item = (ConfigFileItem *)hashmap_get(config->map, &c_key);
 
   if (item == NULL || strlen(item->value) == 0) {
     return default_value;
@@ -104,14 +101,14 @@ char *config_file_get_str(ConfigFile config, char *key, char *default_value) {
   return item->value;
 }
 
-unsigned int config_file_get_int(ConfigFile config, char *key,
+unsigned int config_file_get_int(ConfigFile *config, char *key,
                                  unsigned int default_value) {
   ConfigFileItem c_key;
   ConfigFileItem *item;
 
-  strlcpy(c_key.key, key, STR_LEN);
+  strncpy(c_key.key, key, STR_LEN);
 
-  item = (ConfigFileItem *)hashmap_get(config.map, &c_key);
+  item = (ConfigFileItem *)hashmap_get(config->map, &c_key);
 
   if (item == NULL || strlen(item->value) == 0) {
     return default_value;
@@ -125,4 +122,4 @@ unsigned int config_file_get_int(ConfigFile config, char *key,
   return (unsigned int)atoi(item->value);
 }
 
-void config_file_free(ConfigFile config) { hashmap_free(config.map); }
+void config_file_free(ConfigFile *config) { hashmap_free(config->map); }

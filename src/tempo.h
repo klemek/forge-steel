@@ -3,14 +3,14 @@
 #ifndef TEMPO_H
 #define TEMPO_H
 
-Tempo tempo_init();
+void tempo_init(Tempo *tempo);
 
 void tempo_tap(Tempo *tempo);
 
 void tempo_set(Tempo *tempo, float value);
 
-double tempo_total(Tempo tempo);
+double tempo_total(Tempo *tempo);
 
-double tempo_progress(Tempo tempo, double modulo);
+double tempo_progress(Tempo *tempo, double modulo);
 
 #endif /* TEMPO_H */

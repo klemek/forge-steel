@@ -65,21 +65,17 @@ static void ioctl_error(VideoCapture *video_capture, const char *operation,
   video_capture->error = true;
 }
 
-static VideoCapture open_device(char *name) {
-  VideoCapture video_capture;
+static void open_device(VideoCapture *video_capture, char *name) {
+  strncpy(video_capture->name, name, STR_LEN);
+  video_capture->error = false;
+  video_capture->fd = -1;
+  video_capture->exp_fd = -1;
 
-  strlcpy(video_capture.name, name, STR_LEN);
-  video_capture.error = false;
-  video_capture.fd = -1;
-  video_capture.exp_fd = -1;
-
-  video_capture.fd = open(name, O_RDWR);
-  if (video_capture.fd == -1) {
+  video_capture->fd = open(name, O_RDWR);
+  if (video_capture->fd == -1) {
     log_warn("(%s) Cannot open device", name);
-    video_capture.error = true;
+    video_capture->error = true;
   }
-
-  return video_capture;
 }
 
 static bool check_caps(VideoCapture *video_capture) {
@@ -269,46 +265,43 @@ static void create_image_buffer(VideoCapture *video_capture) {
   ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
 }
 
-static void close_stream(VideoCapture video_capture) {
-  ioctl(video_capture.fd, VIDIOC_STREAMOFF, &buf_type);
+static void close_stream(VideoCapture *video_capture) {
+  ioctl(video_capture->fd, VIDIOC_STREAMOFF, &buf_type);
 }
 
-VideoCapture video_init(char *name, unsigned int preferred_height) {
-  VideoCapture video_capture;
+void video_init(VideoCapture *video_capture, char *name,
+                unsigned int preferred_height) {
+  open_device(video_capture, name);
 
-  video_capture = open_device(name);
-
-  if (video_capture.error) {
-    return video_capture;
+  if (video_capture->error) {
+    return;
   }
 
-  if (!check_caps(&video_capture)) {
-    return video_capture;
+  if (!check_caps(video_capture)) {
+    return;
   }
 
-  if (!get_available_sizes(&video_capture, preferred_height)) {
-    return video_capture;
+  if (!get_available_sizes(video_capture, preferred_height)) {
+    return;
   }
 
-  if (!set_format(&video_capture)) {
-    return video_capture;
+  if (!set_format(video_capture)) {
+    return;
   }
 
-  if (!request_buffers(&video_capture)) {
-    return video_capture;
+  if (!request_buffers(video_capture)) {
+    return;
   }
 
-  if (!export_buffer(&video_capture)) {
-    return video_capture;
+  if (!export_buffer(video_capture)) {
+    return;
   }
 
-  if (!open_stream(&video_capture)) {
-    return video_capture;
+  if (!open_stream(video_capture)) {
+    return;
   }
 
-  create_image_buffer(&video_capture);
-
-  return video_capture;
+  create_image_buffer(video_capture);
 }
 
 static bool read_video(VideoCapture *video_capture) {
@@ -329,7 +322,7 @@ static bool read_video(VideoCapture *video_capture) {
   return true;
 }
 
-bool video_background_read(VideoCapture *video_capture, SharedContext *context,
+bool video_background_read(VideoCapture video_capture, SharedContext *context,
                            int input_index, bool trace_fps) {
   pid_t pid;
   Timer timer;
@@ -343,40 +336,40 @@ bool video_background_read(VideoCapture *video_capture, SharedContext *context,
   if (pid == 0) {
     return true;
   }
-  log_info("(%s) background acquisition started (pid: %d)", video_capture->name,
+  log_info("(%s) background acquisition started (pid: %d)", video_capture.name,
            pid);
-  timer = timer_init(30);
+  timer_init(&timer, 30);
 
-  while (!context->stop && read_video(video_capture)) {
+  while (!context->stop && read_video(&video_capture)) {
     // repeat infinitely
     if (timer_inc(&timer)) {
       fps = timer_reset(&timer);
 
       context->input_fps[input_index] = (unsigned int)round(fps);
       if (trace_fps) {
-        log_trace("(%s) %.2ffps", video_capture->name, fps);
+        log_trace("(%s) %.2ffps", video_capture.name, fps);
       }
     }
   }
   if (context->stop) {
     log_info("(%s) background acquisition stopped by main thread (pid: %d)",
-             video_capture->name, pid);
+             video_capture.name, pid);
   } else {
     log_info("(%s) background acquisition stopped after error (pid: %d)",
-             video_capture->name, pid);
+             video_capture.name, pid);
   }
   exit(context->stop ? EXIT_SUCCESS : EXIT_FAILURE);
   return false;
 }
 
-void video_free(VideoCapture video_capture) {
-  if (!video_capture.error) {
+void video_free(VideoCapture *video_capture) {
+  if (!video_capture->error) {
     close_stream(video_capture);
   }
-  if (video_capture.exp_fd != -1) {
-    close(video_capture.exp_fd);
+  if (video_capture->exp_fd != -1) {
+    close(video_capture->exp_fd);
   }
-  if (video_capture.fd != -1) {
-    close(video_capture.fd);
+  if (video_capture->fd != -1) {
+    close(video_capture->fd);
   }
 }

@@ -11,16 +11,16 @@
 #include "file.h"
 #include "string.h"
 
-static time_t get_file_time(File file) {
+static time_t get_file_time(File *file) {
   struct stat attr;
-  if (stat(file.path, &attr) == 0) {
+  if (stat(file->path, &attr) == 0) {
     return attr.st_mtim.tv_sec;
   }
   return 0;
 }
 
-bool file_should_update(File file) {
-  return file.last_write != get_file_time(file);
+bool file_should_update(File *file) {
+  return file->last_write != get_file_time(file);
 }
 
 bool file_update(File *file) {
@@ -62,7 +62,7 @@ bool file_update(File *file) {
   // append null byte
   file->content[length] = '\0';
   // read last update time
-  file->last_write = get_file_time(*file);
+  file->last_write = get_file_time(file);
 
   return true;
 }
@@ -70,7 +70,7 @@ bool file_update(File *file) {
 File file_read(char *path) {
   File file;
 
-  strlcpy(file.path, path, STR_LEN);
+  strncpy(file.path, path, STR_LEN);
   file.content = NULL;
   file.error = false;
   file.last_write = 0;
@@ -79,7 +79,7 @@ File file_read(char *path) {
   return file;
 }
 
-void file_write(char *path, StringArray lines) {
+void file_write(char *path, StringArray *lines) {
   unsigned int i;
   FILE *file_pointer;
 
@@ -93,8 +93,8 @@ void file_write(char *path, StringArray lines) {
   }
 
   // write file
-  for (i = 0; i < lines.length; i++) {
-    fprintf(file_pointer, "%s\n", lines.values[i]);
+  for (i = 0; i < lines->length; i++) {
+    fprintf(file_pointer, "%s\n", lines->values[i]);
   }
 
   // close file
@@ -105,13 +105,5 @@ void file_free(File *file) {
   if (!file->error) {
     free(file->content);
     file->error = true;
-  }
-}
-
-void file_free_array(FileArray *files) {
-  unsigned int i;
-
-  for (i = 0; i < files->length; i++) {
-    file_free(&files->values[i]);
   }
 }

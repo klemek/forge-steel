@@ -112,24 +112,24 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
   log_info("Texture %d linked to %s", texture_index, input->name);
 }
 
-static void init_input(ShaderProgram *program, ConfigFile config,
-                       VideoCaptureArray inputs) {
+static void init_input(ShaderProgram *program, ConfigFile *config,
+                       VideoCaptureArray *inputs) {
   unsigned int i;
   unsigned tex_i;
   char name[STR_LEN];
 
   for (i = 0; i < program->in_count; i++) {
-    if (i < inputs.length && !inputs.values[i].error) {
+    if (i < inputs->length && !inputs->values[i].error) {
       snprintf(name, STR_LEN, "IN_%d_OUT", i + 1);
       tex_i = config_file_get_int(config, name, 0);
-      link_input_to_texture(program, &inputs.values[i], tex_i);
+      link_input_to_texture(program, &inputs->values[i], tex_i);
     } else {
       log_warn("Cannot link input %d", i + 1);
     }
   }
 }
 
-static void init_framebuffers(ShaderProgram *program, ConfigFile config) {
+static void init_framebuffers(ShaderProgram *program, ConfigFile *config) {
   unsigned int i;
   unsigned tex_i;
   char name[STR_LEN];
@@ -235,7 +235,7 @@ static void init_shaders(ShaderProgram *program, Project *project) {
 }
 
 static void init_single_program(ShaderProgram *program, unsigned int i,
-                                ConfigFile config, StateConfig state_config) {
+                                ConfigFile *config, StateConfig *state_config) {
   unsigned int j, k, index1, index2;
   char name[STR_LEN];
   char *prefix;
@@ -334,10 +334,10 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
   if (program->midi_lengths.length == 0) {
     index1 = 0;
-    for (j = 0; j < state_config.midi_active_counts.length; j++) {
-      for (k = 0; k < state_config.midi_active_counts.values[j]; k++) {
+    for (j = 0; j < state_config->midi_active_counts.length; j++) {
+      for (k = 0; k < state_config->midi_active_counts.values[j]; k++) {
         program->midi_lengths.values[index1++] =
-            state_config.midi_counts.values[j];
+            state_config->midi_counts.values[j];
       }
     }
     program->midi_lengths.length = index1;
@@ -345,8 +345,8 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
   prefix = config_file_get_str(config, "UNIFORM_MIDI_PREFIX", "iMidi");
   index2 = 0;
-  for (j = 0; j < state_config.midi_active_counts.length; j++) {
-    for (k = 0; k < state_config.midi_active_counts.values[j]; k++) {
+  for (j = 0; j < state_config->midi_active_counts.length; j++) {
+    for (k = 0; k < state_config->midi_active_counts.values[j]; k++) {
       snprintf(name, STR_LEN, "%s%d_%d", prefix, j + 1, k + 1);
       program->imidi_locations[i * program->midi_lengths.length + index2++] =
           glGetUniformLocation(program->programs[i], name);
@@ -368,8 +368,8 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   log_info("Program %d initialized", i + 1);
 }
 
-static void init_programs(ShaderProgram *program, ConfigFile config,
-                          StateConfig state_config) {
+static void init_programs(ShaderProgram *program, ConfigFile *config,
+                          StateConfig *state_config) {
   unsigned int i;
 
   for (i = 0; i < program->frag_count; i++) {
@@ -378,21 +378,21 @@ static void init_programs(ShaderProgram *program, ConfigFile config,
 }
 
 void shaders_init(ShaderProgram *program, Project *project,
-                  SharedContext *context, VideoCaptureArray inputs,
+                  SharedContext *context, VideoCaptureArray *inputs,
                   bool rebind) {
   if (!rebind) {
     program->error = false;
     program->last_resolution[0] = context->resolution[0];
     program->last_resolution[1] = context->resolution[1];
-    program->tex_count = config_file_get_int(project->config, "TEX_COUNT", 9);
+    program->tex_count = config_file_get_int(&project->config, "TEX_COUNT", 9);
     program->frag_count = project->frag_count;
     program->frag_output_index =
-        config_file_get_int(project->config, "FRAG_OUTPUT", 1) - 1;
+        config_file_get_int(&project->config, "FRAG_OUTPUT", 1) - 1;
     program->frag_monitor_index =
-        config_file_get_int(project->config, "FRAG_MONITOR", 1) - 1;
+        config_file_get_int(&project->config, "FRAG_MONITOR", 1) - 1;
     program->sub_type_count =
-        config_file_get_int(project->config, "SUB_TYPE_COUNT", 0);
-    program->in_count = config_file_get_int(project->config, "IN_COUNT", 0);
+        config_file_get_int(&project->config, "SUB_TYPE_COUNT", 0);
+    program->in_count = config_file_get_int(&project->config, "IN_COUNT", 0);
     program->sub_variant_count = project->state_config.state_max;
     program->active_count = project->state_config.midi_active_counts.length;
     program->midi_lengths.length = 0;
@@ -407,11 +407,11 @@ void shaders_init(ShaderProgram *program, Project *project,
 
     init_textures(program, context);
 
-    init_input(program, project->config, inputs);
+    init_input(program, &project->config, inputs);
 
-    init_framebuffers(program, project->config);
+    init_framebuffers(program, &project->config);
 
-    init_programs(program, project->config, project->state_config);
+    init_programs(program, &project->config, &project->state_config);
 
     init_vertices(program);
 
@@ -423,28 +423,28 @@ void shaders_init(ShaderProgram *program, Project *project,
   ;
 }
 
-void shaders_update(ShaderProgram program, File fragment_shader,
+void shaders_update(ShaderProgram *program, File *fragment_shader,
                     unsigned int i) {
   bool result;
 
-  result = compile_shader(program.fragment_shaders[i], fragment_shader.path,
-                          fragment_shader.content);
+  result = compile_shader(program->fragment_shaders[i], fragment_shader->path,
+                          fragment_shader->content);
 
   if (result) {
-    glLinkProgram(program.programs[i]);
+    glLinkProgram(program->programs[i]);
 
     log_info("Program %d updated", i + 1);
   }
 }
 
-static void update_viewport(ShaderProgram program, SharedContext *context) {
+static void update_viewport(ShaderProgram *program, SharedContext *context) {
   unsigned int i;
 
   // viewport changed
-  if (context->resolution[0] != program.last_resolution[0] ||
-      context->resolution[1] != program.last_resolution[1]) {
+  if (context->resolution[0] != program->last_resolution[0] ||
+      context->resolution[1] != program->last_resolution[1]) {
     // clean and resize all textures
-    for (i = 0; i < program.tex_count; i++) {
+    for (i = 0; i < program->tex_count; i++) {
       glActiveTexture(GL_TEXTURE0 + i);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->tex_resolution[0],
                    context->tex_resolution[1], 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -477,12 +477,12 @@ static void write_uniform_multi_3f(GLuint location, unsigned int count,
   }
 }
 
-static void use_program(ShaderProgram program, int i, bool output,
+static void use_program(ShaderProgram *program, int i, bool output,
                         SharedContext *context) {
   unsigned int j, k, offset;
   GLuint subroutines[ARRAY_SIZE];
   // use specific shader program
-  glUseProgram(program.programs[i]);
+  glUseProgram(program->programs[i]);
 
   if (output) {
     glViewport(0, 0, context->resolution[0], context->resolution[1]);
@@ -496,118 +496,120 @@ static void use_program(ShaderProgram program, int i, bool output,
     glViewport(0, 0, context->tex_resolution[0], context->tex_resolution[1]);
 
     // use memory framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, program.frame_buffers[i]);
+    glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
   }
   // set fragment uniforms
-  write_uniform_1f(program.itime_locations[i], context->time);
-  write_uniform_1f(program.itempo_locations[i], context->tempo.tempo);
-  write_uniform_1f(program.ibeats_locations[i], context->tempo_total);
-  write_uniform_1i(program.ifps_locations[i], context->fps);
-  write_uniform_1i(program.idemo_locations[i], context->demo ? 1 : 0);
-  write_uniform_1i(program.iautorand_locations[i],
+  write_uniform_1f(program->itime_locations[i], context->time);
+  write_uniform_1f(program->itempo_locations[i], context->tempo.tempo);
+  write_uniform_1f(program->ibeats_locations[i], context->tempo_total);
+  write_uniform_1i(program->ifps_locations[i], context->fps);
+  write_uniform_1i(program->idemo_locations[i], context->demo ? 1 : 0);
+  write_uniform_1i(program->iautorand_locations[i],
                    context->auto_random ? 1 : 0);
-  write_uniform_1i(program.ipage_locations[i], context->page);
-  write_uniform_1i(program.iselected_locations[i], context->selected + 1);
-  write_uniform_2f(program.ires_locations[i], &context->resolution);
-  write_uniform_2f(program.itexres_locations[i], &context->tex_resolution);
+  write_uniform_1i(program->ipage_locations[i], context->page);
+  write_uniform_1i(program->iselected_locations[i], context->selected + 1);
+  write_uniform_2f(program->ires_locations[i], &context->resolution);
+  write_uniform_2f(program->itexres_locations[i], &context->tex_resolution);
 
-  for (j = 0; j < program.active_count; j++) {
-    write_uniform_1i(program.iactive_locations[i * program.active_count + j],
+  for (j = 0; j < program->active_count; j++) {
+    write_uniform_1i(program->iactive_locations[i * program->active_count + j],
                      context->active[j] + 1);
   }
 
-  for (j = 0; j < program.in_count; j++) {
-    write_uniform_2f(program.iinres_locations[i * program.in_count + j],
+  for (j = 0; j < program->in_count; j++) {
+    write_uniform_2f(program->iinres_locations[i * program->in_count + j],
                      &context->input_resolutions[j]);
-    write_uniform_1i(program.iinfmt_locations[i * program.in_count + j],
+    write_uniform_1i(program->iinfmt_locations[i * program->in_count + j],
                      context->input_formats[j]);
-    write_uniform_1i(program.iinfps_locations[i * program.in_count + j],
+    write_uniform_1i(program->iinfps_locations[i * program->in_count + j],
                      context->input_fps[j]);
   }
 
   // set seeds uniforms
-  for (j = 0; j < program.frag_count; j++) {
-    write_uniform_1i(program.iseed_locations[i * program.frag_count + j],
+  for (j = 0; j < program->frag_count; j++) {
+    write_uniform_1i(program->iseed_locations[i * program->frag_count + j],
                      context->seeds[j]);
   }
 
-  for (j = 0; j < program.frag_count; j++) {
-    write_uniform_1i(program.istate_locations[i * program.frag_count + j],
+  for (j = 0; j < program->frag_count; j++) {
+    write_uniform_1i(program->istate_locations[i * program->frag_count + j],
                      context->state.values[j] + 1);
   }
 
   offset = 0;
-  for (j = 0; j < program.midi_lengths.length; j++) {
+  for (j = 0; j < program->midi_lengths.length; j++) {
     write_uniform_multi_3f(
-        program.imidi_locations[i * program.midi_lengths.length + j],
-        program.midi_lengths.values[j], context->values + offset);
-    offset += program.midi_lengths.values[j];
+        program->imidi_locations[i * program->midi_lengths.length + j],
+        program->midi_lengths.values[j], context->values + offset);
+    offset += program->midi_lengths.values[j];
   }
 
   // set subroutines for fragment and update state uniforms
   k = context->state.values[i];
-  for (j = 0; j < program.sub_type_count; j++) {
-    subroutines[j] = program.sub_locations[i * program.sub_type_count *
-                                               program.sub_variant_count +
-                                           j * program.sub_variant_count + k];
+  for (j = 0; j < program->sub_type_count; j++) {
+    subroutines[j] = program->sub_locations[i * program->sub_type_count *
+                                                program->sub_variant_count +
+                                            j * program->sub_variant_count + k];
   }
 
-  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program.sub_type_count,
+  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program->sub_type_count,
                           subroutines);
 
   // set GL_TEXTURE(X) to uniform sampler2D texX
-  for (j = 0; j < program.tex_count; j++) {
-    write_uniform_1i(program.textures_locations[i * program.tex_count + j], j);
+  for (j = 0; j < program->tex_count; j++) {
+    write_uniform_1i(program->textures_locations[i * program->tex_count + j],
+                     j);
   }
 
   // draw output
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void shaders_compute(ShaderProgram program, SharedContext *context,
+void shaders_compute(ShaderProgram *program, SharedContext *context,
                      bool monitor, bool output_only) {
   unsigned int i;
 
   if (!output_only) {
-    glBindVertexArray(program.vertex_array[0]);
+    glBindVertexArray(program->vertex_array[0]);
 
     update_viewport(program, context);
 
-    for (i = 0; i < program.frag_count; i++) {
-      if (i != program.frag_output_index && i != program.frag_monitor_index) {
+    for (i = 0; i < program->frag_count; i++) {
+      if (i != program->frag_output_index && i != program->frag_monitor_index) {
         use_program(program, i, false, context);
       }
     }
   } else {
-    glBindVertexArray(program.vertex_array[1]);
+    glBindVertexArray(program->vertex_array[1]);
 
-    rebind_textures(&program);
+    rebind_textures(program);
   }
 
   use_program(program,
-              monitor ? program.frag_monitor_index : program.frag_output_index,
+              monitor ? program->frag_monitor_index
+                      : program->frag_output_index,
               true, context);
 }
 
-void shaders_free(ShaderProgram program) {
+void shaders_free(ShaderProgram *program) {
   unsigned int i;
 
-  for (i = 0; i < program.frag_count; i++) {
-    glDeleteProgram(program.programs[i]);
+  for (i = 0; i < program->frag_count; i++) {
+    glDeleteProgram(program->programs[i]);
   }
 
-  glDeleteFramebuffers(program.frag_count, program.frame_buffers);
-  glDeleteTextures(program.tex_count, program.textures);
-  glDeleteBuffers(1, &program.vertex_buffer);
+  glDeleteFramebuffers(program->frag_count, program->frame_buffers);
+  glDeleteTextures(program->tex_count, program->textures);
+  glDeleteBuffers(1, &program->vertex_buffer);
 }
 
-void shaders_free_window(ShaderProgram program, bool secondary) {
-  glDeleteVertexArrays(1, &program.vertex_array[secondary ? 1 : 0]);
+void shaders_free_window(ShaderProgram *program, bool secondary) {
+  glDeleteVertexArrays(1, &program->vertex_array[secondary ? 1 : 0]);
 }
 
-void shaders_free_input(ShaderProgram program, VideoCapture input) {
-  if (!input.error && input.dma_image != EGL_NO_IMAGE_KHR) {
-    eglDestroyImageKHR(program.egl_display, input.dma_image);
+void shaders_free_input(ShaderProgram *program, VideoCapture *input) {
+  if (!input->error && input->dma_image != EGL_NO_IMAGE_KHR) {
+    eglDestroyImageKHR(program->egl_display, input->dma_image);
   }
 }
