@@ -11,30 +11,29 @@
 #include "string.h"
 
 static bool parse_fragment_shader_file(Project *project, unsigned int i) {
-  File tmp_file, fragment_shader;
+  File tmp_file;
   char file_path[STR_LEN];
   char *include_pos, *include_end;
   char included_file[STR_LEN];
   char *new_content;
 
-  fragment_shader = project->fragment_shaders[i][0];
-
   project->sub_counts.values[i] = 0;
 
-  include_pos = strstr(fragment_shader.content, "#include ");
+  include_pos = strstr(project->fragment_shaders[i][0].content, "\n#include ");
 
   while (include_pos != NULL && project->sub_counts.values[i] < MAX_SUB_FILE) {
-    include_end = strstr(include_pos, "\n");
+    include_end = strstr(include_pos + 1, "\n");
     if (include_end == NULL) {
-      log_error("Invalid '#include' directive in '%s'", fragment_shader.path);
+      log_error("Invalid '#include' directive in '%s'",
+                project->fragment_shaders[i][0].path);
       return false;
     }
 
-    strlcpy(included_file, include_pos + 9, include_end - include_pos - 8);
+    strlcpy(included_file, include_pos + 10, include_end - include_pos - 9);
 
     snprintf(file_path, STR_LEN, "%s/%s", project->path, included_file);
 
-    tmp_file = file_read(file_path);
+    file_read(&tmp_file, file_path);
 
     if (tmp_file.error) {
       return false;
@@ -43,14 +42,17 @@ static bool parse_fragment_shader_file(Project *project, unsigned int i) {
     project->fragment_shaders[i][++project->sub_counts.values[i]] = tmp_file;
 
     new_content = string_replace_at(
-        fragment_shader.content, include_pos - fragment_shader.content,
-        include_end - fragment_shader.content, tmp_file.content);
+        project->fragment_shaders[i][0].content,
+        include_pos + 1 - project->fragment_shaders[i][0].content,
+        include_end - project->fragment_shaders[i][0].content,
+        tmp_file.content);
 
     project->fragment_shaders[i][0].content = new_content;
 
     file_free(&tmp_file);
 
-    include_pos = strstr(fragment_shader.content, "#include ");
+    include_pos =
+        strstr(project->fragment_shaders[i][0].content, "\n#include ");
   }
 
   return true;
@@ -63,7 +65,7 @@ static bool read_fragment_shader_file(Project *project, char *frag_prefix,
   snprintf(file_path, STR_LEN, "%s/%s%d.glsl", project->path, frag_prefix,
            i + 1);
 
-  project->fragment_shaders[i][0] = file_read(file_path);
+  file_read(&project->fragment_shaders[i][0], file_path);
 
   if (project->fragment_shaders[i][0].error) {
     return false;

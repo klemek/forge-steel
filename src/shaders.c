@@ -8,6 +8,7 @@
 #include "config.h"
 #include "config_file.h"
 #include "constants.h"
+#include "file.h"
 #include "shaders.h"
 
 #define GLAD_GL_IMPLEMENTATION
@@ -206,6 +207,7 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
 
   if (status_params == GL_FALSE) {
     log_error("Failed to compile\n%s", log);
+    file_dump("error.glsl", source_code);
   } else {
     log_info("Compilation successful");
   }
@@ -479,7 +481,7 @@ static void write_uniform_multi_3f(GLuint location, unsigned int count,
 
 static void use_program(ShaderProgram *program, int i, bool output,
                         SharedContext *context) {
-  unsigned int j, k, offset;
+  unsigned int j, k, offset, subcount;
   GLuint subroutines[ARRAY_SIZE];
   // use specific shader program
   glUseProgram(program->programs[i]);
@@ -547,14 +549,22 @@ static void use_program(ShaderProgram *program, int i, bool output,
 
   // set subroutines for fragment and update state uniforms
   k = context->state.values[i];
+  subcount = 0;
   for (j = 0; j < program->sub_type_count; j++) {
-    subroutines[j] = program->sub_locations[i * program->sub_type_count *
-                                                program->sub_variant_count +
-                                            j * program->sub_variant_count + k];
+    if (program->sub_locations[i * program->sub_variant_count *
+                                   program->sub_type_count +
+                               j * program->sub_variant_count + k] !=
+        unused_uniform) {
+      subroutines[subcount++] =
+          program->sub_locations[i * program->sub_variant_count *
+                                     program->sub_type_count +
+                                 j * program->sub_variant_count + k];
+    }
   }
 
-  glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, program->sub_type_count,
-                          subroutines);
+  if (subcount > 0) {
+    glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, subcount, subroutines);
+  }
 
   // set GL_TEXTURE(X) to uniform sampler2D texX
   for (j = 0; j < program->tex_count; j++) {

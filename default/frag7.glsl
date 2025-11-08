@@ -1,4 +1,4 @@
-#include frag0.glsl
+#version 460
 
 // A+B
 // ------------
@@ -8,6 +8,14 @@
 
 in vec2 vUV;
 out vec4 fragColor;
+
+#include inc_magic.glsl
+#include inc_functions.glsl
+
+uniform sampler2D iTex7;
+uniform sampler2D iTex8;
+uniform int iSeed7;
+uniform vec3 iMidi3_1[2];
 
 void main() {
     float mix_value = magic(iMidi3_1[1].xy, vec3(1, 0, 0), iSeed7);

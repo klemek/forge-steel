@@ -1,4 +1,4 @@
-#include frag0.glsl
+#version 460
 
 // VIDEO 1
 // -----------
@@ -7,6 +7,13 @@
 
 in vec2 vUV;
 out vec4 fragColor;
+
+#include inc_yuv.glsl
+
+uniform sampler2D iTex0;
+uniform sampler2D iTex1;
+uniform int iInputFormat1;
+uniform vec2 iInputResolution1;
 
 void main() {
     if (iInputFormat1 == YUYV_FOURCC) {

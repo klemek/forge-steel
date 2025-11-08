@@ -1,0 +1,356 @@
+#include inc_res.glsl
+#include inc_magic.glsl
+#include inc_functions.glsl
+
+#ifndef INC_SRC
+#define INC_SRC
+
+uniform sampler2D iTex0;
+uniform sampler2D iTex3;
+uniform sampler2D iTex4;
+
+subroutine vec4 src_stage_sub(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3);
+
+vec4 src_thru(vec2 vUV, sampler2D tex, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+
+    // controls
+
+    float hue = magic(f1, b1, seed + 10);
+    float saturation = magic(f2, b2, seed + 20);
+    float light = magic(f3, b3, seed + 30);
+
+    // logic
+
+    vec3 c = texture(tex, uv0).xyz;
+
+    c = shift3(c, hue);
+
+    c *= 1 + saturation;
+    c = mix(c + light * 2.0, c - (1 - light) * 2.0, step(0.5, light));
+
+    // output
+
+   return vec4(c, 1.);
+}
+
+// SRC 1: feedback + thru
+subroutine(src_stage_sub) vec4 src_1(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_thru(vUV, iTex0, seed, b1, f1, b2, f2, b3, f3);
+}
+
+// SRC 2 : lines
+subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float thickness = magic(f1, b1, seed + 10);
+    float rotation = magic(f2, b2, seed + 20);
+    float distort = magic(f3, b3, seed + 30);
+
+    // logic
+
+    vec2 uv2 = uv1;
+    uv2.y *= cos(uv2.x * 5 * distort);
+    uv2 *= rot(rotation + iBeats / 16);
+    float k = thickness * 2;
+    uv2.y = cmod(uv2.y, k * 2 + 0.1);
+    float f = step(uv2.y, k * 0.125 + 0.05) * step(-uv2.y, k * 0.125 + 0.01);
+    
+    return vec4(f);
+}
+
+// SRC 3 : dots
+subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float zoom = magic(f1, b1, seed + 10);
+    float rotation = magic(f2, b2, seed + 20);
+    float lens_v = magic(f3, b3, seed + 30);
+
+    // logic
+
+    vec2 uv2 = uv1;
+    float k1 = lens_v * 5;
+    uv2 = lens(uv2, -k1, k1);
+    uv2 = kal(uv2, 5);
+    uv2 *= rot(rotation + iBeats / 16);
+    float k = zoom * 0.1 + 0.05;
+    uv2 = cmod(uv2, k * 2);
+    float f = step(length(uv2), k / (1 + length(uv1) * 2));
+    
+    return vec4(f);
+}
+
+// SRC 4 : waves
+subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float spacing = magic(f1, b1, seed + 10);
+    float thickness = magic(f2, b2, seed + 20);
+    float scroll = magic_reverse(f3, b3, seed + 30);
+
+    // logic
+
+    vec2 uv2 = uv1;
+    uv2.y += 0.5;
+    uv2 *= 2.25;
+    uv2 = vec2((uv2.x + 1) * 0.5, -uv2.y);
+    float m1 = spacing * 4.5 + 0.5;
+    float y = log(-uv2.y) * m1;
+    y = mod(y + scroll * 5.0 - iBeats / 16, 5.);
+    float id = floor(y) * 32;
+    float s = cos(uv2.x * rand(id + 837) * 100 + rand(id + 281) * PI)
+                + cos(uv2.x * rand(id + 231) * 100 + rand(id + 526) * PI)
+                + cos(uv2.x * rand(id + 746) * 100 + rand(id + 621) * PI)
+                + cos(uv2.x * rand(id + 235) * 100 + rand(id + 315) * PI)
+                + cos(uv2.x * rand(id + 782) * 100 + rand(id + 314) * PI)
+                + cos(uv2.x * rand(id + 241) * 100 + rand(id + 734) * PI)
+                + cos(uv2.x * rand(id + 416) * 100 + rand(id + 425) * PI)
+                + cos(uv2.x * rand(id + 315) * 100 + rand(id + 525) * PI)
+                + cos(uv2.x * rand(id + 423) * 100 + rand(id + 743) * PI)
+                + cos(uv2.x * rand(id + 637) * 100 + rand(id + 245) * PI);
+    s *= 0.1;
+    float cut =  0.025 + thickness * 0.475;
+    float y2 = min(1.0, -(uv2.y));
+    float f = (0.1 + 0.9 * (cos((y2 + 1.0) * PI) * 0.5 + 0.5)) * step(uv2.y, 0.) * step(fract(y + (s - 1) * (1 - cut) * 0.5), cut);//step(uv2.y, 0.) * mod(-uv2.y * 1.0, 1.0);
+    
+    return vec4(f);
+}
+
+// SRC 5 : noise
+subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float zoom = magic(f1, b1, seed + 10);
+    float voronoi_distort = magic(f2, b2, seed + 20);
+    float details = magic(f3, b3, seed + 30);
+    float noise_factor = magic(seed + 40);
+
+    // logic
+
+    vec2 uv2 = uv1;
+    uv2 *= zoom * 20 + 3;
+    uv2.x += iBeats;
+    vec4 data = voronoi(uv2, voronoi_distort);
+    float f = data.x / (data.x + data.y);
+    f = sin(f * PI * (details * 20)) * 0.5 + 1;
+    int nf = int(noise_factor * 6);
+    f *= mix(1, noise_f(uv2, nf - 1), step(0.0, float(nf)));
+    
+    return vec4(f);
+}
+
+// SRC 6 : video in 1 + thru
+subroutine(src_stage_sub) vec4 src_6(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_thru(vUV, iTex3, seed, b1, f1, b2, f2, b3, f3);
+}
+
+#include inc_cp437.glsl
+
+// SRC 7 : cp437
+subroutine(src_stage_sub) vec4 src_7(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float zoom = magic(f1, b1, seed + 10);
+    vec2 charset = magic_f(f2, b2, seed + 20);
+    vec3 charset_ctrl = magic_b(b2, seed + 20);
+    float char_delta = magic(f3, b3, seed + 30);
+
+    // logic
+
+    vec2 uv2 = uv1;
+    uv2 *= zoom * 20 + 3;
+    uv2 += iBeats;
+    uv2 = mod(uv2, 100) + 100;
+    int start_char = charset_ctrl.x > 0 ? charsets[int(charset.x * CHARSETS) * 2] : 0x01;
+    int char_span = int((charset_ctrl.x > 0 ? charsets[int(charset.x * CHARSETS) * 2 + 1] : 255));
+    char_span = int(char_span * max(1 - charset.y, 1 / (char_span * 0.75)));
+    ivec2 uv2i = ivec2(uv2);
+    int code = ((charset_ctrl.y < 1 || (uv2i.x % 2 ^ uv2i.y % 2) > 0) ? 1 : 0) * (start_char + int((rand(uv2i) + char_delta) * char_span) % char_span);
+    uv2 = mod(uv2, 1);
+    float f = char(uv2, code) ? 1 : 0;
+    
+    return vec4(f);
+}
+
+// SRC 8 : sentences
+
+#include inc_sentences.glsl
+
+subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    float zoom = magic(f1, b1, seed + 10);
+    float sentence = magic_reverse(f2, b2, seed + 20);
+    float h_delta = magic(f3, b3, seed + 30);
+    vec3 h_delta_b = magic_b(b3, seed + 30);
+
+    // logic
+
+    vec2 uv2 = uv1;
+    uv2 *= (1 + zoom) * 12;
+    int s = int(sentence * (SENTENCE_COUNT - 1));
+    uv2.x += floor(uv2.y) * (h_delta - 0.5) * 2;
+    uv2.y = mix(uv2.y, mod(uv2.y, 1), h_delta_b.x);
+    float f = write_20(uv2, vec2(-float(lengths[s]) * 0.5, 0), sentences[s]);
+    
+    return vec4(f);
+}
+
+// TODO SRC 9
+subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_2(vUV, seed, b1, f1, b2, f2, b3, f3);
+
+    // start
+
+    vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    // logic
+    
+    return texture(iTex0, vUV);
+}
+
+// TODO SRC 10
+subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_3(vUV, seed, b1, f1, b2, f2, b3, f3);
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    // logic
+    
+    return texture(iTex0, vUV);
+}
+
+// SRC 11 : video in 2 + thru
+subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_thru(vUV, iTex4, seed, b1, f1, b2, f2, b3, f3);
+}
+
+// TODO SRC 12
+subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_4(vUV, seed, b1, f1, b2, f2, b3, f3);
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    // logic
+    
+    return texture(iTex0, vUV);
+}
+
+// TODO SRC 13
+subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_5(vUV, seed, b1, f1, b2, f2, b3, f3);
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    // logic
+    
+    return texture(iTex0, vUV);
+}
+
+// TODO SRC 14
+subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_7(vUV, seed, b1, f1, b2, f2, b3, f3);
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    // logic
+    
+    return texture(iTex0, vUV);
+}
+
+// SRC 15 : TODO
+subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
+{
+    return src_8(vUV, seed, b1, f1, b2, f2, b3, f3);
+    // start
+
+	vec2 uv0 = vUV.st;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+
+    // controls
+
+    // logic
+    
+    return texture(iTex0, vUV);
+}
+
+#endif

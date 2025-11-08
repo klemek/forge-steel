@@ -1,4 +1,4 @@
-#include frag0.glsl
+#version 460
 
 // MONITOR
 // ---
@@ -6,6 +6,18 @@
 in vec2 vUV;
 out vec4 fragColor;
 
+#include inc_debug.glsl
+
+uniform sampler2D iTex0;
+uniform sampler2D iTex1;
+uniform sampler2D iTex2;
+uniform sampler2D iTex3;
+uniform sampler2D iTex4;
+uniform sampler2D iTex5;
+uniform sampler2D iTex6;
+uniform sampler2D iTex7;
+uniform sampler2D iTex8;
+uniform sampler2D iTex9;
 uniform int iInputFPS1;
 uniform int iInputFPS2;
 
@@ -43,7 +55,7 @@ void main() {
     c += s(uv2,1,1) * texture(iTex6, uv2);
     c += s(uv2,2,1) * texture(iTex8, uv2);
 
-    c += s(uv2,0,0) * src_15(mod(uv2, 1), 0, vec3(0), vec2(0), vec3(0), vec2(0), vec3(0), vec2(0));
+    c += s(uv2,0,0) * debug(mod(uv2, 1));
     c += s(uv2,1,0) * texture(iTex9, uv2);
     c += s(uv2,2,0) * texture(iTex0, uv2);
 

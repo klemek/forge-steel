@@ -60,12 +60,11 @@ char *string_replace_at(char *src, unsigned int from, unsigned int to,
   src_len = strlen(src);
   rpl_len = strlen(rpl);
 
-  dst =
-      malloc(src_len - (to - from) + rpl_len + 1); // +1 for the null-terminator
+  dst = malloc(src_len - (to - from) + rpl_len + 1);
 
   strncpy(dst, src, from);
   strncpy(dst + from, rpl, rpl_len);
-  strncpy(dst + from + rpl_len, src + to, src_len - to);
+  strlcpy(dst + from + rpl_len, src + to, src_len - to + 1);
 
   return dst;
 }

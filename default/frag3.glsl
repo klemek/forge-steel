@@ -1,4 +1,5 @@
-#include frag0.glsl
+
+#version 460
 
 // SRC A
 // -----------
@@ -7,6 +8,11 @@
 in vec2 vUV;
 out vec4 fragColor;
 
+#include inc_src.glsl
+
+subroutine uniform src_stage_sub src_stage;
+
+uniform int iSeed3;
 uniform vec3 iMidi1_1[6];
 
 void main() {

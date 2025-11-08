@@ -67,16 +67,32 @@ bool file_update(File *file) {
   return true;
 }
 
-File file_read(char *path) {
-  File file;
+void file_read(File *file, char *path) {
+  strncpy(file->path, path, STR_LEN);
+  file->content = NULL;
+  file->error = false;
+  file->last_write = 0;
 
-  strncpy(file.path, path, STR_LEN);
-  file.content = NULL;
-  file.error = false;
-  file.last_write = 0;
+  file_update(file);
+}
 
-  file_update(&file);
-  return file;
+void file_dump(char *path, char *content) {
+  FILE *file_pointer;
+
+  log_info("Dumping %s...", path);
+
+  // open file
+  file_pointer = fopen(path, "w");
+  if (file_pointer == NULL) {
+    log_warn("Cannot open file '%s'", path);
+    return;
+  }
+
+  // write file
+  fprintf(file_pointer, "%s", content);
+
+  // close file
+  fclose(file_pointer);
 }
 
 void file_write(char *path, StringArray *lines) {

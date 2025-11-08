@@ -85,7 +85,7 @@ make -f Makefile.dev release-arch
   - [x] Clean code and fix things
   - [x] Share openGL state between monitor and screen
 - [ ] Default project
-  - [ ] split with includes
+  - [x] split with includes
   - [ ] src 9: game of life
   - [ ] src 10 : ?
   - [ ] src 11 : ?
@@ -94,7 +94,8 @@ make -f Makefile.dev release-arch
   - [ ] src 15 : debug -> calibration screen
   - [ ] fx 11 : colorize range (pretty color ranges)
   - [ ] fx 12 : spill
-  - [ ] frag 10 : move debug screen here + add src/fx/A/B indicators
+  - [x] frag 10 : move debug screen here
+  - [ ] debug : add src/fx/A/B indicators
 - [ ] Other
   - [x] `forge_project.cfg`
   - [x] Define frag prefix in config
@@ -103,6 +104,7 @@ make -f Makefile.dev release-arch
   - [x] Pass "heavy" struct as pointer to avoid stack overload
   - [x] Clean and sort args
   - [x] `--auto-random` / `--no-auto-random`
+  - [x] Dump failed compilation into tmp file
   - [ ] Update readme with usage documentation
   - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup

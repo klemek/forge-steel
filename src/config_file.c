@@ -70,7 +70,7 @@ void config_file_read(ConfigFile *config, char *path) {
   config->map = hashmap_new(sizeof(ConfigFileItem), 0, 0, 0, item_hash,
                             item_compare, NULL, NULL);
 
-  file = file_read(path);
+  file_read(&file, path);
 
   if (file.error) {
     return;
