@@ -106,8 +106,8 @@ Parameters args_parse(int argc, char **argv) {
   char *arg;
   char *value;
 
-  strncpy(params.project_path, DATADIR "/default", STR_LEN);
-  strncpy(params.config_file, "forge_project.cfg", STR_LEN);
+  strlcpy(params.project_path, DATADIR "/default", STR_LEN);
+  strlcpy(params.config_file, "forge_project.cfg", STR_LEN);
   params.hot_reload = false;
   params.output = true;
   params.output_screen = 0;
@@ -120,7 +120,7 @@ Parameters args_parse(int argc, char **argv) {
   params.video_in.length = 0;
   params.video_size = 0;
   params.internal_size = 720;
-  strncpy(params.state_file, "forge_saved_state.txt", STR_LEN);
+  strlcpy(params.state_file, "forge_saved_state.txt", STR_LEN);
   params.load_state = true;
   params.save_state = true;
   params.trace_midi = false;
@@ -135,9 +135,9 @@ Parameters args_parse(int argc, char **argv) {
       puts(PACKAGE " " VERSION);
       exit(EXIT_SUCCESS);
     } else if (is_arg(arg, "-p") || is_arg(arg, "--project")) {
-      strncpy(params.project_path, value, STR_LEN);
+      strlcpy(params.project_path, value, STR_LEN);
     } else if (is_arg(arg, "-c") || is_arg(arg, "--config")) {
-      strncpy(params.config_file, value, STR_LEN);
+      strlcpy(params.config_file, value, STR_LEN);
     } else if (is_arg(arg, "-hr") || is_arg(arg, "--hot-reload")) {
       params.hot_reload = true;
     } else if (is_arg(arg, "-s") || is_arg(arg, "--screen")) {
@@ -166,7 +166,7 @@ Parameters args_parse(int argc, char **argv) {
         log_error("maximum video input reached");
         exit(EXIT_FAILURE);
       }
-      strncpy(params.video_in.values[params.video_in.length++], value, STR_LEN);
+      strlcpy(params.video_in.values[params.video_in.length++], value, STR_LEN);
     } else if (is_arg(arg, "-vs") || is_arg(arg, "--video-size")) {
       params.video_size = parse_uint(arg, value);
       if (params.video_size == 0) {
@@ -178,7 +178,7 @@ Parameters args_parse(int argc, char **argv) {
         invalid_value(arg, value);
       }
     } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
-      strncpy(params.state_file, value, STR_LEN);
+      strlcpy(params.state_file, value, STR_LEN);
     } else if (is_arg(arg, "-ls") || is_arg(arg, "--load-state")) {
       params.load_state = true;
     } else if (is_arg(arg, "-nls") || is_arg(arg, "--no-load-state")) {

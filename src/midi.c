@@ -9,7 +9,7 @@
 MidiDevice midi_open(char *name) {
   MidiDevice device;
 
-  strncpy(device.name, name, STR_LEN);
+  strlcpy(device.name, name, STR_LEN);
   device.input = NULL;
   device.output = NULL;
 

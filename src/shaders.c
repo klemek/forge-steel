@@ -120,7 +120,7 @@ static void init_input(ShaderProgram *program, ConfigFile config,
 
   for (i = 0; i < program->in_count; i++) {
     if (i < inputs.length && !inputs.values[i].error) {
-      sprintf(name, "IN_%d_OUT", i + 1);
+      snprintf(name, STR_LEN, "IN_%d_OUT", i + 1);
       tex_i = config_file_get_int(config, name, 0);
       link_input_to_texture(program, &inputs.values[i], tex_i);
     } else {
@@ -143,7 +143,7 @@ static void init_framebuffers(ShaderProgram *program, ConfigFile config) {
 
     glBindFramebuffer(GL_FRAMEBUFFER, program->frame_buffers[i]);
 
-    sprintf(name, "FRAG_%d_OUT", i + 1);
+    snprintf(name, STR_LEN, "FRAG_%d_OUT", i + 1);
     tex_i = config_file_get_int(config, name, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                            program->textures[tex_i], 0);
@@ -279,7 +279,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   prefix = config_file_get_str(config, "UNIFORM_IN_RESOLUTION_PREFIX",
                                "iInputResolution");
   for (j = 0; j < program->in_count; j++) {
-    sprintf(name, "%s%d", prefix, j + 1);
+    snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
     program->iinres_locations[i * program->in_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
@@ -287,37 +287,37 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   prefix =
       config_file_get_str(config, "UNIFORM_IN_FORMAT_PREFIX", "iInputFormat");
   for (j = 0; j < program->in_count; j++) {
-    sprintf(name, "%s%d", prefix, j + 1);
+    snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
     program->iinfmt_locations[i * program->in_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
   prefix = config_file_get_str(config, "UNIFORM_IN_FPS_PREFIX", "iInputFPS");
   for (j = 0; j < program->in_count; j++) {
-    sprintf(name, "%s%d", prefix, j + 1);
+    snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
     program->iinfps_locations[i * program->in_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
   prefix = config_file_get_str(config, "UNIFORM_SEED_PREFIX", "iSeed");
   for (j = 0; j < program->frag_count; j++) {
-    sprintf(name, "%s%d", prefix, j + 1);
+    snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
     program->iseed_locations[i * program->frag_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
   prefix = config_file_get_str(config, "UNIFORM_STATE_PREFIX", "iState");
   for (j = 0; j < program->frag_count; j++) {
-    sprintf(name, "%s%d", prefix, j + 1);
+    snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
     program->istate_locations[i * program->frag_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
 
   for (j = 0; j < program->sub_type_count; j++) {
-    sprintf(name, "SUB_%d_PREFIX", j + 1);
+    snprintf(name, STR_LEN, "SUB_%d_PREFIX", j + 1);
     prefix = config_file_get_str(config, name, 0);
     for (k = 0; k < program->sub_variant_count; k++) {
-      sprintf(name, "%s%d", prefix, k + 1);
+      snprintf(name, STR_LEN, "%s%d", prefix, k + 1);
       program->sub_locations[i * program->sub_variant_count *
                                  program->sub_type_count +
                              j * program->sub_variant_count + k] =
@@ -327,7 +327,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
 
   prefix = config_file_get_str(config, "UNIFORM_ACTIVE_PREFIX", "iActive");
   for (j = 0; j < program->active_count; j++) {
-    sprintf(name, "%s%d", prefix, j + 1);
+    snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
     program->iactive_locations[i * program->active_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }
@@ -347,7 +347,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   index2 = 0;
   for (j = 0; j < state_config.midi_active_counts.length; j++) {
     for (k = 0; k < state_config.midi_active_counts.values[j]; k++) {
-      sprintf(name, "%s%d_%d", prefix, j + 1, k + 1);
+      snprintf(name, STR_LEN, "%s%d_%d", prefix, j + 1, k + 1);
       program->imidi_locations[i * program->midi_lengths.length + index2++] =
           glGetUniformLocation(program->programs[i], name);
     }
@@ -356,7 +356,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   // create texX uniforms pointer
   prefix = config_file_get_str(config, "UNIFORM_TEX_PREFIX", "iTex");
   for (j = 0; j < program->tex_count; j++) {
-    sprintf(name, "%s%d", prefix, j);
+    snprintf(name, STR_LEN, "%s%d", prefix, j);
     program->textures_locations[i * program->tex_count + j] =
         glGetUniformLocation(program->programs[i], name);
   }

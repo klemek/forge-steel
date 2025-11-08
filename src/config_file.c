@@ -52,11 +52,11 @@ static void parse_config_file_line(ConfigFile config, char *line) {
   key_size = equal_pos - line;
   value_size = size - key_size - 1;
 
-  strncpy(item.key, line, key_size);
+  strlcpy(item.key, line, key_size);
   item.key[key_size] = '\0';
 
   if (value_size > 0) {
-    strncpy(item.value, line + key_size + 1, value_size);
+    strlcpy(item.value, line + key_size + 1, value_size);
     item.value[value_size] = '\0';
   }
 
@@ -93,7 +93,7 @@ char *config_file_get_str(ConfigFile config, char *key, char *default_value) {
   ConfigFileItem c_key;
   ConfigFileItem *item;
 
-  strncpy(c_key.key, key, STR_LEN);
+  strlcpy(c_key.key, key, STR_LEN);
 
   item = (ConfigFileItem *)hashmap_get(config.map, &c_key);
 
@@ -109,7 +109,7 @@ unsigned int config_file_get_int(ConfigFile config, char *key,
   ConfigFileItem c_key;
   ConfigFileItem *item;
 
-  strncpy(c_key.key, key, STR_LEN);
+  strlcpy(c_key.key, key, STR_LEN);
 
   item = (ConfigFileItem *)hashmap_get(config.map, &c_key);
 

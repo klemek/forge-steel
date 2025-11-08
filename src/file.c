@@ -70,7 +70,7 @@ bool file_update(File *file) {
 File file_read(char *path) {
   File file;
 
-  strncpy(file.path, path, STR_LEN);
+  strlcpy(file.path, path, STR_LEN);
   file.content = NULL;
   file.error = false;
   file.last_write = 0;
