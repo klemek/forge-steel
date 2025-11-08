@@ -13,6 +13,7 @@
 #include "file.h"
 #include "forge.h"
 #include "midi.h"
+#include "project.h"
 #include "shaders.h"
 #include "shared.h"
 #include "state.h"
@@ -26,13 +27,10 @@ static ShaderProgram program;
 static Window *window_output;
 static Window *window_monitor;
 static VideoCaptureArray inputs;
-static FileArray fragment_shaders;
-static File common_shader_code;
 static Timer timer;
-static ConfigFile config;
 static MidiDevice midi;
-static StateConfig state_config;
 static bool trace_midi;
+static Project project;
 
 static void compute_fps(bool trace_fps) {
   double fps;
@@ -62,7 +60,7 @@ static void compute_fps(bool trace_fps) {
 static void init_context(Parameters params, unsigned int in_count) {
   unsigned int i;
 
-  state_init(context, state_config, params.demo, params.auto_random,
+  state_init(context, project.state_config, params.demo, params.auto_random,
              params.base_tempo, params.state_file, params.load_state);
 
   context->monitor = params.monitor;
@@ -82,67 +80,8 @@ static void init_context(Parameters params, unsigned int in_count) {
 
 static void free_context() { shared_close_context(context); }
 
-static void hot_reload() {
-  unsigned int i;
-  bool force_update;
-
-  force_update = false;
-
-  if (file_should_update(common_shader_code)) {
-    file_update(&common_shader_code);
-    force_update = true;
-  }
-
-  for (i = 0; i < program.frag_count; i++) {
-    if (force_update || file_should_update(fragment_shaders.values[i])) {
-      file_update(&fragment_shaders.values[i]);
-      file_prepend(&fragment_shaders.values[i], common_shader_code);
-
-      shaders_update(program, fragment_shaders, i);
-    }
-  }
-}
-
-File read_fragment_shader_file(char *frag_path, char *frag_prefix,
-                               unsigned int i) {
-  File fragment_shader;
-  char file_path[STR_LEN];
-
-  snprintf(file_path, STR_LEN, "%s/%s%d.glsl", frag_path, frag_prefix, i);
-  fragment_shader = file_read(file_path);
-  if (fragment_shader.error) {
-    exit(EXIT_FAILURE);
-  }
-
-  return fragment_shader;
-}
-
-static void init_files(char *frag_path, char *frag_prefix,
-                       unsigned int frag_count) {
-  unsigned int i;
-
-  fragment_shaders.length = frag_count;
-
-  for (i = 0; i < frag_count + 1; i++) {
-    if (i == 0) {
-      common_shader_code = read_fragment_shader_file(frag_path, frag_prefix, i);
-    } else {
-      fragment_shaders.values[i - 1] =
-          read_fragment_shader_file(frag_path, frag_prefix, i);
-
-      file_prepend(&fragment_shaders.values[i - 1], common_shader_code);
-    }
-  }
-}
-
-static void free_files(unsigned int frag_count) {
-  unsigned int i;
-
-  for (i = 0; i < frag_count; i++) {
-    file_free(&fragment_shaders.values[i]);
-  }
-
-  file_free(&common_shader_code);
+static void reload_shader(unsigned int i) {
+  shaders_update(program, project.fragment_shaders, i);
 }
 
 static void init_inputs(StringArray video_in, unsigned int video_size) {
@@ -195,7 +134,7 @@ static void key_callback(Window *window, int key,
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
     log_info("[R] Randomizing...");
-    state_randomize(context, state_config);
+    state_randomize(context, project.state_config);
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
     log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
@@ -209,12 +148,13 @@ static void key_callback(Window *window, int key,
 }
 
 static void midi_callback(unsigned char code, unsigned char value) {
-  state_apply_event(context, state_config, midi, code, value, trace_midi);
+  state_apply_event(context, project.state_config, midi, code, value,
+                    trace_midi);
 }
 
 static void loop(bool hr, bool trace_fps) {
   if (hr) {
-    hot_reload();
+    project_reload(&project, reload_shader);
   }
 
   compute_fps(trace_fps);
@@ -242,35 +182,21 @@ static void loop(bool hr, bool trace_fps) {
 }
 
 void forge_run(Parameters params) {
-  unsigned int frag_count, in_count;
-  char config_path[STR_LEN * 2 + 1];
-  char *frag_prefix;
-
   context = shared_init_context("/" PACKAGE "_context");
 
   context->stop = false;
 
-  sprintf(config_path, "%s/%s", params.project_path, params.config_file);
-
-  config = config_file_read(config_path);
-
-  state_config = state_parse_config(config);
-
-  frag_count = config_file_get_int(config, "FRAG_COUNT", 1);
-  in_count = config_file_get_int(config, "IN_COUNT", 0);
-  frag_prefix = config_file_get_str(config, "FRAG_FILE_PREFIX", "frag");
-
-  init_files(params.project_path, frag_prefix, frag_count);
+  project = project_init(params.project_path, params.config_file);
 
   init_inputs(params.video_in, params.video_size);
 
-  init_context(params, in_count);
+  init_context(params, project.in_count);
 
   if (!start_video_captures(params.video_in.length, params.trace_fps)) {
     return;
   }
 
-  midi = midi_open(config_file_get_str(config, "MIDI_HW", "hw"));
+  midi = midi_open(config_file_get_str(project.config, "MIDI_HW", "hw"));
 
   if (midi.error) {
     params.demo = true;
@@ -282,7 +208,7 @@ void forge_run(Parameters params) {
     }
   }
 
-  if (!state_background_write(context, state_config, midi)) {
+  if (!state_background_write(context, project.state_config, midi)) {
     return;
   }
 
@@ -296,8 +222,7 @@ void forge_run(Parameters params) {
 
     window_use(window_output, context);
 
-    program = shaders_init(fragment_shaders, config, context, inputs,
-                           state_config, NULL);
+    program = shaders_init(project, context, inputs, NULL);
   } else {
     window_output = NULL;
   }
@@ -309,9 +234,8 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, context);
 
-    program =
-        shaders_init(fragment_shaders, config, context, inputs, state_config,
-                     window_output != NULL ? &program : NULL);
+    program = shaders_init(project, context, inputs,
+                           window_output != NULL ? &program : NULL);
   } else {
     window_monitor = NULL;
   }
@@ -334,7 +258,7 @@ void forge_run(Parameters params) {
   context->stop = true;
 
   if (params.save_state) {
-    state_save(context, state_config, params.state_file);
+    state_save(context, project.state_config, params.state_file);
   }
 
   shaders_free(program);
@@ -355,9 +279,7 @@ void forge_run(Parameters params) {
 
   free_context();
 
-  free_files(frag_count);
-
-  config_file_free(config);
+  project_free(project);
 
   window_terminate();
 }

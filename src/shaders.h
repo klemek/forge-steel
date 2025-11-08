@@ -3,9 +3,8 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
-                           SharedContext *context, VideoCaptureArray inputs,
-                           StateConfig state_config, ShaderProgram *previous);
+ShaderProgram shaders_init(Project project, SharedContext *context,
+                           VideoCaptureArray inputs, ShaderProgram *previous);
 
 void shaders_update(ShaderProgram program, FileArray fragment_shaders,
                     unsigned int i);

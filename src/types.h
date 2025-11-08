@@ -29,6 +29,8 @@ typedef struct StringArray {
   unsigned int length;
 } StringArray;
 
+// args.c
+
 typedef struct Parameters {
   char project_path[STR_LEN];
   char config_file[STR_LEN];
@@ -51,9 +53,7 @@ typedef struct Parameters {
   bool trace_fps;
 } Parameters;
 
-typedef struct Vertex {
-  vec2 pos;
-} Vertex;
+// file.c
 
 typedef struct File {
   char path[STR_LEN];
@@ -64,6 +64,12 @@ typedef struct File {
 } File;
 
 typedef ARRAY(FileArray, File);
+
+// shaders.c
+
+typedef struct Vertex {
+  vec2 pos;
+} Vertex;
 
 typedef struct ShaderProgram {
   bool error;
@@ -121,6 +127,8 @@ typedef struct ShaderProgram {
   EGLDisplay egl_display;
 } ShaderProgram;
 
+// video.c
+
 typedef struct VideoCapture {
   char name[STR_LEN];
   bool error;
@@ -137,7 +145,11 @@ typedef struct VideoCapture {
 
 typedef ARRAY(VideoCaptureArray, VideoCapture);
 
+// window.c
+
 typedef GLFWwindow Window;
+
+// tempo.c
 
 typedef struct Tempo {
   long last_reset;
@@ -149,6 +161,8 @@ typedef struct Tempo {
   long beat_length;
   float tempo;
 } Tempo;
+
+// context.c
 
 typedef struct SharedContext {
   int fd;
@@ -176,6 +190,8 @@ typedef struct SharedContext {
   bool stop;
 } SharedContext;
 
+// state.c
+
 typedef struct StateConfig {
   unsigned int state_max;
 
@@ -194,11 +210,15 @@ typedef struct StateConfig {
   unsigned int tap_tempo_code;
 } StateConfig;
 
+// timer.c
+
 typedef struct Timer {
   struct timeval start;
   unsigned int counter;
   unsigned int target;
 } Timer;
+
+// config.c
 
 typedef struct ConfigFile {
   struct hashmap *map;
@@ -209,11 +229,25 @@ typedef struct ConfigFileItem {
   char value[STR_LEN];
 } ConfigFileItem;
 
+// midi.c
+
 typedef struct MidiDevice {
   bool error;
   char name[STR_LEN];
   snd_rawmidi_t *input;
   snd_rawmidi_t *output;
 } MidiDevice;
+
+// project.c
+
+typedef struct Project {
+  bool error;
+  ConfigFile config;
+  StateConfig state_config;
+  FileArray fragment_shaders;
+  File common_shader_code; // TODO change
+  unsigned int frag_count;
+  unsigned int in_count;
+} Project;
 
 #endif /* TYPES_H */

@@ -377,25 +377,25 @@ static void init_programs(ShaderProgram *program, ConfigFile config,
   }
 }
 
-ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
-                           SharedContext *context, VideoCaptureArray inputs,
-                           StateConfig state_config, ShaderProgram *previous) {
+ShaderProgram shaders_init(Project project, SharedContext *context,
+                           VideoCaptureArray inputs, ShaderProgram *previous) {
   ShaderProgram program;
 
   if (previous == NULL) {
     program.error = false;
     program.last_resolution[0] = context->resolution[0];
     program.last_resolution[1] = context->resolution[1];
-    program.tex_count = config_file_get_int(config, "TEX_COUNT", 9);
-    program.frag_count = config_file_get_int(config, "FRAG_COUNT", 10);
+    program.tex_count = config_file_get_int(project.config, "TEX_COUNT", 9);
+    program.frag_count = project.frag_count;
     program.frag_output_index =
-        config_file_get_int(config, "FRAG_OUTPUT", 1) - 1;
+        config_file_get_int(project.config, "FRAG_OUTPUT", 1) - 1;
     program.frag_monitor_index =
-        config_file_get_int(config, "FRAG_MONITOR", 1) - 1;
-    program.sub_type_count = config_file_get_int(config, "SUB_TYPE_COUNT", 0);
-    program.in_count = config_file_get_int(config, "IN_COUNT", 0);
-    program.sub_variant_count = state_config.state_max;
-    program.active_count = state_config.midi_active_counts.length;
+        config_file_get_int(project.config, "FRAG_MONITOR", 1) - 1;
+    program.sub_type_count =
+        config_file_get_int(project.config, "SUB_TYPE_COUNT", 0);
+    program.in_count = config_file_get_int(project.config, "IN_COUNT", 0);
+    program.sub_variant_count = project.state_config.state_max;
+    program.active_count = project.state_config.midi_active_counts.length;
     program.midi_lengths.length = 0;
 
     if (program.frag_count > MAX_FRAG) {
@@ -406,7 +406,7 @@ ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
 
     init_gl(&program);
 
-    init_shaders(&program, fragment_shaders);
+    init_shaders(&program, project.fragment_shaders);
 
     if (program.error) {
       return program;
@@ -414,11 +414,11 @@ ShaderProgram shaders_init(FileArray fragment_shaders, ConfigFile config,
 
     init_textures(&program, context);
 
-    init_input(&program, config, inputs);
+    init_input(&program, project.config, inputs);
 
-    init_framebuffers(&program, config);
+    init_framebuffers(&program, project.config);
 
-    init_programs(&program, config, state_config);
+    init_programs(&program, project.config, project.state_config);
 
     init_vertices(&program);
 
