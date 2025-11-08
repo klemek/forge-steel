@@ -17,6 +17,7 @@ uniform vec2 iInputResolution2;
 uniform int iInputFormat1;
 uniform int iInputFormat2;
 uniform int iDemo;
+uniform int iAutoRand;
 uniform int iPage;
 uniform int iSelected;
 
@@ -1265,12 +1266,13 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // logic
 
-    const int texts[5][5] = {
+    const int texts[6][5] = {
         {0x46, 0x50, 0x53, 0x00, 0x00}, // FPS
         {0x54, 0x45, 0x4D, 0x50, 0x4F}, // TEMPO
         {0x54, 0x49, 0x4D, 0x45, 0x00}, // TIME
         {0x44, 0x45, 0x4D, 0x4F, 0x00}, // DEMO
         {0x4C, 0x49, 0x56, 0x45, 0x00}, // LIVE
+        {0x2B, 0x52, 0x41, 0x4E, 0x44}, // +RAND
     };
 
     vec2 uv2 = uv1;
@@ -1384,7 +1386,12 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
 
-    f += write_5(uv3, vec2(-2,-15), iDemo > 0 ? texts[3] : texts[4]);
+    if (iAutoRand > 0) {
+        f += write_5(uv3, vec2(-4,-15), iDemo > 0 ? texts[3] : texts[4]);
+        f += write_5(uv3, vec2(0,-15), texts[5]);
+    } else {
+        f += write_5(uv3, vec2(-2,-15), iDemo > 0 ? texts[3] : texts[4]);
+    }
 
     return vec4(f);
 }

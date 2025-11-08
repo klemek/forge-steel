@@ -61,8 +61,8 @@ static void compute_fps(bool trace_fps) {
 static void init_context(Parameters params, unsigned int in_count) {
   unsigned int i;
 
-  state_init(context, state_config, params.demo, params.base_tempo,
-             params.state_file, params.load_state);
+  state_init(context, state_config, params.demo, params.auto_random,
+             params.base_tempo, params.state_file, params.load_state);
 
   context->monitor = params.monitor;
 
@@ -199,6 +199,11 @@ static void key_callback(Window *window, int key,
     // D: demo on/off
     log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
     context->demo = !context->demo;
+  } else if (window_char_key(key, action, 65)) {
+    // A: auto random on/off
+    log_info(
+        (context->auto_random ? "[A] Auto Random OFF" : "[A] Auto Random ON"));
+    context->auto_random = !context->auto_random;
   }
 }
 

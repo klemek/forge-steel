@@ -44,6 +44,7 @@ typedef struct Parameters {
   unsigned int video_size;
   float base_tempo;
   bool demo;
+  bool auto_random;
   bool windowed;
   StringArray video_in;
   bool trace_midi;
@@ -96,6 +97,7 @@ typedef struct ShaderProgram {
   GLuint iinfmt_locations[ARRAY_SIZE];
   GLuint iinfps_locations[ARRAY_SIZE];
   GLuint idemo_locations[ARRAY_SIZE];
+  GLuint iautorand_locations[ARRAY_SIZE];
   GLuint iseed_locations[ARRAY_SIZE];
   GLuint istate_locations[ARRAY_SIZE];
   GLuint ipage_locations[ARRAY_SIZE];
@@ -165,6 +167,7 @@ typedef struct SharedContext {
   unsigned int active[ARRAY_SIZE];
   vec3 values[ARRAY_SIZE];
   bool demo;
+  bool auto_random;
   unsigned int seeds[MAX_FRAG];
   bool monitor;
 

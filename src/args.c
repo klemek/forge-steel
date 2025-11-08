@@ -30,6 +30,7 @@ static void print_help(int status_code) {
        "[-vs=SIZE] "
        "[-t=TEMPO] "
        "[-d] "
+       "[-ar / -nar] "
        "[-w] "
        "[-tm] "
        "[-tf] "
@@ -59,7 +60,9 @@ static void print_help(int status_code) {
        "internal texture height)\n"
        "  -t, --tempo               base tempo (default: 60)\n"
        "  -d, --demo                demonstration mode (assume --no-save-state "
-       "and --no-load-state)\n"
+       ", --no-load-state, --auto-random)\n"
+       "  -ar, --auto-random        randomize state every 4 beats\n"
+       "  -nar, --no-auto-random    do not randomize state (default)\n"
        "  -w, --windowed            not fullscreen\n"
        "  -tm, --trace-midi         print midi code and values\n"
        "  -tf, --trace-fps          print fps status of subsystems\n");
@@ -116,6 +119,7 @@ Parameters args_parse(int argc, char **argv) {
   params.video_size = 0;
   params.base_tempo = 60.0f;
   params.demo = false;
+  params.auto_random = false;
   params.windowed = false;
   params.video_in.length = 0;
   params.trace_midi = false;
@@ -175,6 +179,11 @@ Parameters args_parse(int argc, char **argv) {
       params.demo = true;
       params.load_state = false;
       params.save_state = false;
+      params.auto_random = true;
+    } else if (is_arg(arg, "-ar") || is_arg(arg, "--auto-random")) {
+      params.auto_random = true;
+    } else if (is_arg(arg, "-nar") || is_arg(arg, "--no-auto-random")) {
+      params.auto_random = false;
     } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
       params.windowed = true;
     } else if (is_arg(arg, "-tm") || is_arg(arg, "--trace-midi")) {

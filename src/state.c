@@ -312,7 +312,7 @@ bool state_background_write(SharedContext *context, StateConfig state_config,
 
     change = tempo_progress(context->tempo, 4.0) < 0.25;
 
-    if (context->demo && change && !last_change) {
+    if (context->auto_random && change && !last_change) {
       state_randomize(context, state_config);
     }
 
@@ -365,17 +365,19 @@ static void state_load(SharedContext *context, StateConfig state_config,
 }
 
 void state_init(SharedContext *context, StateConfig state_config, bool demo,
-                unsigned int base_tempo, char *state_file, bool load_state) {
+                bool auto_random, unsigned int base_tempo, char *state_file,
+                bool load_state) {
   unsigned int i;
 
   context->tempo = tempo_init();
   tempo_set(&context->tempo, base_tempo);
   context->demo = demo;
+  context->auto_random = auto_random;
 
   context->state.length = state_config.select_frag_codes.length;
   memset(context->state.values, 0, sizeof(context->state.values));
 
-  if (demo) {
+  if (auto_random) {
     state_randomize(context, state_config);
   }
 
