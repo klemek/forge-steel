@@ -1,3 +1,5 @@
+#include frag0.glsl
+
 // FX A
 // -------------
 // IN: 5 (SRC A)

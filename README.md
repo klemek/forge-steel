@@ -31,7 +31,8 @@ b
   - [NanoKontrol2 Controller mapping](#nanokontrol2-controller-mapping)
 - [Making your own FORGE project](#making-your-own-forge-project)
   - [`forge_project.cfg`](#forge_projectcfg)
-  - [Working with `frag0.glsl`](#working-with-frag0glsl)
+  - [Writing your fragment shaders](#writing-your-fragment-shaders)
+  - [Working with `#include`](#working-with-include)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [Why "steel"?](#why-steel)
   - [How do I report a bug?](#how-do-i-report-a-bug)
@@ -178,7 +179,11 @@ TODO
 
 TODO
 
-### Working with `frag0.glsl`
+### Writing your fragment shaders
+
+TODO
+
+### Working with `#include`
 
 TODO
 

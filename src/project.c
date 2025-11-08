@@ -1,95 +1,142 @@
+#include <string.h>
+
 #include "types.h"
 
+#include "config.h"
 #include "config_file.h"
 #include "file.h"
+#include "log.h"
 #include "project.h"
 #include "state.h"
+#include "string.h"
 
-static File read_fragment_shader_file(char *frag_path, char *frag_prefix,
-                                      unsigned int i) {
-  File fragment_shader;
+static bool parse_fragment_shader_file(Project *project, unsigned int i) {
+  File tmp_file, fragment_shader;
   char file_path[STR_LEN];
+  char *include_pos, *include_end;
+  char included_file[STR_LEN];
+  char *new_content;
 
-  snprintf(file_path, STR_LEN, "%s/%s%d.glsl", frag_path, frag_prefix, i);
-  fragment_shader = file_read(file_path);
-  if (fragment_shader.error) {
-    exit(EXIT_FAILURE);
+  fragment_shader = project->fragment_shaders[i][0];
+
+  project->sub_counts.values[i] = 0;
+
+  include_pos = strstr(fragment_shader.content, "#include ");
+
+  while (include_pos != NULL && project->sub_counts.values[i] < MAX_SUB_FILE) {
+    include_end = strstr(include_pos, "\n");
+    if (include_end == NULL) {
+      log_error("Invalid '#include' directive in '%s'", fragment_shader.path);
+      return false;
+    }
+
+    strlcpy(included_file, include_pos + 9, include_end - include_pos - 8);
+
+    snprintf(file_path, STR_LEN, "%s/%s", project->path, included_file);
+
+    tmp_file = file_read(file_path);
+
+    if (tmp_file.error) {
+      return false;
+    }
+
+    project->fragment_shaders[i][++project->sub_counts.values[i]] = tmp_file;
+
+    new_content = string_replace_at(
+        fragment_shader.content, include_pos - fragment_shader.content,
+        include_end - fragment_shader.content, tmp_file.content);
+
+    project->fragment_shaders[i][0].content = new_content;
+
+    file_free(&tmp_file);
+
+    include_pos = strstr(fragment_shader.content, "#include ");
   }
 
-  return fragment_shader;
+  return true;
 }
 
-static void init_files(Project *output, char *frag_path, char *frag_prefix,
-                       unsigned int frag_count) {
+static bool read_fragment_shader_file(Project *project, char *frag_prefix,
+                                      unsigned int i) {
+  char file_path[STR_LEN];
+
+  snprintf(file_path, STR_LEN, "%s/%s%d.glsl", project->path, frag_prefix,
+           i + 1);
+
+  project->fragment_shaders[i][0] = file_read(file_path);
+
+  if (project->fragment_shaders[i][0].error) {
+    return false;
+  }
+
+  return parse_fragment_shader_file(project, i);
+}
+
+void project_init(Project *project, char *project_path, char *config_file) {
+  char config_path[STR_LEN];
+  char *frag_prefix;
   unsigned int i;
 
-  output->fragment_shaders.length = frag_count;
+  strlcpy(project->path, project_path, STR_LEN);
 
-  for (i = 0; i < frag_count + 1; i++) {
-    if (i == 0) {
-      output->common_shader_code =
-          read_fragment_shader_file(frag_path, frag_prefix, i);
-    } else {
-      output->fragment_shaders.values[i - 1] =
-          read_fragment_shader_file(frag_path, frag_prefix, i);
+  snprintf(config_path, STR_LEN, "%s/%s", project_path, config_file);
 
-      file_prepend(&output->fragment_shaders.values[i - 1],
-                   output->common_shader_code);
+  project->config = config_file_read(config_path);
+
+  project->state_config = state_parse_config(project->config);
+
+  project->frag_count = config_file_get_int(project->config, "FRAG_COUNT", 1);
+  project->in_count = config_file_get_int(project->config, "IN_COUNT", 0);
+  frag_prefix =
+      config_file_get_str(project->config, "FRAG_FILE_PREFIX", "frag");
+
+  if (project->frag_count > MAX_FRAG) {
+    log_error("FRAG_COUNT over %d", MAX_FRAG);
+    project->error = true;
+    return;
+  }
+
+  project->sub_counts.length = project->frag_count;
+
+  for (i = 0; i < project->frag_count; i++) {
+    project->sub_counts.values[i] = 0;
+    if (!read_fragment_shader_file(project, frag_prefix, i)) {
+      project_free(project);
+      project->error = true;
+      return;
     }
   }
 }
 
-Project project_init(char *project_path, char *config_file) {
-  Project project;
-  char config_path[STR_LEN];
-  char *frag_prefix;
-
-  snprintf(config_path, STR_LEN, "%s/%s", project_path, config_file);
-
-  project.config = config_file_read(config_path);
-
-  project.state_config = state_parse_config(project.config);
-
-  project.frag_count = config_file_get_int(project.config, "FRAG_COUNT", 1);
-  project.in_count = config_file_get_int(project.config, "IN_COUNT", 0);
-  frag_prefix = config_file_get_str(project.config, "FRAG_FILE_PREFIX", "frag");
-
-  init_files(&project, project_path, frag_prefix, project.frag_count);
-
-  return project;
-}
-
 void project_reload(Project *project, void (*reload_callback)(unsigned int)) {
-  unsigned int i;
-  bool force_update;
-
-  force_update = false;
-
-  if (file_should_update(project->common_shader_code)) {
-    file_update(&project->common_shader_code);
-    force_update = true;
-  }
+  unsigned int i, j;
+  bool should_update;
 
   for (i = 0; i < project->frag_count; i++) {
-    if (force_update ||
-        file_should_update(project->fragment_shaders.values[i])) {
-      file_update(&project->fragment_shaders.values[i]);
-      file_prepend(&project->fragment_shaders.values[i],
-                   project->common_shader_code);
+    should_update = file_should_update(project->fragment_shaders[i][0]);
 
+    for (j = 0; j < project->sub_counts.values[i]; j++) {
+      should_update = should_update ||
+                      file_should_update(project->fragment_shaders[i][j + 1]);
+    }
+
+    should_update =
+        should_update && file_update(&project->fragment_shaders[i][0]);
+
+    should_update = should_update && parse_fragment_shader_file(project, i);
+
+    if (should_update) {
       reload_callback(i);
     }
   }
 }
 
-void project_free(Project project) {
+void project_free(Project *project) {
   unsigned int i;
 
-  for (i = 0; i < project.frag_count; i++) {
-    file_free(&project.fragment_shaders.values[i]);
+  for (i = 0; i < project->frag_count; i++) {
+    file_free(&project->fragment_shaders[i][0]);
   }
 
-  file_free(&project.common_shader_code);
-
-  config_file_free(project.config);
+  config_file_free(project->config);
 }

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 
@@ -22,7 +23,7 @@ bool file_should_update(File file) {
   return file.last_write != get_file_time(file);
 }
 
-void file_update(File *file) {
+bool file_update(File *file) {
   long length;
   FILE *file_pointer;
 
@@ -40,19 +41,19 @@ void file_update(File *file) {
   if (file_pointer == NULL) {
     file->error = true;
     log_error("Cannot open file '%s'", file->path);
-    return;
+    return false;
   }
   // read file length
   fseek(file_pointer, 0, SEEK_END);
   length = ftell(file_pointer);
   // init buffer
   fseek(file_pointer, 0, SEEK_SET);
-  file->content = (char *)malloc((length + 1) * sizeof(char));
+  file->content = malloc(length + 1);
   if (file->content == NULL) {
     file->error = true;
     fclose(file_pointer);
     log_error("Cannot read file '%s'", file->path);
-    return;
+    return false;
   }
   // read file
   fread(file->content, sizeof(char), length, file_pointer);
@@ -62,12 +63,14 @@ void file_update(File *file) {
   file->content[length] = '\0';
   // read last update time
   file->last_write = get_file_time(*file);
+
+  return true;
 }
 
 File file_read(char *path) {
   File file;
 
-  sprintf(file.path, path, STR_LEN);
+  strncpy(file.path, path, STR_LEN);
   file.content = NULL;
   file.error = false;
   file.last_write = 0;
@@ -98,12 +101,17 @@ void file_write(char *path, StringArray lines) {
   fclose(file_pointer);
 }
 
-void file_prepend(File *src, File extra) {
-  char *old_src_content;
-
-  old_src_content = src->content;
-  src->content = string_concat(extra.content, src->content);
-  free(old_src_content);
+void file_free(File *file) {
+  if (!file->error) {
+    free(file->content);
+    file->error = true;
+  }
 }
 
-void file_free(File *file) { free(file->content); }
+void file_free_array(FileArray *files) {
+  unsigned int i;
+
+  for (i = 0; i < files->length; i++) {
+    file_free(&files->values[i]);
+  }
+}

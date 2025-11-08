@@ -1,3 +1,5 @@
+#include frag0.glsl
+
 // MFX
 // ------------
 // IN: 9 (A+B)

@@ -31,6 +31,10 @@
 #define MAX_FRAG 64
 #endif
 
+#ifndef MAX_SUB_FILE
+#define MAX_SUB_FILE 32
+#endif
+
 /* MIDI */
 
 #ifndef UNSET_MIDI_CODE
@@ -44,7 +48,7 @@
 /* ARRAY */
 
 #ifndef ARRAY_SIZE
-#define ARRAY_SIZE 1024
+#define ARRAY_SIZE 512
 #endif
 
 #ifndef ARRAY_NOT_FOUND

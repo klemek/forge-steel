@@ -242,12 +242,13 @@ typedef struct MidiDevice {
 
 typedef struct Project {
   bool error;
+  char path[STR_LEN];
   ConfigFile config;
   StateConfig state_config;
-  FileArray fragment_shaders;
-  File common_shader_code; // TODO change
   unsigned int frag_count;
   unsigned int in_count;
+  UintArray sub_counts;
+  File fragment_shaders[MAX_FRAG][MAX_SUB_FILE + 1];
 } Project;
 
 #endif /* TYPES_H */

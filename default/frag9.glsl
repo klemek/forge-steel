@@ -1,3 +1,5 @@
+#include frag0.glsl
+
 // OUT
 // ---
 

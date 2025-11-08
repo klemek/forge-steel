@@ -85,6 +85,7 @@ make -f Makefile.dev release-arch
   - [x] Clean code and fix things
   - [x] Share openGL state between monitor and screen
 - [ ] Default project
+  - [ ] split with includes
   - [ ] src 9: game of life
   - [ ] src 10 : ?
   - [ ] src 11 : ?
@@ -97,7 +98,9 @@ make -f Makefile.dev release-arch
 - [ ] Other
   - [x] `forge_project.cfg`
   - [x] Define frag prefix in config
-  - [ ] Use custom `#include xxx.glsl` preprocessor
+  - [x] Use custom `#include xxx.glsl` preprocessor
+  - [ ] Use snprintf isntead of sprintf (and strlcpy instand of strncpy)
+  - [ ] Pass "heavy" struct as pointer to avoid stack overload
   - [x] Clean and sort args
   - [x] `--auto-random` / `--no-auto-random`
   - [ ] Update readme with usage documentation

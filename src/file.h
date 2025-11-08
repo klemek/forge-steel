@@ -7,12 +7,12 @@ File file_read(char *path);
 
 bool file_should_update(File file);
 
-void file_update(File *file);
-
-void file_prepend(File *src, File extra);
+bool file_update(File *file);
 
 void file_write(char *path, StringArray lines);
 
 void file_free(File *file);
+
+void file_free_array(FileArray *files);
 
 #endif /* FILE_H */

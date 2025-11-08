@@ -4,17 +4,6 @@
 
 #include "string.h"
 
-char *string_concat(const char *s1, const char *s2) {
-  char *result;
-
-  result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
-
-  strcpy(result, s1);
-  strcat(result, s2);
-
-  return result;
-}
-
 unsigned int string_trim(char *str) {
   // https://www.delftstack.com/howto/c/trim-string-in-c/
   unsigned int start;
@@ -61,4 +50,22 @@ bool string_is_number(char *value) {
     }
   }
   return true;
+}
+
+char *string_replace_at(char *src, unsigned int from, unsigned int to,
+                        char *rpl) {
+  unsigned long src_len, rpl_len;
+  char *dst;
+
+  src_len = strlen(src);
+  rpl_len = strlen(rpl);
+
+  dst =
+      malloc(src_len - (to - from) + rpl_len + 1); // +1 for the null-terminator
+
+  strncpy(dst, src, from);
+  strncpy(dst + from, rpl, rpl_len);
+  strncpy(dst + from + rpl_len, src + to, src_len - to);
+
+  return dst;
 }

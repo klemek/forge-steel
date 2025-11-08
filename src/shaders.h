@@ -3,10 +3,11 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-ShaderProgram shaders_init(Project project, SharedContext *context,
-                           VideoCaptureArray inputs, ShaderProgram *previous);
+void shaders_init(ShaderProgram *program, Project *project,
+                  SharedContext *context, VideoCaptureArray inputs,
+                  bool rebind);
 
-void shaders_update(ShaderProgram program, FileArray fragment_shaders,
+void shaders_update(ShaderProgram program, File fragment_shader,
                     unsigned int i);
 
 void shaders_compute(ShaderProgram program, SharedContext *context,

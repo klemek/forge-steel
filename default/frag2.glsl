@@ -1,3 +1,5 @@
+#include frag0.glsl
+
 // VIDEO 2
 // -----------
 // IN: 2 (RAW IN B)

@@ -213,7 +213,7 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-static void init_shaders(ShaderProgram *program, FileArray fragment_shaders) {
+static void init_shaders(ShaderProgram *program, Project *project) {
   unsigned int i;
 
   // compile vertex shader
@@ -225,8 +225,8 @@ static void init_shaders(ShaderProgram *program, FileArray fragment_shaders) {
   for (i = 0; i < program->frag_count; i++) {
     program->fragment_shaders[i] = glCreateShader(GL_FRAGMENT_SHADER);
     program->error |= !compile_shader(program->fragment_shaders[i],
-                                      fragment_shaders.values[i].path,
-                                      fragment_shaders.values[i].content);
+                                      project->fragment_shaders[i][0].path,
+                                      project->fragment_shaders[i][0].content);
 
     if (program->error) {
       return;
@@ -377,69 +377,58 @@ static void init_programs(ShaderProgram *program, ConfigFile config,
   }
 }
 
-ShaderProgram shaders_init(Project project, SharedContext *context,
-                           VideoCaptureArray inputs, ShaderProgram *previous) {
-  ShaderProgram program;
+void shaders_init(ShaderProgram *program, Project *project,
+                  SharedContext *context, VideoCaptureArray inputs,
+                  bool rebind) {
+  if (!rebind) {
+    program->error = false;
+    program->last_resolution[0] = context->resolution[0];
+    program->last_resolution[1] = context->resolution[1];
+    program->tex_count = config_file_get_int(project->config, "TEX_COUNT", 9);
+    program->frag_count = project->frag_count;
+    program->frag_output_index =
+        config_file_get_int(project->config, "FRAG_OUTPUT", 1) - 1;
+    program->frag_monitor_index =
+        config_file_get_int(project->config, "FRAG_MONITOR", 1) - 1;
+    program->sub_type_count =
+        config_file_get_int(project->config, "SUB_TYPE_COUNT", 0);
+    program->in_count = config_file_get_int(project->config, "IN_COUNT", 0);
+    program->sub_variant_count = project->state_config.state_max;
+    program->active_count = project->state_config.midi_active_counts.length;
+    program->midi_lengths.length = 0;
 
-  if (previous == NULL) {
-    program.error = false;
-    program.last_resolution[0] = context->resolution[0];
-    program.last_resolution[1] = context->resolution[1];
-    program.tex_count = config_file_get_int(project.config, "TEX_COUNT", 9);
-    program.frag_count = project.frag_count;
-    program.frag_output_index =
-        config_file_get_int(project.config, "FRAG_OUTPUT", 1) - 1;
-    program.frag_monitor_index =
-        config_file_get_int(project.config, "FRAG_MONITOR", 1) - 1;
-    program.sub_type_count =
-        config_file_get_int(project.config, "SUB_TYPE_COUNT", 0);
-    program.in_count = config_file_get_int(project.config, "IN_COUNT", 0);
-    program.sub_variant_count = project.state_config.state_max;
-    program.active_count = project.state_config.midi_active_counts.length;
-    program.midi_lengths.length = 0;
+    init_gl(program);
 
-    if (program.frag_count > MAX_FRAG) {
-      log_error("FRAG_COUNT over %d", MAX_FRAG);
-      program.error = true;
-      return program;
+    init_shaders(program, project);
+
+    if (program->error) {
+      return;
     }
 
-    init_gl(&program);
+    init_textures(program, context);
 
-    init_shaders(&program, project.fragment_shaders);
+    init_input(program, project->config, inputs);
 
-    if (program.error) {
-      return program;
-    }
+    init_framebuffers(program, project->config);
 
-    init_textures(&program, context);
+    init_programs(program, project->config, project->state_config);
 
-    init_input(&program, project.config, inputs);
-
-    init_framebuffers(&program, project.config);
-
-    init_programs(&program, project.config, project.state_config);
-
-    init_vertices(&program);
+    init_vertices(program);
 
     // log_debug("Error after init: %04x",
     //           glGetError()); // TODO check error at each step
-  } else {
-    program = *previous;
   }
 
-  bind_vertices(&program, previous != NULL ? 1 : 0);
-
-  return program;
+  bind_vertices(program, rebind ? 1 : 0);
+  ;
 }
 
-void shaders_update(ShaderProgram program, FileArray fragment_shaders,
+void shaders_update(ShaderProgram program, File fragment_shader,
                     unsigned int i) {
   bool result;
 
-  result = compile_shader(program.fragment_shaders[i],
-                          fragment_shaders.values[i].path,
-                          fragment_shaders.values[i].content);
+  result = compile_shader(program.fragment_shaders[i], fragment_shader.path,
+                          fragment_shader.content);
 
   if (result) {
     glLinkProgram(program.programs[i]);

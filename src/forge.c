@@ -81,7 +81,7 @@ static void init_context(Parameters params, unsigned int in_count) {
 static void free_context() { shared_close_context(context); }
 
 static void reload_shader(unsigned int i) {
-  shaders_update(program, project.fragment_shaders, i);
+  shaders_update(program, project.fragment_shaders[i][0], i);
 }
 
 static void init_inputs(StringArray video_in, unsigned int video_size) {
@@ -186,7 +186,11 @@ void forge_run(Parameters params) {
 
   context->stop = false;
 
-  project = project_init(params.project_path, params.config_file);
+  project_init(&project, params.project_path, params.config_file);
+
+  if (project.error) {
+    return;
+  }
 
   init_inputs(params.video_in, params.video_size);
 
@@ -222,7 +226,7 @@ void forge_run(Parameters params) {
 
     window_use(window_output, context);
 
-    program = shaders_init(project, context, inputs, NULL);
+    shaders_init(&program, &project, context, inputs, false);
   } else {
     window_output = NULL;
   }
@@ -234,8 +238,7 @@ void forge_run(Parameters params) {
 
     window_use(window_monitor, context);
 
-    program = shaders_init(project, context, inputs,
-                           window_output != NULL ? &program : NULL);
+    shaders_init(&program, &project, context, inputs, window_output != NULL);
   } else {
     window_monitor = NULL;
   }
@@ -279,7 +282,7 @@ void forge_run(Parameters params) {
 
   free_context();
 
-  project_free(project);
+  project_free(&project);
 
   window_terminate();
 }

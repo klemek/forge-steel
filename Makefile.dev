@@ -16,6 +16,7 @@ build:
 		log.c/src/log.c \
 		-lm -lGL -lglfw -lasound \
 		-Wall -Wextra \
+		-Wno-format-truncation \
 		-DGLFW_INCLUDE_NONE \
 		-DGLFW_EXPOSE_NATIVE_EGL \
 		-DGLFW_NATIVE_INCLUDE_NONE \
@@ -30,6 +31,10 @@ run: build
 .PHONY: demo
 demo: build
 	./build/$(TARGET) $(TEST_ARGS) --demo
+
+.PHONY: sample
+sample: build
+	./build/$(TARGET) --project=sample
 
 .PHONY: valgrind
 valgrind: build

@@ -1,3 +1,5 @@
+#include frag0.glsl
+
 // A+B
 // ------------
 // IN: 7 (FX A)
