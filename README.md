@@ -101,7 +101,7 @@ When running, the following keybindings are available:
 ### CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-p=PROJECT_PATH] [-c=CFG_FILE] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [--demo] [-w] 
+usage: forge [-h] [-v] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-p=PROJECT_PATH] [-c=CFG_FILE] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-is=SIZE] [-v=FILE] [-vs=SIZE] [-t=TEMPO] [-d] [-w] [-tm] [-tf] 
 
 Fusion Of Real-time Generative Effects.
 
@@ -123,10 +123,10 @@ options:
   -v, --video-in            path to video capture device (multiple allowed)
   -vs, --video-size         video capture desired height (default: internal texture height)
   -t, --tempo               base tempo (default: 60)
-  --demo                    demonstration mode (assume --no-save-state and --no-load-state)
+  -d, --demo                demonstration mode (assume --no-save-state and --no-load-state)
   -w, --windowed            not fullscreen
-  --trace-midi              print midi code and values
-  --trace-fps               print fps status of subsystems
+  -tm, --trace-midi         print midi code and values
+  -tf, --trace-fps          print fps status of subsystems
 ```
 
 ## Default Project

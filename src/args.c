@@ -29,8 +29,10 @@ static void print_help(int status_code) {
        "[-v=FILE] "
        "[-vs=SIZE] "
        "[-t=TEMPO] "
-       "[--demo] "
+       "[-d] "
        "[-w] "
+       "[-tm] "
+       "[-tf] "
        "\n\n"
        "Fusion Of Real-time Generative Effects.\n\n"
        "options:\n"
@@ -56,11 +58,11 @@ static void print_help(int status_code) {
        "  -vs, --video-size         video capture desired height (default: "
        "internal texture height)\n"
        "  -t, --tempo               base tempo (default: 60)\n"
-       "  --demo                    demonstration mode (assume --no-save-state "
+       "  -d, --demo                demonstration mode (assume --no-save-state "
        "and --no-load-state)\n"
        "  -w, --windowed            not fullscreen\n"
-       "  --trace-midi              print midi code and values\n"
-       "  --trace-fps               print fps status of subsystems\n");
+       "  -tm, --trace-midi         print midi code and values\n"
+       "  -tf, --trace-fps          print fps status of subsystems\n");
   exit(status_code);
 }
 
@@ -169,15 +171,15 @@ Parameters args_parse(int argc, char **argv) {
     } else if (is_arg(arg, "-mo") || is_arg(arg, "--monitor-only")) {
       params.output = false;
       params.monitor = true;
-    } else if (is_arg(arg, "--demo")) {
+    } else if (is_arg(arg, "-d") || is_arg(arg, "--demo")) {
       params.demo = true;
       params.load_state = false;
       params.save_state = false;
     } else if (is_arg(arg, "-w") || is_arg(arg, "--windowed")) {
       params.windowed = true;
-    } else if (is_arg(arg, "--trace-midi")) {
+    } else if (is_arg(arg, "-tm") || is_arg(arg, "--trace-midi")) {
       params.trace_midi = true;
-    } else if (is_arg(arg, "--trace-fps")) {
+    } else if (is_arg(arg, "-tf") || is_arg(arg, "--trace-fps")) {
       params.trace_fps = true;
     } else {
       invalid_arg(arg);
