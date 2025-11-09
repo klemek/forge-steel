@@ -86,14 +86,16 @@ make -f Makefile.dev release-arch
   - [x] Share openGL state between monitor and screen
 - [ ] Default project
   - [x] split with includes
-  - [ ] src 9: game of life
-  - [ ] src 10 : ?
-  - [ ] src 11 : ?
-  - [ ] src 12 : ?
+  - [x] src  9 : sentences repeat h
+  - [ ] src 11 : isometric grid
+  - [ ] src 12 : pattern in my kitchen
   - [ ] src 13 : ?
-  - [x] src 15 : debug -> calibration screen
-  - [ ] fx 10 : colorize range (pretty color ranges)
+  - [ ] src 15 : ?
   - [x] fx 11 : spill
+  - [ ] fx 12 : colorize range (pretty color ranges)
+  - [ ] fx 13 : game of life
+  - [ ] fx 14 : ?
+  - [ ] fx 15 : ?
   - [x] frag 10 : move debug screen here
   - [ ] debug : add src/fx/A/B indicators
 - [ ] Other

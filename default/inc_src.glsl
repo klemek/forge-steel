@@ -236,6 +236,7 @@ subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 
     vec2 uv2 = uv1;
     uv2 *= (1 + zoom) * 12;
+    uv2.y += 0.5;
     int s = int(sentence * (SENTENCE_COUNT - 1));
     uv2.x += floor(uv2.y) * (h_delta - 0.5) * 2;
     uv2.y = mix(uv2.y, mod(uv2.y, 1), h_delta_b.x);
@@ -244,22 +245,39 @@ subroutine(src_stage_sub) vec4 src_8(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     return vec4(f);
 }
 
-// TODO SRC 9
+// SRC 9 : sentences repeat
 subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_2(vUV, seed, b1, f1, b2, f2, b3, f3);
+     // start
 
-    // start
-
-    vec2 uv0 = vUV.st;
+	vec2 uv0 = vUV.st;
     float ratio = iResolution.x / iResolution.y;
     vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
 
     // controls
 
+    float h_shift = magic(f1, b1, seed + 10);
+    float sentence = magic_reverse(f2, b2, seed + 20);
+    float h_delta = magic(f3, b3, seed + 30);
+    vec3 h_delta_b = magic_b(b3, seed + 30);
+
     // logic
-    
-    return texture(iTex0, vUV);
+
+    vec2 uv2 = uv1;
+    uv2.x += h_shift;
+    uv2 *= 15;
+    uv2.y += 0.5;
+    int s = int(sentence * (SENTENCE_COUNT - 1));
+    float slen = float(lengths[s]);
+    uv2.x += floor(uv2.y) * (h_delta - 0.5) * 2;
+    uv2.x = cmod(uv2.x, slen + 1);
+    vec2 uv3 = uv2;
+    uv3.y = mix(uv3.y, mod(uv3.y, 1), h_delta_b.x);
+    float f = write_20(uv3, vec2(-slen * 0.5, 0), sentences[s]);
+
+    f *= (1 - abs(floor(uv2.y) * 0.125)) * (1 - abs(floor(uv2.y) * 0.125));
+
+    return vec4(f);
 }
 
 // TODO SRC 10
