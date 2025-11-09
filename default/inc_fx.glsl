@@ -507,24 +507,40 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
     return fx_master(c0, c, seed, m0);
 }
 
-// TODO FX 15
+// FX 15 : Random
 subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_2(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
-    // start
+	int fx = int(randTime(seed + 100, 16) * 14);
 
-	vec2 uv0 = vUV.st;
-    float ratio = iResolution.x / iResolution.y;
-    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
-
-    // controls
-
-    // logic
-    
-    vec3 c0 = texture(previous, uv0).xyz;
-    vec3 c = c0;
-
-    return fx_master(c0, c, seed, m0);
+    if (fx == 0) {
+        return fx_1(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 1) {
+        return fx_2(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 2) {
+        return fx_3(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 3) {
+        return fx_4(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 4) {
+        return fx_5(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 5) {
+        return fx_6(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 6) {
+        return fx_7(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 7) {
+        return fx_8(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 8) {
+        return fx_9(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 9) {
+        return fx_10(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 10) {
+        return fx_11(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 11) {
+        return fx_12(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else if (fx == 12) {
+        return fx_13(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    } else {
+        return fx_14(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    }
 }
 
 #endif

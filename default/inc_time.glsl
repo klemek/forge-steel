@@ -11,8 +11,12 @@ uniform float iTime;
 uniform float iTempo;
 uniform float iBeats;
 
+float randTime(float seed, int beats){
+    return rand(seed + floor(iBeats / beats));
+}
+
 float randTime(float seed){
-    return rand(seed + floor(iBeats / 4));
+    return randTime(seed, 4);
 }
 
 float divider(float x)

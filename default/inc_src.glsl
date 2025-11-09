@@ -457,51 +457,40 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     return vec4(f);
 }
 
-// TODO SRC 15
+// SRC 15 : Random
 subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_9(vUV, seed, b1, f1, b2, f2, b3, f3);
-    // start
+    int src = int(randTime(seed + 100, 16) * 14);
 
-	vec2 uv0 = vUV.st;
-    float ratio = iResolution.x / iResolution.y;
-    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
-
-    // controls
-
-    float circle = magic(f1, b1, seed + 10);
-    float x_shift = magic(f2, b2, seed + 20);
-    float grid_size = 0.1 + magic(f3, b3, seed + 30) * 0.9;
-    bool show_grid = magic_trigger(b3, seed + 30);
-
-    // logic
-
-    float f = 0;
-
-    f += istep(circle * 0.5, length(uv1));
-
-    float txt = 0;
-    float txt_rect = rect(uv1 * 10, vec2(0), vec2(2, 1));
-
-    txt += write_int(uv1 * 10, vec2(-1.33,-0.5), int(mod(iBeats, 4) + 1), 1);
-    txt += char_at(uv1 * 10, vec2(-0.33, -0.5), 0x2E);
-    txt += write_int(uv1 * 10, vec2(0.66,-0.5), int((mod(iBeats, 4) + 1) * 10), 1);
-
-    float grid = 0;
-
-    grid = istep(grid_size * 0.1, mod(uv1.x + grid_size * 0.05, grid_size)) + istep(grid_size * 0.1, mod(uv1.y + grid_size * 0.05, grid_size));
-
-    grid = mix(grid, 0, show_grid ? min(1, f + txt_rect) : 1);
-
-    vec3 c = vec3(istep(0.25, mod(uv0.x + x_shift, 0.5)), istep(0.25, mod(uv0.x + 0.125 + x_shift, 0.5)), istep(0.5, mod(uv0.x + x_shift, 1.0)));
-
-    c = mix(c, 1 - c, f);
-
-    c = mix(c, vec3(txt), txt_rect);
-
-    c = mix(c, vec3(grid) * 0.5, grid);
-    
-    return vec4(c, 1);
+    if (src == 0) {
+        return src_1(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 1) {
+        return src_2(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 2) {
+        return src_3(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 3) {
+        return src_4(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 4) {
+        return src_5(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 5) {
+        return src_6(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 6) {
+        return src_7(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 7) {
+        return src_8(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 8) {
+        return src_9(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 9) {
+        return src_10(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 10) {
+        return src_11(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 11) {
+        return src_12(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else if (src == 12) {
+        return src_13(vUV, seed, b1, f1, b2, f2, b3, f3);
+    } else {
+        return src_14(vUV, seed, b1, f1, b2, f2, b3, f3);
+    }
 }
 
 #endif
