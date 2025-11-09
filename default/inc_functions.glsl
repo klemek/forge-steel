@@ -201,6 +201,51 @@ float h_rect(vec2 uv, vec2 c, vec2 size, float k) {
     return rect(uv, c, size + k * 0.5) - rect(uv, c, size - k * 0.5);
 }
 
+float line(vec2 uv, vec2 p1, vec2 p2, float thick) {
+    vec2 p = p2 - p1;
+    uv -= p1;
+    vec2 k;
+    
+    if (abs(p.y) > abs(p.x)) {
+        k = vec2(
+            uv.x - p.x * uv.y / p.y,
+            uv.y / p.y
+        );
+        
+        return step(k.x, thick * 0.5)
+            * step(-k.x, thick * 0.5)
+            * step(k.y, 1)
+            * (1 - step(k.y, 0));
+    } else {
+        k = vec2(
+            uv.x / p.x,
+            uv.y - p.y * uv.x / p.x
+        );
+        
+        return step(k.y, thick * 0.5)
+            * step(-k.y, thick * 0.5)
+            * step(k.x, 1)
+            * (1 - step(k.x, 0));
+    }
+}
+
+const mat2x2 ISOMETRIC_MATRIX = {{0.5, 1}, {0.5, -1}};
+
+vec2 iso(vec2 p) {
+    return p * ISOMETRIC_MATRIX;
+}
+
+vec2 iso_z(float z) {
+    return vec2(
+        -z,
+        z
+    );
+}
+
+vec2 iso(vec3 uv) {
+    return iso(uv.xy) + iso_z(uv.z);
+}
+
 // INPUTS
 
 vec4 reframe(sampler2D tex, vec2 uv)

@@ -87,9 +87,10 @@ make -f Makefile.dev release-arch
 - [ ] Default project
   - [x] split with includes
   - [x] src  9 : sentences repeat h
-  - [ ] src 11 : isometric grid
+  - [x] src 10 : isometric grid
   - [ ] src 12 : pattern in my kitchen
-  - [ ] src 13 : ?
+  - [ ] src 13 : cursor with select
+  - [ ] src 14 : ?
   - [ ] src 15 : ?
   - [x] fx 11 : spill
   - [ ] fx 12 : colorize range (pretty color ranges)

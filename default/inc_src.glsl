@@ -280,10 +280,9 @@ subroutine(src_stage_sub) vec4 src_9(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     return vec4(f);
 }
 
-// TODO SRC 10
+// SRC 10 : isometric grid
 subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_3(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -292,9 +291,45 @@ subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // controls
 
+    float zoom = 5 + magic(f1, b1, seed + 10) * 15;
+    float h_scroll = magic(f2, b2, seed + 20);
+    float max_elevation = magic(f3, b3, seed + 30) * 0.5;
+    float thick = 0.1;
+
     // logic
+
+    vec2 uv2 = uv1;
+
+    vec2 uv3 = iso(uv2);
+
+    uv3 += vec2(h_scroll, 0);
+
+    uv3 *= round(zoom);
+
+    vec2 umax = vec2(round(zoom), 300);
+
+    vec2 u0 = mod(floor(uv3), umax);
+    vec2 u1 = mod(floor(uv3 + vec2(1, 0)), umax);
+    vec2 u2 = mod(floor(uv3 + vec2(0, 1)), umax);
+    vec2 u3 = mod(floor(uv3 + vec2(-1, 0)), umax);
+    vec2 u4 = mod(floor(uv3 + vec2(0, -1)), umax);
     
-    return texture(iTex0, vUV);
+    float e0 = (rand(floor(u0)) * 2 - 1) * max_elevation;
+    float e1 = (rand(floor(u1)) * 2 - 1) * max_elevation;
+    float e2 = (rand(floor(u2)) * 2 - 1) * max_elevation;
+    float e3 = (rand(floor(u3)) * 2 - 1) * max_elevation;
+    float e4 = (rand(floor(u4)) * 2 - 1) * max_elevation;
+
+    uv3 = mod(uv3, 1.0) - 0.5;
+
+    float f = 0;
+
+    f = line(uv3, vec2(0, 0) - iso_z(e0), vec2(1, 0) - iso_z(e1), thick)
+        + line(uv3, vec2(0, 0) - iso_z(e0), vec2(0, 1) - iso_z(e2), thick)
+        + line(uv3, vec2(0, 0) - iso_z(e0), vec2(-1, 0) - iso_z(e3), thick)
+        + line(uv3, vec2(0, 0) - iso_z(e0), vec2(0, -1) - iso_z(e4), thick);
+    
+    return vec4(f);
 }
 
 // SRC 11 : video in 2 + thru
