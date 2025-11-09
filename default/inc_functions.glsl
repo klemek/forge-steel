@@ -79,6 +79,36 @@ vec3 shift3(vec3 c, float f) {
     return shift(shift(shift(c, f), f), f);
 }
 
+vec3 mix3(vec3 c1, vec3 c2, vec3 c3, float x) {
+    return istep(0.5, x) * mix(c1, c2, x * 2)
+        + step(0.5, x) * mix(c2, c3, x * 2 - 1)
+    ;
+}
+
+vec3 mix4(vec3 c1, vec3 c2, vec3 c3, vec3 c4, float x) {
+    return istep(0.333, x) * mix(c1, c2, x * 3)
+        + step(0.333, x) * istep(0.667, x) * mix(c2, c3, x * 3 - 1)
+        + step(0.667, x) * mix(c3, c4, x * 3 - 2);
+    ;
+}
+
+vec3 mix5(vec3 c1, vec3 c2, vec3 c3, vec3 c4, vec3 c5, float x) {
+    return istep(0.25, x) * mix(c1, c2, x * 4)
+        + step(0.25, x) * istep(0.5, x) * mix(c2, c3, x * 4 - 1)
+        + step(0.5, x) * istep(0.75, x) * mix(c3, c4, x * 4 - 2)
+        + step(0.75, x) * mix(c4, c5, x * 4 - 3)
+    ;
+}
+
+vec3 mix6(vec3 c1, vec3 c2, vec3 c3, vec3 c4, vec3 c5, vec3 c6, float x) {
+    return istep(0.2, x) * mix(c1, c2, x * 5)
+        + step(0.2, x) * istep(0.4, x) * mix(c2, c3, x * 5 - 1)
+        + step(0.4, x) * istep(0.6, x) * mix(c3, c4, x * 5 - 2)
+        + step(0.6, x) * istep(0.8, x) * mix(c4, c5, x * 5 - 3)
+        + step(0.8, x) * mix(c5, c6, x * 5 - 4)
+    ;
+}
+
 float mean(vec3 v)
 {
     return v.x * 0.3333 + v.y * 0.3333 + v.z * 0.3333;

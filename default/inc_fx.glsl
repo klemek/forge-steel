@@ -487,10 +487,9 @@ subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feed
     return fx_master(c0, c, seed, m0);
 }
 
-// TODO FX 14
+// FX 14 : Isometric
 subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_1(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -499,10 +498,27 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
 
     // controls
 
+    float zoom = 1 + magic(f1, b1, seed + 10) * 9;
+    float h_scroll = magic(f2, b2, seed + 20);
+    float angle = magic(f3, b3, seed + 30);
+
     // logic
 
     vec3 c0 = texture(previous, uv0).xyz;
-    vec3 c = c0;
+
+    vec2 uv2 = uv1;
+
+    vec2 uv3 = iso(uv2);
+
+    uv3 *= rot(angle);
+
+    uv3 += vec2(h_scroll, 0);
+
+    uv3 *= round(zoom);
+
+    vec2 umax = vec2(round(zoom), 300);
+
+    vec3 c = reframe(previous, mod(uv3, umax)).xyz;
 
     return fx_master(c0, c, seed, m0);
 }

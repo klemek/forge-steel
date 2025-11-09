@@ -84,7 +84,7 @@ make -f Makefile.dev release-arch
   - [x] Use buffers as panels (INA A FXA / DEBUG A+B FXA+B / INB B FXB)
   - [x] Clean code and fix things
   - [x] Share openGL state between monitor and screen
-- [ ] Default project
+- [x] Default project
   - [x] split with includes
   - [x] src  9 : sentences repeat h
   - [x] src 10 : isometric grid
@@ -95,10 +95,10 @@ make -f Makefile.dev release-arch
   - [x] fx 11 : spill
   - [x] fx 12 : game of life
   - [x] fx 13 : sobel
-  - [ ] fx 14 : colorize range (pretty color ranges)
+  - [x] fx 14 : colorize range (pretty color ranges)
   - [x] fx 15 : random fx
   - [x] frag 10 : move debug screen here
-  - [ ] debug : add src/fx/A/B indicators
+  - [x] debug : add src/fx/A/B indicators
 - [ ] Other
   - [x] `forge_project.cfg`
   - [x] Define frag prefix in config

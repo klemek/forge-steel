@@ -154,7 +154,7 @@ options:
 | **3** | **A** | Video In 2 + Thru | _Hue_             | _Saturation_    | _Light_            | Spill            | _Bottom limit_  | _Top Limit_   | _Rotation_     |
 |       | **B** | Scales            | _Zoom_            | _Shape_         | _Ripples_          | Game Of Life     | _Pixel Size_    | _Ruleset/Threshold_ | _Feedback_               |
 |       | **C** | Credenza          | _Zoom_            | _Shape_         | _Ripples_          | Sobel Filter    | _Horz. filter_   | _Vert. filter_ | _Filter Size_ |
-|       | **D** | Cursor            | _Size_            | _Pos X_         | _Pos Y_            | (same as 0)     |                  |               |                |
+|       | **D** | Cursor            | _Size_            | _Pos X_         | _Pos Y_            | Isometric       | _Zoom_           | _Scroll_       | _Rotate_      |
 |       | **E** | (Random source)   | ---               | ---             | ---                | (Random effect)  | ---              | ---          |  ---          |
 
 TODO update

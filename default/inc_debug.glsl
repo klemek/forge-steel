@@ -52,7 +52,25 @@ vec4 debug(vec2 vUV)
     // inputs
 
     int selected_srca = iState3 - 1;
+    if (selected_srca == 14) {
+        selected_srca = int(randTime(iSeed3 + 100, 16) * 14);
+    }
+    if (selected_srca == 5 && iDemo > 0) {
+        selected_srca = 1;
+    }
+    if (selected_srca == 10 && iDemo > 0) {
+        selected_srca = 2;
+    }
     int selected_srcb = iState4 - 1;
+    if (selected_srcb == 14) {
+        selected_srcb = int(randTime(iSeed4 + 100, 16) * 14);
+    }
+    if (selected_srcb == 5 && iDemo > 0) {
+        selected_srcb = 1;
+    }
+    if (selected_srcb == 10 && iDemo > 0) {
+        selected_srcb = 2;
+    }
     int selected_fxa = iState5 - 1;
     int selected_fxb = iState6 - 1;
     int selected_mfx = iState8 - 1;
@@ -67,13 +85,17 @@ vec4 debug(vec2 vUV)
 
     // logic
 
-    const int texts[6][5] = {
+    const int texts[10][5] = {
         {0x46, 0x50, 0x53, 0x00, 0x00}, // FPS
         {0x54, 0x45, 0x4D, 0x50, 0x4F}, // TEMPO
         {0x54, 0x49, 0x4D, 0x45, 0x00}, // TIME
         {0x44, 0x45, 0x4D, 0x4F, 0x00}, // DEMO
         {0x4C, 0x49, 0x56, 0x45, 0x00}, // LIVE
         {0x2B, 0x52, 0x41, 0x4E, 0x44}, // +RAND
+        {0x53, 0x52, 0x43, 0x00, 0x00}, // SRC
+        {0x46, 0x58, 0x00, 0x00, 0x00}, // FX
+        {0x49, 0x4E, 0x00, 0x00, 0x00}, // IN
+        {0x4D, 0x46, 0x58, 0x00, 0x00}, // MFX
     };
 
     vec2 uv2 = uv1;
@@ -126,14 +148,25 @@ vec4 debug(vec2 vUV)
     f += iActive2 == 2 ? h_rect(uv2, vec2(-2, -3.2), vec2(1, 0), 0.1) : 0;
     f += iActive2 == 3 ? h_rect(uv2, vec2(5, -1.2), vec2(1, 0), 0.1) : 0;
 
+    // show src/fx
+
+    f += write_5(uv3 * 0.75, vec2(-11.6,-1.8), texts[6]);
+    f += write_5(uv3 * 0.75, vec2(-4.2,-1.8), texts[7]);
+    f += char_at(uv3 * 0.5, vec2(0.5, 0.5), 0x41);
+    f += char_at(uv3 * 0.5, vec2(0.5, -3), 0x42);
+    if (iDemo < 1 && (iInputFormat1 == YUYV_FOURCC || iInputFormat2 == YUYV_FOURCC)) {
+        f += write_5(uv3 * 0.75, vec2(-19.7,-1.8), texts[8]);
+    }
+    f += write_5(uv3 * 0.75, vec2(10.9,2), texts[9]);
+
     // show inputs / feedback
     float line_a_a = rect(uv2, vec2(-8, 2), vec2(2, 0.1));
     float line_a_b = rect(uv2, vec2(-7, 2), vec2(1, 0.1)) + rect(uv2, vec2(-8, 0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-9, -1), vec2(1, 0.1));
     float line_a_f = rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 4), vec2(7, 0.1)) + rect(uv2, vec2(-7, 3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, 2), vec2(0.1, 2.1));
     if (selected_srca == 5 && iInputFormat1 == YUYV_FOURCC) {
-        f += iInputResolution1.x > 0 ? line_a_a : line_a_f;
+        f += line_a_a;
     } else if (selected_srca == 10 && iInputFormat2 == YUYV_FOURCC) {
-        f += iInputResolution2.x > 0 ? line_a_b : line_a_f;
+        f += line_a_b;
     } else if (selected_srca % 5 == 0) {
         f += line_a_f;
     }
@@ -141,9 +174,9 @@ vec4 debug(vec2 vUV)
     float line_b_b = rect(uv2, vec2(-8, -2), vec2(2, 0.1));
     float line_b_f = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1));
     if (selected_srcb == 5 && iInputFormat1 == YUYV_FOURCC) {
-        f += iInputResolution1.x > 0 ? line_b_a : line_b_f;
+        f += line_b_a;
     } else if (selected_srcb == 10 && iInputFormat2 == YUYV_FOURCC) {
-        f += iInputResolution2.x > 0 ? line_b_b : line_b_f;
+        f += line_b_b;
     } else if (selected_srcb % 5 == 0) {
         f += line_b_f;
     }
