@@ -89,8 +89,8 @@ make -f Makefile.dev release-arch
   - [x] src  9 : sentences repeat h
   - [x] src 10 : isometric grid
   - [x] src 12 : pattern in my kitchen
-  - [ ] src 13 : cursor with select
-  - [ ] src 14 : ?
+  - [x] src 13 : another pattern in my kitchen
+  - [ ] src 14 : cursor with select
   - [ ] src 15 : ?
   - [x] fx 11 : spill
   - [x] fx 12 : game of life

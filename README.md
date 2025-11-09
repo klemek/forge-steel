@@ -153,7 +153,7 @@ options:
 |       | **9** | Isometric grid    | _Zoom_            | _Scroll_        | _Elevation_        | Lens             | _Lens limit_    | _Lens power_  | _Pre Zoom_     |
 | **3** | **A** | Video In 2 + Thru | _Hue_             | _Saturation_    | _Light_            | Spill            | _Bottom limit_  | _Top Limit_   | _Rotation_     |
 |       | **B** | Scales            | _Zoom_            | _Shape_         | _Ripples_          | Game Of Life     | _Pixel Size_    | _Ruleset/Threshold_ | _Feedback_               |
-|       | **C** | (same as 6)       |                   |                 |                    | Sobel Filter    | _Horz. filter_   | _Vert. filter_ | _Filter Size_ |
+|       | **C** | Credenza          | _Zoom_            | _Shape_         | _Ripples_          | Sobel Filter    | _Horz. filter_   | _Vert. filter_ | _Filter Size_ |
 |       | **D** | (same as 7)       |                   |                 |                    | (same as 0)     |                  |               |                |
 |       | **E** | (same as 8)       |                   |                 |                    | (same as 1)     |                  |               |                |
 

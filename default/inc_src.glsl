@@ -389,10 +389,9 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     return vec4(f);
 }
 
-// TODO SRC 13
+// SRC 13 : Credenza
 subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_7(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -401,9 +400,25 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // controls
 
+    float zoom = 5 + magic(f1, b1, seed + 10) * 15;
+    float shape = 0.1 + magic(f2, b2, seed + 20) * 0.9;
+    float repeat = 1 + magic(f3, b3, seed + 30) * 10;
+
     // logic
+
+    vec2 uv2 = uv1;
+
+    uv2 *= zoom;
     
-    return texture(iTex0, vUV);
+    uv2 = mod(uv2, 2);
+
+    uv2 = abs(uv2 - 1);
+
+    float f = istep(1, length(uv2)) * istep(1, length(1 - uv2));
+
+    f *= istep(0.5, saw((length(uv2) + shape + 0.5) * repeat)) * istep(0.5, saw((length(1 - uv2) + shape + 0.5) * repeat));
+    
+    return vec4(f);
 }
 
 // TODO SRC 14
