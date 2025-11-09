@@ -93,8 +93,8 @@ make -f Makefile.dev release-arch
   - [ ] src 14 : ?
   - [ ] src 15 : ?
   - [x] fx 11 : spill
-  - [ ] fx 12 : colorize range (pretty color ranges)
-  - [ ] fx 13 : game of life
+  - [x] fx 12 : game of life
+  - [ ] fx 13 : colorize range (pretty color ranges)
   - [ ] fx 14 : ?
   - [ ] fx 15 : ?
   - [x] frag 10 : move debug screen here

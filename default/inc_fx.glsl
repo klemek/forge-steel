@@ -347,21 +347,115 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
 // TODO FX 12
 subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_2(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
     float ratio = iResolution.x / iResolution.y;
-    vec2 uv1 = (uv0 - .5) * vec2(ratio, 1);
+    vec2 uv1 = (uv0 - 0.5) * vec2(ratio, 1);
 
     // controls
+
+    float pixel_size = magic(f1, b1, seed + 10);
+    bool pixel_size_trigger = magic_trigger(b1, seed + 10);
+    f2 = magic_f(f2, b2, seed + 20);
+    int rule = int(f2.x * 12);
+    float threshold = f2.y * 0.9 + 0.05;
+    float fb = magic(f3, b3, seed + 30);
 
     // logic
     
     vec3 c0 = texture(previous, uv0).xyz;
-    vec3 c = c0;
 
-    return fx_master(c0, c, seed, m0);
+    vec2 uv2 = uv1;
+    float k1 = pow(2, 10 - floor(pixel_size * 6));
+    float p = 1 / k1;
+    uv2 = round(uv2 * k1) / k1;
+    vec3 c1 = mix(
+        gauss(previous, (uv2 + vec2(0.5, 0.5) * p) * vec2(1 / ratio, 1) + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(0.5, 0.5) * p) * vec2(1 / ratio, 1) + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c2 = mix(
+        gauss(previous, (uv2 + vec2(1.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(1.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c3 = mix(
+        gauss(previous, (uv2 + vec2(1.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(1.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c4 = mix(
+        gauss(previous, (uv2 + vec2(0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c5 = mix(
+        gauss(previous, (uv2 + vec2(-0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(-0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c6 = mix(
+        gauss(previous, (uv2 + vec2(-0.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(-0.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c7 = mix(
+        gauss(previous, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c8 = mix(
+        gauss(previous, (uv2 + vec2(0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    vec3 c9 = mix(
+        gauss(previous, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        gauss(feedback, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        fb
+    );
+    bool alive = mean(c1) >= threshold;
+    int n = 0
+        + (mean(c2) >= threshold ? 1 : 0)
+        + (mean(c3) >= threshold ? 1 : 0)
+        + (mean(c4) >= threshold ? 1 : 0)
+        + (mean(c5) >= threshold ? 1 : 0)
+        + (mean(c6) >= threshold ? 1 : 0)
+        + (mean(c7) >= threshold ? 1 : 0)
+        + (mean(c8) >= threshold ? 1 : 0)
+        + (mean(c9) >= threshold ? 1 : 0)
+    ;
+
+    if (rule == 0) { // B3/S23 (life)
+        alive = alive && n == 2 || n == 3;
+    } else if (rule == 1) { // B1357/S1357 (replicator)
+        alive = n == 2 || n == 3 || n == 5 || n == 7;
+    } else if (rule == 2) { // B2/S (seeds)
+        alive = !alive && n == 2;
+    } else if (rule == 3) { // B25/S4
+        alive = !alive && (n == 2 || n == 5) || alive && n == 4;
+    } else if (rule == 4) { // B3/S012345678 (life without death)
+        alive = alive || n == 3;
+    } else if (rule == 5) { // B34/S34 (34 life)
+        alive = n == 3 || n ==4;
+    } else if (rule == 6) { // B35678/S5678 (Diamoeba)
+        alive = n >= 5 || !alive && n == 3;
+    } else if (rule == 7) { // B36/S125 (2x2)
+        alive = !alive && (n == 3 || n == 6) || alive && (n == 1 || n == 2 || n == 5);
+    } else if (rule == 8) { // B36/S23 (HighLife)
+        alive = !alive && n == 6 || alive && n == 2 || n == 3;
+    } else if (rule == 9) { // B3678/S34678 (Day & Night)
+        alive = n == 3 || n >= 6 || alive && n == 4;
+    } else if (rule == 10) { // B368/S245 (Morley)
+        alive = !alive && (n == 3 || n == 6 || n == 8) || alive && (n == 2 || n == 4 || n == 5);
+    } else if (rule == 11) { // B4678/S35678 (Anneal)
+        alive = n >= 6 || !alive && n == 4 || alive && (n == 3 || n == 5);
+    }
+    
+    vec3 cout = vec3(alive ? 1 : 0);
+
+    return fx_master(c0, cout, seed, m0);
 }
 
 // TODO FX 13
