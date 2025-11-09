@@ -65,7 +65,7 @@ subroutine(src_stage_sub) vec4 src_2(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     uv2 *= rot(rotation + iBeats / 16);
     float k = thickness * 2;
     uv2.y = cmod(uv2.y, k * 2 + 0.1);
-    float f = step(uv2.y, k * 0.125 + 0.05) * step(-uv2.y, k * 0.125 + 0.01);
+    float f = istep(k * 0.125 + 0.05, uv2.y) * istep(k * 0.125 + 0.01, -uv2.y);
     
     return vec4(f);
 }
@@ -94,7 +94,7 @@ subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     uv2 *= rot(rotation + iBeats / 16);
     float k = zoom * 0.1 + 0.05;
     uv2 = cmod(uv2, k * 2);
-    float f = step(length(uv2), k / (1 + length(uv1) * 2));
+    float f = istep(k / (1 + length(uv1) * 2), length(uv2));
     
     return vec4(f);
 }
@@ -137,7 +137,7 @@ subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     s *= 0.1;
     float cut =  0.025 + thickness * 0.475;
     float y2 = min(1.0, -(uv2.y));
-    float f = (0.1 + 0.9 * (cos((y2 + 1.0) * PI) * 0.5 + 0.5)) * step(uv2.y, 0.) * step(fract(y + (s - 1) * (1 - cut) * 0.5), cut);//step(uv2.y, 0.) * mod(-uv2.y * 1.0, 1.0);
+    float f = (0.1 + 0.9 * (cos((y2 + 1.0) * PI) * 0.5 + 0.5)) * istep(0, uv2.y) * istep(cut, fract(y + (s - 1) * (1 - cut) * 0.5));
     
     return vec4(f);
 }
@@ -338,10 +338,9 @@ subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     return src_thru(vUV, iTex4, seed, b1, f1, b2, f2, b3, f3);
 }
 
-// TODO SRC 12
+// SRC 12 : Scales
 subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_4(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -350,15 +349,42 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // controls
 
+    float zoom = 5 + magic(f1, b1, seed + 10) * 15;
+    float shape = magic(f2, b2, seed + 20);
+    float repeat = 1 + magic(f3, b3, seed + 30) * 10;
+
     // logic
-    
-    return texture(iTex0, vUV);
+
+    float f = 0;
+
+    vec2 uv2 = uv1;
+
+    uv2 *= zoom;
+
+    uv2 = mod(uv2, 4);
+
+    vec2 uv3 = uv2;
+
+    uv3.y = mix(uv3.y, -uv3.y, step(2, uv2.x) * step(2, uv2.y));
+    uv3.y = mix(uv3.y, -uv3.y, istep(2, uv2.x) * istep(2, uv2.y));
+
+    uv3.y = -uv3.y;
+
+    uv3.x = mix(-uv3.x, uv3.x, istep(3, uv2.x) * step(1, uv2.x));
+    uv3.x = mix(-uv3.x, uv3.x, istep(3, uv2.y) * step(1, uv2.y));
+
+    f = istep(0.5, saw((length(mod(uv3, 1)) + shape + 0.5) * repeat));
+
+    f = mix(1 - f, f, istep(1, abs(uv2.y - 2)) * istep(2, uv2.x));
+    f = mix(1 - f, f, step(1, abs(uv2.y - 2)) * step(2, uv2.x));
+
+    return vec4(f);
 }
 
 // TODO SRC 13
 subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_5(vUV, seed, b1, f1, b2, f2, b3, f3);
+    return src_2(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -375,7 +401,7 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // TODO SRC 14
 subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_7(vUV, seed, b1, f1, b2, f2, b3, f3);
+    return src_3(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -389,9 +415,10 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     return texture(iTex0, vUV);
 }
 
-// SRC 15 : Calibration
+// TODO SRC 15
 subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    return src_4(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -409,7 +436,7 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     float f = 0;
 
-    f += step(length(uv1), circle * 0.5);
+    f += istep(circle * 0.5, length(uv1));
 
     float txt = 0;
     float txt_rect = rect(uv1 * 10, vec2(0), vec2(2, 1));
@@ -420,11 +447,11 @@ subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     float grid = 0;
 
-    grid = step(mod(uv1.x + grid_size * 0.05, grid_size), grid_size * 0.1) + step(mod(uv1.y + grid_size * 0.05, grid_size), grid_size * 0.1);
+    grid = istep(grid_size * 0.1, mod(uv1.x + grid_size * 0.05, grid_size)) + istep(grid_size * 0.1, mod(uv1.y + grid_size * 0.05, grid_size));
 
     grid = mix(grid, 0, show_grid ? min(1, f + txt_rect) : 1);
 
-    vec3 c = vec3(step(mod(uv0.x + x_shift, 0.5), 0.25), step(mod(uv0.x + 0.125 + x_shift, 0.5), 0.25), step(mod(uv0.x + x_shift, 1.0), 0.5));
+    vec3 c = vec3(istep(0.25, mod(uv0.x + x_shift, 0.5)), istep(0.25, mod(uv0.x + 0.125 + x_shift, 0.5)), istep(0.5, mod(uv0.x + x_shift, 1.0)));
 
     c = mix(c, 1 - c, f);
 

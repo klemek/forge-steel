@@ -344,7 +344,7 @@ subroutine(fx_stage_sub) vec4 fx_11(vec2 vUV, sampler2D previous, sampler2D feed
     return fx_master(c0, c, seed, m0);
 }
 
-// TODO FX 12
+// FX 12 : Game Of Life
 subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
     // start
@@ -461,7 +461,7 @@ subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feed
 // TODO FX 13
 subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_3(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    return fx_2(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -481,7 +481,7 @@ subroutine(fx_stage_sub) vec4 fx_13(vec2 vUV, sampler2D previous, sampler2D feed
 // TODO FX 14
 subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_4(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    return fx_3(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -501,7 +501,7 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
 // TODO FX 15
 subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-    return fx_5(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
+    return fx_4(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);
     // start
 
 	vec2 uv0 = vUV.st;

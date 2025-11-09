@@ -150,12 +150,12 @@ options:
 |       | **6** | CP437             | _Zoom_            | _Charset_       | _Char. Delta_      | TV               | _Lens_          | _Horz. Noise_ | _Dezoom_       |
 |       | **7** | Sentences         | _Zoom_            | _Sentence_      | _Vertical repeat_  | Kaleidoscope     | _Axes_          | _Rotation_    | _Horz. Scroll_ |
 |       | **8** | Sentences repeat  | _X Shift_         | _Sentence_      | _Vertical repeat_  | CP437            | _Zoom_          | _Charset_     | _Char. Delta_  |
-|       | **9** |  Isometric grid   | _Zoom_            | _Scroll_        | _Elevation_        | Lens             | _Lens limit_    | _Lens power_  | _Pre Zoom_     |
+|       | **9** | Isometric grid    | _Zoom_            | _Scroll_        | _Elevation_        | Lens             | _Lens limit_    | _Lens power_  | _Pre Zoom_     |
 | **3** | **A** | Video In 2 + Thru | _Hue_             | _Saturation_    | _Light_            | Spill            | _Bottom limit_  | _Top Limit_   | _Rotation_     |
-|       | **B** |                   |                   |                 |                    | Game Of Life     | _Pixel Size_    | _Ruleset/Threshold_ | _Feedback_               |
-|       | **C** |                   |                   |                 |                    |                  |                 |               |                |
-|       | **D** |                   |                   |                 |                    |                  |                 |               |                |
-|       | **E** |                   |                   |                 |                    |                  |                 |               |                |
+|       | **B** | Scales            | _Zoom_            | _Shape_         | _Ripples_          | Game Of Life     | _Pixel Size_    | _Ruleset/Threshold_ | _Feedback_               |
+|       | **C** | (same as 1)       |                   |                 |                    |                  | (same as 1)    |               |                |
+|       | **D** | (same as 2)       |                   |                 |                    |                  | (same as 2)    |               |                |
+|       | **E** | (same as 3)       |                   |                 |                    |                  | (same as 3)    |               |                |
 
 TODO update
 

@@ -9,6 +9,18 @@
 
 // BASICS
 
+float istep(float x, float y) {
+    return 1 - step(x, y);
+}
+
+float estep(float x, float y) {
+    return smoothstep(x - 0.0001, x + 0.0001, y);
+}
+
+float iestep(float x, float y) {
+    return 1 - estep(x, y);
+}
+
 float ease(float x) {
     return 0.5 - cos(max(min(x, 1.0), 0.0)*PI) * 0.5;
 }

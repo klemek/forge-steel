@@ -88,7 +88,7 @@ make -f Makefile.dev release-arch
   - [x] split with includes
   - [x] src  9 : sentences repeat h
   - [x] src 10 : isometric grid
-  - [ ] src 12 : pattern in my kitchen
+  - [x] src 12 : pattern in my kitchen
   - [ ] src 13 : cursor with select
   - [ ] src 14 : ?
   - [ ] src 15 : ?
