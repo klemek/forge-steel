@@ -90,13 +90,13 @@ make -f Makefile.dev release-arch
   - [x] src 10 : isometric grid
   - [x] src 12 : pattern in my kitchen
   - [x] src 13 : another pattern in my kitchen
-  - [ ] src 14 : cursor with select
-  - [ ] src 15 : ?
+  - [x] src 14 : cursor with select
+  - [ ] src 15 : random source
   - [x] fx 11 : spill
   - [x] fx 12 : game of life
   - [x] fx 13 : sobel
   - [ ] fx 14 : colorize range (pretty color ranges)
-  - [ ] fx 15 : ?
+  - [ ] fx 15 : random fx
   - [x] frag 10 : move debug screen here
   - [ ] debug : add src/fx/A/B indicators
 - [ ] Other

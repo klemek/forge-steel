@@ -421,10 +421,9 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     return vec4(f);
 }
 
-// TODO SRC 14
+// SRC 14 : Cursor
 subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_8(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -433,9 +432,29 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 
     // controls
 
+    float size = magic(f1, b1, seed + 10) * 2 + 0.1;
+    float dx = (magic(f2, b2, seed + 20) * (1 - size * 0.06) - 0.5) * ratio;
+    float dy = magic(f3, b3, seed + 30) * (1 - size * 0.17) - 0.5;
+
     // logic
+
+    vec2 uv2 = uv1;
+
+    uv2 -= vec2(dx, -dy);
+
+    uv2 /= size;
+
+    uv2 *= -rot(-PI / 2);
+
+    float f = istep(0, (uv2.x * 2 + uv2.y) * (uv2.x * 2 - uv2.y)) * istep(0, uv2.y);
+
+    uv2.y += 0.1;
+
+    f  -= istep(0, (uv2.x + uv2.y * 3) * (uv2.x - uv2.y * 3)) * istep(0, uv2.y);
+
+    f += rect(uv2, vec2(0, -0.04), vec2(0.01, 0.04));
     
-    return texture(iTex0, vUV);
+    return vec4(f);
 }
 
 // TODO SRC 15
