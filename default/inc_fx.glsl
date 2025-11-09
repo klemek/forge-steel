@@ -371,48 +371,48 @@ subroutine(fx_stage_sub) vec4 fx_12(vec2 vUV, sampler2D previous, sampler2D feed
     float p = 1 / k1;
     uv2 = round(uv2 * k1) / k1;
     vec3 c1 = mix(
-        gauss(previous, (uv2 + vec2(0.5, 0.5) * p) * vec2(1 / ratio, 1) + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(0.5, 0.5) * p) * vec2(1 / ratio, 1) + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(0.5, 0.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(0.5, 0.5) * p).xyz,
         fb
     );
     vec3 c2 = mix(
-        gauss(previous, (uv2 + vec2(1.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(1.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(1.5, 0.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(1.5, 0.5) * p).xyz,
         fb
     );
     vec3 c3 = mix(
-        gauss(previous, (uv2 + vec2(1.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(1.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(1.5, 1.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(1.5, 1.5) * p).xyz,
         fb
     );
     vec3 c4 = mix(
-        gauss(previous, (uv2 + vec2(0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(0.5, 1.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(0.5, 1.5) * p).xyz,
         fb
     );
     vec3 c5 = mix(
-        gauss(previous, (uv2 + vec2(-0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(-0.5, 1.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(-0.5, 1.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(-0.5, 1.5) * p).xyz,
         fb
     );
     vec3 c6 = mix(
-        gauss(previous, (uv2 + vec2(-0.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(-0.5, 0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(-0.5, 0.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(-0.5, 0.5) * p).xyz,
         fb
     );
     vec3 c7 = mix(
-        gauss(previous, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(-0.5, -0.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(-0.5, -0.5) * p).xyz,
         fb
     );
     vec3 c8 = mix(
-        gauss(previous, (uv2 + vec2(0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(0.5, -0.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(0.5, -0.5) * p).xyz,
         fb
     );
     vec3 c9 = mix(
-        gauss(previous, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
-        gauss(feedback, (uv2 + vec2(-0.5, -0.5) * p) * vec2(1 / ratio, 1)  + .5, 1, 0.1).xyz,
+        reframe(previous, uv2 + vec2(-0.5, -0.5) * p).xyz,
+        reframe(feedback, uv2 + vec2(-0.5, -0.5) * p).xyz,
         fb
     );
     bool alive = mean(c1) >= threshold;

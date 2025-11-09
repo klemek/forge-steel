@@ -26,5 +26,7 @@ void main() {
 
     float k = mean(color_a);
 
+    mix_value = mix(mix_value * 0.9 + 0.05, mix_value, iDemo);
+
     fragColor = mix(color_b, color_a, mix_type ? step(mix_value, k) : mix_value);
 }
