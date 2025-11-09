@@ -273,6 +273,22 @@ vec4 reframe_b(sampler2D tex, vec2 uv)
     return texture(tex, uv);
 }
 
+vec4 kernel(sampler2D tex, vec2 uv, mat3x3 k, float spm)
+{
+    int x, y;
+    vec2 offset;
+    vec4 sum = vec4(0);
+    for (y = -1; y <= 1; ++y) {
+        for (x = -1; x <= 1; ++x) {
+            offset = vec2(x, y) * spm;
+            if (abs(k[x + 1][y + 1]) > 0) {
+                sum += k[x + 1][y + 1] * texture(tex, uv + offset);
+            }
+        }
+    }
+    return sum;
+}
+
 // BLUR
 
 float gaussian_weight(float x, float sigma)

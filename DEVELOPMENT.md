@@ -94,8 +94,8 @@ make -f Makefile.dev release-arch
   - [ ] src 15 : ?
   - [x] fx 11 : spill
   - [x] fx 12 : game of life
-  - [ ] fx 13 : colorize range (pretty color ranges)
-  - [ ] fx 14 : ?
+  - [x] fx 13 : sobel
+  - [ ] fx 14 : colorize range (pretty color ranges)
   - [ ] fx 15 : ?
   - [x] frag 10 : move debug screen here
   - [ ] debug : add src/fx/A/B indicators

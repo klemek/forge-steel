@@ -175,6 +175,10 @@ subroutine(src_stage_sub) vec4 src_5(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 // SRC 6 : video in 1 + thru
 subroutine(src_stage_sub) vec4 src_6(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    if (iDemo > 0) {
+        return src_2(vUV, seed, b1, f1, b2, f2, b3, f3);
+    }
+
     return src_thru(vUV, iTex3, seed, b1, f1, b2, f2, b3, f3);
 }
 
@@ -335,6 +339,10 @@ subroutine(src_stage_sub) vec4 src_10(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // SRC 11 : video in 2 + thru
 subroutine(src_stage_sub) vec4 src_11(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
+    if (iDemo > 0) {
+        return src_3(vUV, seed, b1, f1, b2, f2, b3, f3);
+    }
+
     return src_thru(vUV, iTex4, seed, b1, f1, b2, f2, b3, f3);
 }
 
@@ -384,7 +392,7 @@ subroutine(src_stage_sub) vec4 src_12(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // TODO SRC 13
 subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_2(vUV, seed, b1, f1, b2, f2, b3, f3);
+    return src_7(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -401,7 +409,7 @@ subroutine(src_stage_sub) vec4 src_13(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // TODO SRC 14
 subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_3(vUV, seed, b1, f1, b2, f2, b3, f3);
+    return src_8(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
@@ -418,7 +426,7 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // TODO SRC 15
 subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    return src_4(vUV, seed, b1, f1, b2, f2, b3, f3);
+    return src_9(vUV, seed, b1, f1, b2, f2, b3, f3);
     // start
 
 	vec2 uv0 = vUV.st;
