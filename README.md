@@ -55,7 +55,7 @@ Here are some pointers if you want to customize your FORGE experience:
   - [What to do next](#what-to-do-next)
 - [What is FORGE ?](#what-is-forge-)
 - [Install](#install)
-  - [Prerequisites](#prerequisites)
+  - [Requirements](#requirements)
   - [From release](#from-release)
   - [From repository (PKGBUILD)](#from-repository-pkgbuild)
   - [From repository (dev version)](#from-repository-dev-version)
@@ -78,6 +78,8 @@ Here are some pointers if you want to customize your FORGE experience:
     - [Working with subroutines](#working-with-subroutines)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [Why "steel"?](#why-steel)
+  - [I couldn't install FORGE on my computer](#i-couldnt-install-forge-on-my-computer)
+  - [I didn't understand everything about your tutorial](#i-didnt-understand-everything-about-your-tutorial)
   - [My nanoKontrol2 is acting strange](#my-nanokontrol2-is-acting-strange)
   - [How do I report a bug?](#how-do-i-report-a-bug)
   - [Help I got low FPS on my video device](#help-i-got-low-fps-on-my-video-device)
@@ -106,7 +108,7 @@ Here's a quick rundown of the process:
 
 ## Install
 
-### Prerequisites
+### Requirements
 
 | library   | apt            | pacman          |
 | --------- | -------------- | --------------- |
@@ -243,11 +245,19 @@ Working with pages and items, you can use the following predefined sources and e
 |       | **D** | Cursor            | _Size_            | _Pos X_         | _Pos Y_            | Isometric       | _Zoom_           | _Scroll_       | _Rotate_      |
 |       | **E** | (Random source)   | ---               | ---             | ---                | (Random effect)  | ---              | ---          |  ---          |
 
+See the [printable version](./docs/forge_default_mapping.pdf).
+
 ## Making your own FORGE project
 
 You want to embrace the "user" in "user-defined"? It's time to make your own project.
 
 Starts with copying the [sample](./sample) project and make it your own with the following guide.
+
+Then, writing code you can use the `--hot-reload` to watch your visuals as you design them.
+
+```shell
+forge --project=<project_dir> --hot-reload
+```
 
 ### `forge_project.cfg`
 
@@ -430,6 +440,17 @@ void main() {
 FORGE is a concept which is intended to be derived onto other forms (like Raspberry PI). In order to differentiate between them each would be name after a different alloy.
 
 FORGE (steel) describe the linux version.
+
+### I couldn't install FORGE on my computer
+
+Verify you have the correct [requirements](#requirements) installed.
+
+Then if you continue to have problems, you can [open an issue](https://github.com/klemek/forge-steel/issues).
+
+### I didn't understand everything about your tutorial
+
+Please [open an issue](https://github.com/klemek/forge-steel/issues) describing what your having trouble with,
+I'll try to anwer and update the README.
 
 ### My nanoKontrol2 is acting strange
 

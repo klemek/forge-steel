@@ -114,6 +114,7 @@ make -f Makefile.dev release-arch
   - [x] Clone "shaders" and config in system path at setup
   - [ ] Minimal sample shaders
   - [ ] Hotkey `0` to reset everything
+  - [x] Printable PDF of default scr/fx
   - [x] Add NanoKontrol setup file
   - [x] Find and fix opengl errors 0500 ?
 - [ ] Bonus
