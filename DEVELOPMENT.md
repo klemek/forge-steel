@@ -108,17 +108,17 @@ make -f Makefile.dev release-arch
   - [x] Clean and sort args
   - [x] `--auto-random` / `--no-auto-random`
   - [x] Dump failed compilation into tmp file
-  - [ ] Update readme with usage documentation
+  - [x] Update readme with usage documentation
   - [ ] Sample gif in README
   - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup
   - [ ] Minimal sample shaders
   - [ ] Hotkey `0` to reset everything
-  - [ ] Add NanoKontrol setup file
+  - [x] Add NanoKontrol setup file
   - [x] Find and fix opengl errors 0500 ?
-  - [ ] Investigate video device fps loss (bad unregister ?)
-    -  explore libv4l directly [github](https://github.com/philips/libv4l) (with `-lv4l2`)
 - [ ] Bonus
   - [ ] Record show as text files
   - [ ] Play from record text file
   - [ ] Try to write NanoKontrol config
+  - [ ] Investigate video device fps loss (bad unregister ?)
+    -  explore libv4l directly [github](https://github.com/philips/libv4l) (with `-lv4l2`)
