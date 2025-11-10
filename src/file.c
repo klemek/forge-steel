@@ -1,3 +1,4 @@
+#include <bsd/string.h>
 #include <log.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -68,7 +69,7 @@ bool file_update(File *file) {
 }
 
 void file_read(File *file, char *path) {
-  strncpy(file->path, path, STR_LEN);
+  strlcpy(file->path, path, STR_LEN);
   file->content = NULL;
   file->error = false;
   file->last_write = 0;

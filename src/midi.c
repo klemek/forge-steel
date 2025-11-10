@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <alsa/asoundlib.h>
+#include <bsd/string.h>
 
 #include "types.h"
 
@@ -7,7 +8,7 @@
 #include "log.h"
 
 void midi_open(MidiDevice *device, char *name) {
-  strncpy(device->name, name, STR_LEN);
+  strlcpy(device->name, name, STR_LEN);
   device->input = NULL;
   device->output = NULL;
 

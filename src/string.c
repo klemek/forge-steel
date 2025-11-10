@@ -63,8 +63,8 @@ char *string_replace_at(char *src, unsigned int from, unsigned int to,
 
   dst = malloc(src_len - (to - from) + rpl_len + 1);
 
-  strncpy(dst, src, from);
-  strncpy(dst + from, rpl, rpl_len);
+  strlcpy(dst, src, from + 1);
+  strlcpy(dst + from, rpl, rpl_len + 1);
   strlcpy(dst + from + rpl_len, src + to, src_len - to + 1);
 
   return dst;

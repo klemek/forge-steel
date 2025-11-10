@@ -1,3 +1,4 @@
+#include <bsd/string.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
@@ -66,7 +67,7 @@ static void ioctl_error(VideoCapture *video_capture, const char *operation,
 }
 
 static void open_device(VideoCapture *video_capture, char *name) {
-  strncpy(video_capture->name, name, STR_LEN);
+  strlcpy(video_capture->name, name, STR_LEN);
   video_capture->error = false;
   video_capture->fd = -1;
   video_capture->exp_fd = -1;

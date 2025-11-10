@@ -80,7 +80,7 @@ void project_init(Project *project, char *project_path, char *config_file) {
   char *frag_prefix;
   unsigned int i;
 
-  strncpy(project->path, project_path, STR_LEN);
+  strlcpy(project->path, project_path, STR_LEN);
 
   snprintf(config_path, STR_LEN, "%s/%s", project_path, config_file);
 
