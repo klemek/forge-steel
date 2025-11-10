@@ -75,7 +75,7 @@ Here are some pointers if you want to customize your FORGE experience:
     - [Minimal working code](#minimal-working-code)
     - [Uniforms](#uniforms)
     - [Working with `#include`](#working-with-include)
-    - [Working with states and subroutines](#working-with-states-and-subroutines)
+    - [Working with subroutines](#working-with-subroutines)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [Why "steel"?](#why-steel)
   - [My nanoKontrol2 is acting strange](#my-nanokontrol2-is-acting-strange)
@@ -260,11 +260,29 @@ We will not dig down all the variables here but feel free to read either:
 
 #### Midi groups
 
-TODO
+FORGE allows you to send the midi data in the form of groups.
+
+Each group has the following properties:
+
+* A number of layers with `MIDI_X_ACTIVE_COUNT` (default: `1`)
+* Each midi code controlling how to change the active layer with `MIDI_X_ACTIVE_Y`
+* A number of codes with `MIDI_X_COUNT`
+* Each midi code controlling the active layer with `MIDI_X_Y` (as a `vec3`: `_X` / `_Y` / `_Z`)
 
 #### States
 
-TODO
+FORGE allows to define a "state" to a fragment shader.
+
+This combines several parameters:
+
+* `SELECT_PAGE_COUNT` (default: `1`) + `SELECT_PAGE_X`: define midi codes for pages of item.
+* `SELECT_ITEM_COUNT` + `SELECT_ITEM_X`: define midi codes for items per page.
+* `SELECT_FRAG_X`: define midi codes to "select" a fragment shader.
+
+The selected fragment shader will have its state updated with either:
+
+* `iStateX` int uniform
+* Your defined [subroutines](#working-with-subroutines)
 
 ### Writing your fragment shaders
 
@@ -371,7 +389,7 @@ You're not sure you already included a file? Use preprocessors:
 #endif
 ```
 
-#### Working with states and subroutines
+#### Working with subroutines
 
 Starting from OpenGL 4.6, GLSL language allows subroutine:
 
