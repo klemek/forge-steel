@@ -451,4 +451,4 @@ There's already an [open issue](https://github.com/klemek/forge-steel/issues/1) 
 
 The sentences are defined in [default/inc_sentences.glsl](./default/inc_sentences.glsl).
 
-The script [scripts/sentences.py] can help you update them.
+The script [scripts/sentences.py](./scripts/sentences.py) can help you update them.
