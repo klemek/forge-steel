@@ -79,7 +79,7 @@ static void init_context(const Parameters *params, unsigned int in_count) {
 static void free_context() { shared_close_context(context); }
 
 static void reload_shader(unsigned int i) {
-  shaders_update(&program, &project.fragment_shaders[i][0], i);
+  shaders_update(&program, &project.fragment_shaders[i][0], i, &project);
 }
 
 static void init_inputs(const StringArray *video_in, unsigned int video_size) {

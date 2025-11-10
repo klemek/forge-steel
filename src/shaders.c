@@ -458,15 +458,15 @@ void shaders_init(ShaderProgram *program, const Project *project,
   }
 }
 
-void shaders_update(const ShaderProgram *program, const File *fragment_shader,
-                    unsigned int i) {
+void shaders_update(ShaderProgram *program, const File *fragment_shader,
+                    unsigned int i, const Project *project) {
   bool result;
 
   result = compile_shader(program->fragment_shaders[i], fragment_shader->path,
                           fragment_shader->content);
 
   if (result) {
-    glLinkProgram(program->programs[i]);
+    init_single_program(program, i, &project->config, &project->state_config);
 
     log_info("Program %d updated", i + 1);
   }
