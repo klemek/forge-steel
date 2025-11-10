@@ -526,7 +526,7 @@ subroutine(fx_stage_sub) vec4 fx_14(vec2 vUV, sampler2D previous, sampler2D feed
 // FX 15 : Random
 subroutine(fx_stage_sub) vec4 fx_15(vec2 vUV, sampler2D previous, sampler2D feedback, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3, vec3 m0)
 {
-	int fx = int(randTime(seed + 100, 16) * 14);
+	int fx = int(randTime(seed + 100) * 14);
 
     if (fx == 0) {
         return fx_1(vUV, previous, feedback, seed, b1, f1, b2, f2, b3, f3, m0);

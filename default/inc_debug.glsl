@@ -52,28 +52,46 @@ vec4 debug(vec2 vUV)
     // inputs
 
     int selected_srca = iState3 - 1;
-    if (selected_srca == 14) {
-        selected_srca = int(randTime(iSeed3 + 100, 16) * 14);
+    bool random_srca = iState3 == 15;
+    if (random_srca) {
+        selected_srca = int(randTime(iSeed3 + 100) * 14);
     }
     if (selected_srca == 5 && iDemo > 0) {
         selected_srca = 1;
+        random_srca = true;
     }
     if (selected_srca == 10 && iDemo > 0) {
         selected_srca = 2;
+        random_srca = true;
     }
     int selected_srcb = iState4 - 1;
-    if (selected_srcb == 14) {
-        selected_srcb = int(randTime(iSeed4 + 100, 16) * 14);
+    bool random_srcb = iState4 == 15;
+    if (random_srcb) {
+        selected_srcb = int(randTime(iSeed4 + 100) * 14);
     }
     if (selected_srcb == 5 && iDemo > 0) {
         selected_srcb = 1;
+        random_srcb = true;
     }
     if (selected_srcb == 10 && iDemo > 0) {
         selected_srcb = 2;
+        random_srcb = true;
     }
     int selected_fxa = iState5 - 1;
+    bool random_fxa = iState5 == 15;
+    if (random_fxa) {
+        selected_fxa = int(randTime(iSeed5 + 100) * 14);
+    }
     int selected_fxb = iState6 - 1;
+    bool random_fxb = iState6 == 15;
+    if (random_fxb) {
+        selected_fxb = int(randTime(iSeed6 + 100) * 14);
+    }
     int selected_mfx = iState8 - 1;
+    bool random_mfx = iState8 == 15;
+    if (random_mfx) {
+        selected_mfx = int(randTime(iSeed8 + 100) * 14);
+    }
     float fxa_value = magic(iMidi2_1[6].xy, vec3(1, 0, 0), iSeed5);
     bool fxa_invert = magic_trigger(vec3(iMidi2_1[6].z, 0, 0), iSeed5);
     float fxb_value = magic(iMidi2_2[6].xy, vec3(1, 0, 0), iSeed6);
@@ -126,13 +144,18 @@ vec4 debug(vec2 vUV)
 
     // show selected src/fx
     f += char_at(uv2, vec2(-5.4, 1.45), hex_chars[selected_srca]);
+    f += random_srca ? circle(uv2, vec2(-4.25, 2.7), 0.1) : 0;
     f += char_at(uv2, vec2(-5.4, -2.55), hex_chars[selected_srcb]);
+    f += random_srcb ? circle(uv2, vec2(-4.25, -1.3), 0.1) : 0;
     f += char_at(uv2, vec2(-2.4, 1.45), hex_chars[selected_fxa]);
     f += fxa_invert ? rect(uv2, vec2(-2, 2.7), vec2(0.5, 0.05)) : 0;
+    f += random_fxa ? circle(uv2, vec2(-1.25, 2.7), 0.1) : 0;
     f += char_at(uv2, vec2(-2.4, -2.55), hex_chars[selected_fxb]);
     f += fxb_invert ? rect(uv2, vec2(-2, -1.3), vec2(0.5, 0.05)) : 0;
+    f += random_fxb ? circle(uv2, vec2(-1.25, -1.3), 0.1) : 0;
     f += char_at(uv2, vec2(4.6, -0.55), hex_chars[selected_mfx]);
     f += mfx_invert ? rect(uv2, vec2(5, 0.7), vec2(0.5, 0.05)) : 0;
+    f += random_mfx ? circle(uv2, vec2(5.75, 0.7), 0.1) : 0;
 
     // show current selected
     f += iSelected == 3 ? h_rect(uv2, vec2(-5, 2), vec2(1.2), 0.1) : 0;

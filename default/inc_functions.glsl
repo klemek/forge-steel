@@ -220,6 +220,10 @@ vec4 voronoi(vec2 uv, float dist) {
 
 // SHAPES
 
+float circle(vec2 uv, vec2 c, float size) {
+    return istep(size, length(uv - c));
+}
+
 float stripe(float x, float k1, float k2)
 {
     return k2 > k1 ? (1 - step(x, k1)) * (step(x, k2)) : ((1 - step(x, k2)) * (step(x, k1)));

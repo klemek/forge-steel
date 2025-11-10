@@ -50,6 +50,14 @@ float magic(vec2 F, vec3 B, float i)
     return mix(0, f.x * mix(1 - modTime(f.y), cosTime(f.y) * 0.5 + 0.5, b.y), b.x);
 }
 
+float fmagic(vec2 F, vec3 B, float i)
+{
+    vec2 f = magic_f(F, B, i);
+    vec3 b = magic_b(B, i);
+
+    return f.x * mix(1 - modTime(f.y), cosTime(f.y) * 0.5 + 0.5, b.y);
+}
+
 float magic(float i)
 {
     return magic(vec2(0), vec3(0, 0, 1), i);

@@ -433,12 +433,22 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
     // controls
 
     float size = magic(f1, b1, seed + 10) * 2 + 0.1;
-    float dx = (magic(f2, b2, seed + 20) * (1 - size * 0.06) - 0.5) * ratio;
-    float dy = magic(f3, b3, seed + 30) * (1 - size * 0.17) - 0.5;
+    float dx = (fmagic(f2, b2, seed + 20) * (1 - size * 0.06) - 0.5) * ratio;
+    bool flip_x = magic_trigger(b2, seed + 20);
+    float dy = fmagic(f3, b3, seed + 30) * (1 - size * 0.17) - 0.5;
+    bool flip_y = magic_trigger(b3, seed + 30);
 
     // logic
 
     vec2 uv2 = uv1;
+
+    if (flip_x) {
+        uv2.x = -uv2.x;
+    }
+
+    if (flip_y) {
+        uv2.y = -uv2.y;
+    }
 
     uv2 -= vec2(dx, -dy);
 
@@ -460,7 +470,7 @@ subroutine(src_stage_sub) vec4 src_14(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3
 // SRC 15 : Random
 subroutine(src_stage_sub) vec4 src_15(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
-    int src = int(randTime(seed + 100, 16) * 14);
+    int src = int(randTime(seed + 100) * 14);
 
     if (src == 0) {
         return src_1(vUV, seed, b1, f1, b2, f2, b3, f3);
