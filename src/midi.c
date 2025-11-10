@@ -7,7 +7,7 @@
 #include "config.h"
 #include "log.h"
 
-void midi_open(MidiDevice *device, char *name) {
+void midi_open(MidiDevice *device, const char *name) {
   strlcpy(device->name, name, STR_LEN);
   device->input = NULL;
   device->output = NULL;

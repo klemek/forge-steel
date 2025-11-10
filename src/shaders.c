@@ -232,7 +232,7 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   unsigned int index1;
   unsigned int index2;
   char name[STR_LEN];
-  char *prefix;
+  const char *prefix;
 
   program->programs[i] = glCreateProgram();
 

@@ -5,11 +5,12 @@
 
 void config_file_read(ConfigFile *config, char *path);
 
-char *config_file_get_str(ConfigFile *config, char *key, char *default_value);
+const char *config_file_get_str(const ConfigFile *config, const char *key,
+                                const char *default_value);
 
-unsigned int config_file_get_int(ConfigFile *config, char *key,
+unsigned int config_file_get_int(const ConfigFile *config, const char *key,
                                  unsigned int default_value);
 
-void config_file_free(ConfigFile *config);
+void config_file_free(const ConfigFile *config);
 
 #endif /* CONFIG_FILE_H */

@@ -60,7 +60,7 @@ static bool parse_fragment_shader_file(Project *project, unsigned int i) {
   return true;
 }
 
-static bool read_fragment_shader_file(Project *project, char *frag_prefix,
+static bool read_fragment_shader_file(Project *project, const char *frag_prefix,
                                       unsigned int i) {
   char file_path[STR_LEN];
 
@@ -78,7 +78,7 @@ static bool read_fragment_shader_file(Project *project, char *frag_prefix,
 
 void project_init(Project *project, char *project_path, char *config_file) {
   char config_path[STR_LEN];
-  char *frag_prefix;
+  const char *frag_prefix;
 
   strlcpy(project->path, project_path, STR_LEN);
 

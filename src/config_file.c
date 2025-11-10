@@ -30,9 +30,9 @@ static uint64_t item_hash(const void *item, uint64_t seed0, uint64_t seed1) {
   return hashmap_sip(c_item->key, strnlen(c_item->key, STR_LEN), seed0, seed1);
 }
 
-static void parse_config_file_line(ConfigFile *config, char *line) {
+static void parse_config_file_line(const ConfigFile *config, char *line) {
   unsigned int size;
-  char *equal_pos;
+  const char *equal_pos;
   unsigned int key_size;
   unsigned int value_size;
   ConfigFileItem item;
@@ -67,6 +67,7 @@ static void parse_config_file_line(ConfigFile *config, char *line) {
 void config_file_read(ConfigFile *config, char *path) {
   File file;
   char *line;
+  char *rest;
 
   config->map = hashmap_new(sizeof(ConfigFileItem), 0, 0, 0, item_hash,
                             item_compare, NULL, NULL);
@@ -77,23 +78,24 @@ void config_file_read(ConfigFile *config, char *path) {
     return;
   }
 
-  line = strtok(file.content, "\n");
+  line = strtok_r(file.content, "\n", &rest);
 
   while (line != NULL) {
     parse_config_file_line(config, line);
-    line = strtok(NULL, "\n");
+    line = strtok_r(rest, "\n", &rest);
   }
 
   file_free(&file);
 }
 
-char *config_file_get_str(ConfigFile *config, char *key, char *default_value) {
+const char *config_file_get_str(const ConfigFile *config, const char *key,
+                                const char *default_value) {
   ConfigFileItem c_key;
-  ConfigFileItem *item;
+  const ConfigFileItem *item;
 
   strlcpy(c_key.key, key, STR_LEN);
 
-  item = (ConfigFileItem *)hashmap_get(config->map, &c_key);
+  item = (const ConfigFileItem *)hashmap_get(config->map, &c_key);
 
   if (item == NULL || strnlen(item->value, STR_LEN) == 0) {
     return default_value;
@@ -102,20 +104,20 @@ char *config_file_get_str(ConfigFile *config, char *key, char *default_value) {
   return item->value;
 }
 
-unsigned int config_file_get_int(ConfigFile *config, char *key,
+unsigned int config_file_get_int(const ConfigFile *config, const char *key,
                                  unsigned int default_value) {
   ConfigFileItem c_key;
-  ConfigFileItem *item;
+  const ConfigFileItem *item;
 
   strlcpy(c_key.key, key, STR_LEN);
 
-  item = (ConfigFileItem *)hashmap_get(config->map, &c_key);
+  item = (const ConfigFileItem *)hashmap_get(config->map, &c_key);
 
   if (item == NULL || strnlen(item->value, STR_LEN) == 0) {
     return default_value;
   }
 
-  if (!string_is_number(item->value)) {
+  if (!string_is_number((char *)item->value)) {
     log_warn("Invalid number for %s: '%s'", item->key, item->value);
     return default_value;
   }
@@ -123,4 +125,4 @@ unsigned int config_file_get_int(ConfigFile *config, char *key,
   return (unsigned int)atoi(item->value);
 }
 
-void config_file_free(ConfigFile *config) { hashmap_free(config->map); }
+void config_file_free(const ConfigFile *config) { hashmap_free(config->map); }
