@@ -62,7 +62,7 @@ static void init_textures(ShaderProgram *program,
   }
 }
 
-static void rebind_textures(ShaderProgram *program) {
+static void rebind_textures(const ShaderProgram *program) {
   for (unsigned int i = 0; i < program->tex_count; i++) {
     glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, program->textures[i]);
@@ -88,9 +88,9 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
                                 input->bytesperline,
                                 EGL_NONE};
 
-  input->dma_image = eglCreateImageKHR(program->egl_display, EGL_NO_CONTEXT,
-                                       EGL_LINUX_DMA_BUF_EXT,
-                                       (EGLClientBuffer)NULL, attrib_list);
+  input->dma_image =
+      eglCreateImageKHR(program->egl_display, EGL_NO_CONTEXT,
+                        EGL_LINUX_DMA_BUF_EXT, NULL, attrib_list);
 
   if (input->dma_image == EGL_NO_IMAGE_KHR) {
     log_error("(%s) eglCreateImageKHR failed %04x", input->name, eglGetError());
@@ -105,8 +105,7 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
                GL_UNSIGNED_BYTE, 0);
 
   // https://registry.khronos.org/OpenGL/extensions/EXT/EXT_EGL_image_storage.txt
-  glEGLImageTargetTexStorageEXT(GL_TEXTURE_2D, (GLeglImageOES)input->dma_image,
-                                NULL);
+  glEGLImageTargetTexStorageEXT(GL_TEXTURE_2D, input->dma_image, NULL);
 
   log_info("Texture %d linked to %s", texture_index, input->name);
 }
@@ -192,7 +191,7 @@ static bool compile_shader(GLuint shader_id, const char *name,
   log_info("Compiling '%s'...", name);
 
   // update shader source code
-  glShaderSource(shader_id, 1, (const GLchar **)&source_code, NULL);
+  glShaderSource(shader_id, 1, &source_code, NULL);
 
   // compile shader
   glCompileShader(shader_id);
@@ -214,15 +213,17 @@ static bool compile_shader(GLuint shader_id, const char *name,
 static void init_shaders(ShaderProgram *program, const Project *project) {
   // compile vertex shader
   program->vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  program->error |= !compile_shader(
-      program->vertex_shader, "internal vertex shader", vertex_shader_text);
+  program->error = program->error || !compile_shader(program->vertex_shader,
+                                                     "internal vertex shader",
+                                                     vertex_shader_text);
 
   // compile fragment shaders
   for (unsigned int i = 0; i < program->frag_count; i++) {
     program->fragment_shaders[i] = glCreateShader(GL_FRAGMENT_SHADER);
-    program->error |= !compile_shader(program->fragment_shaders[i],
-                                      project->fragment_shaders[i][0].path,
-                                      project->fragment_shaders[i][0].content);
+    program->error = program->error ||
+                     !compile_shader(program->fragment_shaders[i],
+                                     project->fragment_shaders[i][0].path,
+                                     project->fragment_shaders[i][0].content);
 
     if (program->error) {
       return;
@@ -422,7 +423,7 @@ void shaders_init(ShaderProgram *program, const Project *project,
   ;
 }
 
-void shaders_update(ShaderProgram *program, const File *fragment_shader,
+void shaders_update(const ShaderProgram *program, const File *fragment_shader,
                     unsigned int i) {
   bool result;
 
@@ -454,7 +455,7 @@ static void update_viewport(ShaderProgram *program,
 
 static void write_uniform_1f(GLuint location, float value) {
   if (location != unused_uniform) {
-    glUniform1f(location, (const GLfloat)value);
+    glUniform1f(location, value);
   }
 }
 

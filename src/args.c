@@ -85,7 +85,7 @@ static bool is_arg(const char *arg, const char *ref) {
   return strcoll(arg, ref) == 0;
 }
 
-static char *split_arg_value(char *arg) {
+static const char *split_arg_value(char *arg) {
   char *rest;
 
   strtok_r(arg, "=", &rest);
@@ -111,7 +111,7 @@ static unsigned int parse_uint(const char *arg, const char *value) {
 
 void args_parse(Parameters *params, int argc, char **argv) {
   char *arg;
-  char *value;
+  const char *value;
 
   strlcpy(params->project_path, DATADIR "/default", STR_LEN);
   strlcpy(params->config_file, "forge_project.cfg", STR_LEN);

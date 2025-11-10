@@ -14,8 +14,8 @@
 static bool parse_fragment_shader_file(Project *project, unsigned int i) {
   File tmp_file;
   char file_path[STR_LEN];
-  char *include_pos;
-  char *include_end;
+  const char *include_pos;
+  const char *include_end;
   char included_file[STR_LEN];
   char *new_content;
 

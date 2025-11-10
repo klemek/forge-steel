@@ -117,7 +117,7 @@ unsigned int config_file_get_int(const ConfigFile *config, const char *key,
     return default_value;
   }
 
-  if (!string_is_number((char *)item->value)) {
+  if (!string_is_number(item->value)) {
     log_warn("Invalid number for %s: '%s'", item->key, item->value);
     return default_value;
   }

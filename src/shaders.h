@@ -7,7 +7,7 @@ void shaders_init(ShaderProgram *program, const Project *project,
                   const SharedContext *context, VideoCaptureArray *inputs,
                   bool rebind);
 
-void shaders_update(ShaderProgram *program, const File *fragment_shader,
+void shaders_update(const ShaderProgram *program, const File *fragment_shader,
                     unsigned int i);
 
 void shaders_compute(ShaderProgram *program, const SharedContext *context,
