@@ -71,17 +71,17 @@ static void print_help(int status_code) {
   exit(status_code);
 }
 
-static void invalid_arg(char *arg) {
+static void invalid_arg(const char *arg) {
   log_error("invalid argument: '%s'", arg);
   print_help(EXIT_FAILURE);
 }
 
-static void invalid_value(char *arg, char *value) {
+static void invalid_value(const char *arg, const char *value) {
   log_error("invalid value for argument '%s': '%s'", arg, value);
   print_help(EXIT_FAILURE);
 }
 
-static bool is_arg(char *arg, const char *ref) {
+static bool is_arg(const char *arg, const char *ref) {
   return strcoll(arg, ref) == 0;
 }
 
@@ -93,7 +93,7 @@ static char *split_arg_value(char *arg) {
   return rest;
 }
 
-static unsigned int parse_uint(char *arg, char *value) {
+static unsigned int parse_uint(const char *arg, const char *value) {
   unsigned long long tmp_value;
 
   if (!string_is_number(value)) {

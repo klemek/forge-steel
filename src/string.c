@@ -39,7 +39,7 @@ unsigned int string_trim(char *str) {
 
 static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
-bool string_is_number(char *value) {
+bool string_is_number(const char *value) {
   unsigned long value_len;
 
   if (value == NULL) {
@@ -57,8 +57,8 @@ bool string_is_number(char *value) {
   return true;
 }
 
-char *string_replace_at(char *src, unsigned int from, unsigned int to,
-                        char *rpl) {
+char *string_replace_at(const char *src, unsigned int from, unsigned int to,
+                        const char *rpl) {
   unsigned long src_len, rpl_len;
   char *dst;
 
