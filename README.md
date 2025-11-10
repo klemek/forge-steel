@@ -68,8 +68,14 @@ Here are some pointers if you want to customize your FORGE experience:
   - [Available sources and effects](#available-sources-and-effects)
 - [Making your own FORGE project](#making-your-own-forge-project)
   - [`forge_project.cfg`](#forge_projectcfg)
+    - [Midi groups](#midi-groups)
+    - [States](#states)
   - [Writing your fragment shaders](#writing-your-fragment-shaders)
-  - [Working with `#include`](#working-with-include)
+    - [Naming](#naming)
+    - [Minimal working code](#minimal-working-code)
+    - [Uniforms](#uniforms)
+    - [Working with `#include`](#working-with-include)
+    - [Working with states and subroutines](#working-with-states-and-subroutines)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [Why "steel"?](#why-steel)
   - [My nanoKontrol2 is acting strange](#my-nanokontrol2-is-acting-strange)
@@ -239,19 +245,165 @@ Working with pages and items, you can use the following predefined sources and e
 
 ## Making your own FORGE project
 
-TODO
+You want to embrace the "user" in "user-defined"? It's time to make your own project.
+
+Starts with copying the [sample](./sample) project and make it your own with the following guide.
 
 ### `forge_project.cfg`
+
+Every FORGE project starts with a `forge_project.cfg`.
+
+We will not dig down all the variables here but feel free to read either:
+
+* [sample/forge_project.cfg](./sample/forge_project.cfg) (beginner oriented)
+* [default/forge_project.cfg](./default/forge_project.cfg) (more complete)
+
+#### Midi groups
+
+TODO
+
+#### States
 
 TODO
 
 ### Writing your fragment shaders
 
-TODO
+The core concept behind FORGE is the fragment shaders, here's how to write them.
 
-### Working with `#include`
+#### Naming
 
-TODO
+Depending on your `FRAG_COUNT` (default: `1`) and `FRAG_FILE_PREFIX` (default: `frag`), you will have to write files `frag1.glsl` up to `fragX.glsl`.
+
+#### Minimal working code
+
+Here is the minimal working fragment shader code, only outputting a black screen:
+
+```glsl
+#version 460
+
+in vec2 vUV;
+out vec4 fragColor;
+
+void main() {
+    fragColor = vec4(0);
+}
+```
+
+You don't have to consider the output, as long as its a `out vec4` it will be either rendered to a framebuffer (then to a texture) or the output window, depending on your `forge_project.cfg`.
+
+#### Uniforms
+
+Every `UNIFORM_XXX` defined in the `forge_project.cfg` is injected into your code at runtime.
+
+```glsl
+uniform float iTime; // the current time
+uniform sampler2D iTex0; // texture 1 (0-based)
+uniform sampler2D iTex9; // texture 10
+uniform int iSeed1;
+uniform vec3 iMidi2_3[7]; // midi group 2, layer 3, size 7
+uniform vec3 iMidi3_1[2];
+```
+
+#### Working with `#include`
+
+> You dreamt it, FORGE made it real, you can now include glsl files to reduce their lengths.
+
+Suppose you have a `time.glsl` file along side your `frag1.glsl` like so:
+
+`project/time.glsl`
+```glsl
+#define PI 3.1415927
+
+uniform float iBeats;
+
+float sinTime()
+{
+    return sin(iBeats * 2 * PI);
+}
+```
+
+`project/frag1.glsl`
+```glsl
+#version 460
+
+in vec2 vUV;
+out vec4 fragColor;
+
+#include time.glsl
+
+void main() {
+    fragColor = vec4(sinTime());
+}
+```
+
+Internally, FORGE will create the following fragment shader code:
+
+```glsl
+#version 460
+
+in vec2 vUV;
+out vec4 fragColor;
+
+#define PI 3.1415927
+
+uniform float iBeats;
+
+float sinTime()
+{
+    return sin(iBeats * 2 * PI);
+}
+
+void main() {
+    fragColor = vec4(sinTime());
+}
+```
+
+You can stack up to 63 `#include` as deeply as you want.
+
+You're not sure you already included a file? Use preprocessors:
+
+```glsl
+#ifndef TIME
+#define TIME
+
+// your code
+
+#endif
+```
+
+#### Working with states and subroutines
+
+Starting from OpenGL 4.6, GLSL language allows subroutine:
+
+```glsl
+#version 460
+
+in vec2 vUV;
+out vec4 fragColor;
+
+// SUB_TYPE_COUNT=1
+// SUB_1_PREFIX=sub_
+
+subroutine vec4 sub_function(vec2 vUV);
+
+subroutine(sub_function) vec4 sub_1(vec2 vUV) {
+  return vec4(0);
+}
+
+subroutine(sub_function) vec4 sub_2(vec2 vUV) {
+  return vec4(1);
+}
+
+subroutine uniform sub_function current_sub;
+// equivalent to this, but with function injection
+uniform int iState1; // considering this is frag1.glsl
+
+void main() {
+    // current_sub will be either sub_1 or sub_2 depending
+    // on the current "state" of this fragment shader
+    fragColor = current_sub(vUV);
+}
+```
 
 ## Frequently Asked Questions
 
