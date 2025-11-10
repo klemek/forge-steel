@@ -207,6 +207,8 @@ typedef struct StateConfig {
   UintArray fader_codes;
   UintArray values_offsets;
 
+  unsigned int value_count;
+
   unsigned int tap_tempo_code;
 } StateConfig;
 

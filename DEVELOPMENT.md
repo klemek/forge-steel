@@ -112,7 +112,7 @@ make -f Makefile.dev release-arch
   - [ ] Sample gif in README
   - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup
-  - [ ] Minimal sample shaders
+  - [x] Minimal sample shaders
   - [x] Hotkey `0` to reset everything
   - [x] Printable PDF of default scr/fx
   - [x] Add NanoKontrol setup file

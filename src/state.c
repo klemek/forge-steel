@@ -86,6 +86,8 @@ void state_parse_config(StateConfig *state_config, const ConfigFile *config) {
     count += state_config->midi_counts.values[i];
   }
 
+  state_config->value_count = offset;
+
   state_config->midi_codes.length = count * 3;
 
   for (unsigned int i = 0; i < state_config->midi_counts.length; i++) {
@@ -365,7 +367,7 @@ static void state_load(SharedContext *context, const StateConfig *state_config,
     context->active[i] = config_file_get_int(&saved_state, key, 0);
   }
 
-  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->value_count; i++) {
     snprintf(key, STR_LEN, "value_%d_x", i);
     context->values[i][0] =
         (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
@@ -418,11 +420,28 @@ void state_reset(SharedContext *context) {
 }
 
 void state_randomize(SharedContext *context, const StateConfig *state_config) {
+  unsigned int j;
+  unsigned int l;
+  unsigned int part;
+
   for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
-    context->values[i][0] = (float)rand_uint(MIDI_MAX) / MIDI_MAX;
-    context->values[i][1] = (float)rand_uint(MIDI_MAX) / MIDI_MAX;
-    context->values[i][2] = (float)rand_uint(MIDI_MAX) / MIDI_MAX;
+    j = i / 3;
+    part = arr_uint_remap_index(state_config->midi_offsets, &j);
+    for (unsigned int k = 0; k < state_config->midi_active_counts.values[part];
+         k++) {
+      l = state_config->values_offsets.values[part] +
+          k * state_config->midi_counts.values[part] + j;
+
+      if (arr_uint_index_of(state_config->fader_codes,
+                            state_config->midi_codes.values[i]) !=
+          ARRAY_NOT_FOUND) {
+        context->values[l][i % 3] = (float)rand_uint(MIDI_MAX + 1) / MIDI_MAX;
+      } else {
+        context->values[l][i % 3] = rand_uint(2) == 1 ? 1 : 0;
+      }
+    }
   }
+
   for (unsigned int i = 0; i < context->state.length; i++) {
     context->state.values[i] = rand_uint(state_config->state_max);
   }
@@ -454,7 +473,7 @@ void state_save(const SharedContext *context, const StateConfig *state_config,
              context->active[i]);
   }
 
-  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->value_count; i++) {
     snprintf(lines.values[lines.length++], STR_LEN, "value_%d_x=%d", i,
              (unsigned int)(context->values[i][0] * MIDI_MAX));
     snprintf(lines.values[lines.length++], STR_LEN, "value_%d_y=%d", i,
