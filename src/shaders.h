@@ -3,20 +3,21 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-void shaders_init(ShaderProgram *program, Project *project,
-                  SharedContext *context, VideoCaptureArray *inputs,
+void shaders_init(ShaderProgram *program, const Project *project,
+                  const SharedContext *context, VideoCaptureArray *inputs,
                   bool rebind);
 
-void shaders_update(ShaderProgram *program, File *fragment_shader,
+void shaders_update(ShaderProgram *program, const File *fragment_shader,
                     unsigned int i);
 
-void shaders_compute(ShaderProgram *program, SharedContext *context,
+void shaders_compute(ShaderProgram *program, const SharedContext *context,
                      bool monitor, bool output_only);
 
-void shaders_free(ShaderProgram *program);
+void shaders_free(const ShaderProgram *program);
 
-void shaders_free_window(ShaderProgram *program, bool secondary);
+void shaders_free_window(const ShaderProgram *program, bool secondary);
 
-void shaders_free_input(ShaderProgram *program, VideoCapture *input);
+void shaders_free_input(const ShaderProgram *program,
+                        const VideoCapture *input);
 
 #endif /* SHADERS_H */

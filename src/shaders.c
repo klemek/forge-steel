@@ -35,7 +35,8 @@ static void init_gl(ShaderProgram *program) {
   gladLoadEGL(program->egl_display, glfwGetProcAddress);
 }
 
-static void init_textures(ShaderProgram *program, SharedContext *context) {
+static void init_textures(ShaderProgram *program,
+                          const SharedContext *context) {
   glGenTextures(program->tex_count, program->textures);
 
   for (unsigned int i = 0; i < program->tex_count; i++) {
@@ -110,7 +111,7 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
   log_info("Texture %d linked to %s", texture_index, input->name);
 }
 
-static void init_input(ShaderProgram *program, ConfigFile *config,
+static void init_input(ShaderProgram *program, const ConfigFile *config,
                        VideoCaptureArray *inputs) {
   unsigned int tex_i;
   char name[STR_LEN];
@@ -126,7 +127,8 @@ static void init_input(ShaderProgram *program, ConfigFile *config,
   }
 }
 
-static void init_framebuffers(ShaderProgram *program, ConfigFile *config) {
+static void init_framebuffers(ShaderProgram *program,
+                              const ConfigFile *config) {
   unsigned int tex_i;
   char name[STR_LEN];
 
@@ -182,7 +184,8 @@ static void bind_vertices(ShaderProgram *program, unsigned int index) {
   }
 }
 
-static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
+static bool compile_shader(GLuint shader_id, const char *name,
+                           const char *source_code) {
   GLint status_params;
   char log[STR_LEN];
 
@@ -208,7 +211,7 @@ static bool compile_shader(GLuint shader_id, char *name, char *source_code) {
   return status_params == GL_TRUE;
 }
 
-static void init_shaders(ShaderProgram *program, Project *project) {
+static void init_shaders(ShaderProgram *program, const Project *project) {
   // compile vertex shader
   program->vertex_shader = glCreateShader(GL_VERTEX_SHADER);
   program->error |= !compile_shader(
@@ -228,7 +231,8 @@ static void init_shaders(ShaderProgram *program, Project *project) {
 }
 
 static void init_single_program(ShaderProgram *program, unsigned int i,
-                                ConfigFile *config, StateConfig *state_config) {
+                                const ConfigFile *config,
+                                const StateConfig *state_config) {
   unsigned int index1;
   unsigned int index2;
   char name[STR_LEN];
@@ -365,15 +369,15 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   log_info("Program %d initialized", i + 1);
 }
 
-static void init_programs(ShaderProgram *program, ConfigFile *config,
-                          StateConfig *state_config) {
+static void init_programs(ShaderProgram *program, const ConfigFile *config,
+                          const StateConfig *state_config) {
   for (unsigned int i = 0; i < program->frag_count; i++) {
     init_single_program(program, i, config, state_config);
   }
 }
 
-void shaders_init(ShaderProgram *program, Project *project,
-                  SharedContext *context, VideoCaptureArray *inputs,
+void shaders_init(ShaderProgram *program, const Project *project,
+                  const SharedContext *context, VideoCaptureArray *inputs,
                   bool rebind) {
   if (!rebind) {
     program->error = false;
@@ -418,7 +422,7 @@ void shaders_init(ShaderProgram *program, Project *project,
   ;
 }
 
-void shaders_update(ShaderProgram *program, File *fragment_shader,
+void shaders_update(ShaderProgram *program, const File *fragment_shader,
                     unsigned int i) {
   bool result;
 
@@ -432,7 +436,8 @@ void shaders_update(ShaderProgram *program, File *fragment_shader,
   }
 }
 
-static void update_viewport(ShaderProgram *program, SharedContext *context) {
+static void update_viewport(ShaderProgram *program,
+                            const SharedContext *context) {
   // viewport changed
   if (context->resolution[0] != program->last_resolution[0] ||
       context->resolution[1] != program->last_resolution[1]) {
@@ -442,6 +447,8 @@ static void update_viewport(ShaderProgram *program, SharedContext *context) {
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, context->tex_resolution[0],
                    context->tex_resolution[1], 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
+    program->last_resolution[0] = context->resolution[0];
+    program->last_resolution[1] = context->resolution[1];
   }
 }
 
@@ -457,21 +464,21 @@ static void write_uniform_1i(GLuint location, unsigned int value) {
   }
 }
 
-static void write_uniform_2f(GLuint location, vec2 *value) {
+static void write_uniform_2f(GLuint location, const vec2 *value) {
   if (location != unused_uniform) {
     glUniform2fv(location, 1, (const GLfloat *)value);
   }
 }
 
 static void write_uniform_multi_3f(GLuint location, unsigned int count,
-                                   vec3 *value) {
+                                   const vec3 *value) {
   if (location != unused_uniform) {
     glUniform3fv(location, count, (const GLfloat *)value);
   }
 }
 
-static void use_program(ShaderProgram *program, int i, bool output,
-                        SharedContext *context) {
+static void use_program(const ShaderProgram *program, int i, bool output,
+                        const SharedContext *context) {
   unsigned int k;
   unsigned int offset;
   unsigned int subcount;
@@ -569,7 +576,7 @@ static void use_program(ShaderProgram *program, int i, bool output,
   glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void shaders_compute(ShaderProgram *program, SharedContext *context,
+void shaders_compute(ShaderProgram *program, const SharedContext *context,
                      bool monitor, bool output_only) {
   if (!output_only) {
     glBindVertexArray(program->vertex_array[0]);
@@ -593,7 +600,7 @@ void shaders_compute(ShaderProgram *program, SharedContext *context,
               true, context);
 }
 
-void shaders_free(ShaderProgram *program) {
+void shaders_free(const ShaderProgram *program) {
   for (unsigned int i = 0; i < program->frag_count; i++) {
     glDeleteProgram(program->programs[i]);
   }
@@ -603,11 +610,12 @@ void shaders_free(ShaderProgram *program) {
   glDeleteBuffers(1, &program->vertex_buffer);
 }
 
-void shaders_free_window(ShaderProgram *program, bool secondary) {
+void shaders_free_window(const ShaderProgram *program, bool secondary) {
   glDeleteVertexArrays(1, &program->vertex_array[secondary ? 1 : 0]);
 }
 
-void shaders_free_input(ShaderProgram *program, VideoCapture *input) {
+void shaders_free_input(const ShaderProgram *program,
+                        const VideoCapture *input) {
   if (!input->error && input->dma_image != EGL_NO_IMAGE_KHR) {
     eglDestroyImageKHR(program->egl_display, input->dma_image);
   }

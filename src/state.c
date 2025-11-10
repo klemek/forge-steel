@@ -12,7 +12,7 @@
 #include "state.h"
 #include "tempo.h"
 
-void state_parse_config(StateConfig *state_config, ConfigFile *config) {
+void state_parse_config(StateConfig *state_config, const ConfigFile *config) {
   unsigned int offset;
   unsigned int count;
   char name[STR_LEN];
@@ -118,15 +118,16 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
       config_file_get_int(config, "TAP_TEMPO", UNSET_MIDI_CODE);
 }
 
-static void safe_midi_write(MidiDevice *midi, unsigned int code,
+static void safe_midi_write(const MidiDevice *midi, unsigned int code,
                             unsigned char value) {
   if (code != UNSET_MIDI_CODE) {
     midi_write(midi, code, value);
   }
 }
 
-static void update_page(SharedContext *context, StateConfig *state_config,
-                        MidiDevice *midi) {
+static void update_page(const SharedContext *context,
+                        const StateConfig *state_config,
+                        const MidiDevice *midi) {
   unsigned int page_item_min;
   unsigned int page_item_max;
   // SHOW PAGE
@@ -155,8 +156,9 @@ static void update_page(SharedContext *context, StateConfig *state_config,
   }
 }
 
-static void update_active(SharedContext *context, StateConfig *state_config,
-                          MidiDevice *midi) {
+static void update_active(const SharedContext *context,
+                          const StateConfig *state_config,
+                          const MidiDevice *midi) {
   unsigned int k;
 
   for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
@@ -169,8 +171,9 @@ static void update_active(SharedContext *context, StateConfig *state_config,
   }
 }
 
-static void update_values(SharedContext *context, StateConfig *state_config,
-                          MidiDevice *midi) {
+static void update_values(const SharedContext *context,
+                          const StateConfig *state_config,
+                          const MidiDevice *midi) {
   unsigned int j;
   unsigned int k;
   unsigned int part;
@@ -185,8 +188,8 @@ static void update_values(SharedContext *context, StateConfig *state_config,
   }
 }
 
-void state_apply_event(SharedContext *context, StateConfig *state_config,
-                       MidiDevice *midi, unsigned char code,
+void state_apply_event(SharedContext *context, const StateConfig *state_config,
+                       const MidiDevice *midi, unsigned char code,
                        unsigned char value, bool trace_midi) {
   unsigned int i, j, k, part;
   bool found;
@@ -276,8 +279,9 @@ void state_apply_event(SharedContext *context, StateConfig *state_config,
   }
 }
 
-bool state_background_write(SharedContext *context, StateConfig *state_config,
-                            MidiDevice *midi) {
+bool state_background_write(SharedContext *context,
+                            const StateConfig *state_config,
+                            const MidiDevice *midi) {
   pid_t pid;
   bool beat_active, last_active, change, last_change;
 
@@ -327,8 +331,8 @@ bool state_background_write(SharedContext *context, StateConfig *state_config,
   return false;
 }
 
-static void state_load(SharedContext *context, StateConfig *state_config,
-                       char *state_file) {
+static void state_load(SharedContext *context, const StateConfig *state_config,
+                       const char *state_file) {
   ConfigFile saved_state;
   char key[STR_LEN];
 
@@ -367,9 +371,9 @@ static void state_load(SharedContext *context, StateConfig *state_config,
   config_file_free(&saved_state);
 }
 
-void state_init(SharedContext *context, StateConfig *state_config, bool demo,
-                bool auto_random, unsigned int base_tempo, char *state_file,
-                bool load_state) {
+void state_init(SharedContext *context, const StateConfig *state_config,
+                bool demo, bool auto_random, unsigned int base_tempo,
+                const char *state_file, bool load_state) {
   tempo_init(&context->tempo);
   tempo_set(&context->tempo, base_tempo);
   context->demo = demo;
@@ -399,14 +403,14 @@ void state_init(SharedContext *context, StateConfig *state_config, bool demo,
   }
 }
 
-void state_randomize(SharedContext *context, StateConfig *state_config) {
+void state_randomize(SharedContext *context, const StateConfig *state_config) {
   for (unsigned int i = 0; i < context->state.length; i++) {
     context->state.values[i] = rand_uint(state_config->state_max);
   }
 }
 
-void state_save(SharedContext *context, StateConfig *state_config,
-                char *state_file) {
+void state_save(const SharedContext *context, const StateConfig *state_config,
+                const char *state_file) {
   StringArray lines;
 
   log_info("Saving state to '%s'...", state_file);

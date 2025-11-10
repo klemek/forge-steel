@@ -64,7 +64,7 @@ static void parse_config_file_line(const ConfigFile *config, char *line) {
   hashmap_set(config->map, &item);
 }
 
-void config_file_read(ConfigFile *config, char *path) {
+void config_file_read(ConfigFile *config, const char *path) {
   File file;
   char *line;
   char *rest;

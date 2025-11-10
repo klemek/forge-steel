@@ -66,7 +66,7 @@ static void ioctl_error(VideoCapture *video_capture, const char *operation,
   video_capture->error = true;
 }
 
-static void open_device(VideoCapture *video_capture, char *name) {
+static void open_device(VideoCapture *video_capture, const char *name) {
   strlcpy(video_capture->name, name, STR_LEN);
   video_capture->error = false;
   video_capture->fd = -1;
@@ -266,11 +266,11 @@ static void create_image_buffer(VideoCapture *video_capture) {
   ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
 }
 
-static void close_stream(VideoCapture *video_capture) {
+static void close_stream(const VideoCapture *video_capture) {
   ioctl(video_capture->fd, VIDIOC_STREAMOFF, &buf_type);
 }
 
-void video_init(VideoCapture *video_capture, char *name,
+void video_init(VideoCapture *video_capture, const char *name,
                 unsigned int preferred_height) {
   open_device(video_capture, name);
 
@@ -363,7 +363,7 @@ bool video_background_read(VideoCapture *video_capture, SharedContext *context,
   return false;
 }
 
-void video_free(VideoCapture *video_capture) {
+void video_free(const VideoCapture *video_capture) {
   if (!video_capture->error) {
     close_stream(video_capture);
   }

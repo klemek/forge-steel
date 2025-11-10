@@ -76,7 +76,8 @@ static bool read_fragment_shader_file(Project *project, const char *frag_prefix,
   return parse_fragment_shader_file(project, i);
 }
 
-void project_init(Project *project, char *project_path, char *config_file) {
+void project_init(Project *project, const char *project_path,
+                  const char *config_file) {
   char config_path[STR_LEN];
   const char *frag_prefix;
 
@@ -134,7 +135,7 @@ void project_reload(Project *project, void (*reload_callback)(unsigned int)) {
   }
 }
 
-void project_free(Project *project) {
+void project_free(const Project *project) {
   for (unsigned int i = 0; i < project->frag_count; i++) {
     file_free(&project->fragment_shaders[i][0]);
   }

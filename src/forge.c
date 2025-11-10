@@ -57,7 +57,7 @@ static void compute_fps(bool trace_fps) {
   }
 }
 
-static void init_context(Parameters *params, unsigned int in_count) {
+static void init_context(const Parameters *params, unsigned int in_count) {
   state_init(context, &project.state_config, params->demo, params->auto_random,
              params->base_tempo, params->state_file, params->load_state);
 
@@ -82,7 +82,7 @@ static void reload_shader(unsigned int i) {
   shaders_update(&program, &project.fragment_shaders[i][0], i);
 }
 
-static void init_inputs(StringArray *video_in, unsigned int video_size) {
+static void init_inputs(const StringArray *video_in, unsigned int video_size) {
   inputs.length = video_in->length;
 
   for (unsigned int i = 0; i < video_in->length; i++) {
@@ -173,7 +173,7 @@ static void loop(bool hr, bool trace_fps) {
   window_events();
 }
 
-void forge_run(Parameters *params) {
+void forge_run(const Parameters *params) {
   context = shared_init_context("/" PACKAGE "_context");
 
   context->stop = false;
@@ -195,7 +195,7 @@ void forge_run(Parameters *params) {
   midi_open(&midi, config_file_get_str(&project.config, "MIDI_HW", "hw"));
 
   if (midi.error) {
-    params->demo = true;
+    context->demo = true;
   } else {
     trace_midi = params->trace_midi;
 

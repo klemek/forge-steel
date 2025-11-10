@@ -44,7 +44,7 @@ static GLFWmonitor *get_monitor(unsigned char monitor_index) {
 }
 
 static GLFWwindow *
-create_window(GLFWmonitor *monitor, char *title, Window *shared_context,
+create_window(GLFWmonitor *monitor, const char *title, Window *shared_context,
               void (*key_callback)(Window *, int, int, int, int)) {
   GLFWwindow *window;
 
@@ -92,8 +92,8 @@ void window_terminate() {
   glfwTerminate();
 }
 
-Window *window_init(char *title, unsigned char monitor_index, bool windowed,
-                    Window *shared_context,
+Window *window_init(const char *title, unsigned char monitor_index,
+                    bool windowed, Window *shared_context,
                     void (*key_callback)(Window *, int, int, int, int)) {
   GLFWwindow *window;
   GLFWmonitor *monitor;
@@ -107,7 +107,7 @@ Window *window_init(char *title, unsigned char monitor_index, bool windowed,
   return window;
 }
 
-void window_update_title(Window *window, char *title) {
+void window_update_title(Window *window, const char *title) {
   glfwSetWindowTitle(window, title);
 }
 

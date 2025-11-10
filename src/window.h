@@ -7,11 +7,11 @@ void window_startup(void (*error_callback)(int, const char *));
 
 void window_terminate();
 
-Window *window_init(char *title, unsigned char monitor_index, bool windowed,
-                    Window *shared_context,
+Window *window_init(const char *title, unsigned char monitor_index,
+                    bool windowed, Window *shared_context,
                     void (*key_callback)(Window *, int, int, int, int));
 
-void window_update_title(Window *window, char *title);
+void window_update_title(Window *window, const char *title);
 
 double window_get_time();
 

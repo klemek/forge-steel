@@ -3,16 +3,16 @@
 #ifndef FILE_H
 #define FILE_H
 
-void file_read(File *file, char *path);
+void file_read(File *file, const char *path);
 
-bool file_should_update(File *file);
+bool file_should_update(const File *file);
 
 bool file_update(File *file);
 
-void file_write(char *path, StringArray *lines);
+void file_write(const char *path, const StringArray *lines);
 
-void file_dump(char *path, char *content);
+void file_dump(const char *path, const char *content);
 
-void file_free(File *file);
+void file_free(const File *file);
 
 #endif /* FILE_H */

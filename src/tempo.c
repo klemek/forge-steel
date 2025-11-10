@@ -33,12 +33,12 @@ void tempo_init(Tempo *tempo) {
   reset_tap_chain(tempo, t);
 }
 
-static bool is_chain_active(Tempo tempo, long t) {
+static bool is_chain_active(const Tempo tempo, long t) {
   return (tempo.last_tap + MAX_BEAT_LENGTH) > t &&
          (tempo.last_tap + (tempo.beat_length * BEATS_UNTIL_CHAIN_RESET)) > t;
 }
 
-static long get_average_tap_duration(Tempo tempo) {
+static long get_average_tap_duration(const Tempo tempo) {
   unsigned int amount;
   long running_total;
   long average_tap_duration;
@@ -115,7 +115,7 @@ void tempo_tap(Tempo *tempo) {
   add_tap_to_chain(tempo, t);
 }
 
-double tempo_total(Tempo *tempo) {
+double tempo_total(const Tempo *tempo) {
   long t;
 
   t = now();
@@ -123,6 +123,6 @@ double tempo_total(Tempo *tempo) {
   return (double)(t - tempo->last_reset) / (double)tempo->beat_length;
 }
 
-double tempo_progress(Tempo *tempo, double modulo) {
+double tempo_progress(const Tempo *tempo, double modulo) {
   return fmod(tempo_total(tempo), modulo);
 }

@@ -12,7 +12,7 @@
 #include "file.h"
 #include "string.h"
 
-static time_t get_file_time(File *file) {
+static time_t get_file_time(const File *file) {
   struct stat attr;
 
   if (stat(file->path, &attr) == 0) {
@@ -22,7 +22,7 @@ static time_t get_file_time(File *file) {
   return 0;
 }
 
-bool file_should_update(File *file) {
+bool file_should_update(const File *file) {
   return file->last_write != get_file_time(file);
 }
 
@@ -70,7 +70,7 @@ bool file_update(File *file) {
   return true;
 }
 
-void file_read(File *file, char *path) {
+void file_read(File *file, const char *path) {
   strlcpy(file->path, path, STR_LEN);
   file->content = NULL;
   file->error = false;
@@ -79,7 +79,7 @@ void file_read(File *file, char *path) {
   file_update(file);
 }
 
-void file_dump(char *path, char *content) {
+void file_dump(const char *path, const char *content) {
   FILE *file_pointer;
 
   log_info("Dumping %s...", path);
@@ -98,7 +98,7 @@ void file_dump(char *path, char *content) {
   fclose(file_pointer);
 }
 
-void file_write(char *path, StringArray *lines) {
+void file_write(const char *path, const StringArray *lines) {
   FILE *file_pointer;
 
   log_info("Writing %s...", path);
@@ -119,9 +119,8 @@ void file_write(char *path, StringArray *lines) {
   fclose(file_pointer);
 }
 
-void file_free(File *file) {
+void file_free(const File *file) {
   if (!file->error) {
     free(file->content);
-    file->error = true;
   }
 }

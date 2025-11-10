@@ -19,7 +19,8 @@ void midi_open(MidiDevice *device, const char *name) {
   log_info("(%s) MIDI open", name);
 }
 
-void midi_write(MidiDevice *device, unsigned char code, unsigned char value) {
+void midi_write(const MidiDevice *device, unsigned char code,
+                unsigned char value) {
   unsigned char buffer[3];
 
   buffer[0] = 0xB0;
@@ -29,7 +30,8 @@ void midi_write(MidiDevice *device, unsigned char code, unsigned char value) {
   snd_rawmidi_write(device->output, buffer, 3);
 }
 
-bool midi_background_listen(MidiDevice *device, SharedContext *context,
+bool midi_background_listen(const MidiDevice *device,
+                            const SharedContext *context,
                             void (*event_callback)(unsigned char code,
                                                    unsigned char value)) {
   pid_t pid;
