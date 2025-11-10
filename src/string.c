@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "config.h"
 #include "string.h"
 
 unsigned int string_trim(char *str) {
@@ -11,7 +12,7 @@ unsigned int string_trim(char *str) {
   unsigned int end;
 
   start = 0;
-  end = strlen(str) - 1;
+  end = strnlen(str, STR_LEN) - 1;
 
   if (end == 0) {
     return 0;
@@ -28,7 +29,7 @@ unsigned int string_trim(char *str) {
   }
 
   // If the string was trimmed, adjust the null terminator
-  if (start > 0 || end < (strlen(str) - 1)) {
+  if (start > 0 || end < (strnlen(str, STR_LEN) - 1)) {
     memmove(str, str + start, end - start + 1);
     str[end - start + 1] = '\0';
   }
@@ -44,7 +45,7 @@ bool string_is_number(char *value) {
   if (value == NULL) {
     return false;
   }
-  value_len = strlen(value);
+  value_len = strnlen(value, STR_LEN);
   for (i = 0; i < value_len; i++) {
     if (!is_digit(value[i])) {
       return false;
@@ -58,8 +59,8 @@ char *string_replace_at(char *src, unsigned int from, unsigned int to,
   unsigned long src_len, rpl_len;
   char *dst;
 
-  src_len = strlen(src);
-  rpl_len = strlen(rpl);
+  src_len = strnlen(src, STR_LEN * STR_LEN);
+  rpl_len = strnlen(rpl, STR_LEN * STR_LEN);
 
   dst = malloc(src_len - (to - from) + rpl_len + 1);
 

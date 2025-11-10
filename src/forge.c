@@ -44,12 +44,12 @@ static void compute_fps(bool trace_fps) {
     }
 
     if (window_output != NULL) {
-      sprintf(title, PACKAGE " " VERSION " - %.0ffps", fps);
+      snprintf(title, STR_LEN, PACKAGE " " VERSION " - %.0ffps", fps);
       window_update_title(window_output, title);
     }
 
     if (window_monitor != NULL) {
-      sprintf(title, PACKAGE " " VERSION " (monitor) - %.0ffps", fps);
+      snprintf(title, STR_LEN, PACKAGE " " VERSION " (monitor) - %.0ffps", fps);
       window_update_title(window_monitor, title);
     }
 

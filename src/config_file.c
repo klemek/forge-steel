@@ -27,7 +27,7 @@ static uint64_t item_hash(const void *item, uint64_t seed0, uint64_t seed1) {
 
   c_item = item;
 
-  return hashmap_sip(c_item->key, strlen(c_item->key), seed0, seed1);
+  return hashmap_sip(c_item->key, strnlen(c_item->key, STR_LEN), seed0, seed1);
 }
 
 static void parse_config_file_line(ConfigFile *config, char *line) {
@@ -95,7 +95,7 @@ char *config_file_get_str(ConfigFile *config, char *key, char *default_value) {
 
   item = (ConfigFileItem *)hashmap_get(config->map, &c_key);
 
-  if (item == NULL || strlen(item->value) == 0) {
+  if (item == NULL || strnlen(item->value, STR_LEN) == 0) {
     return default_value;
   }
 
@@ -111,7 +111,7 @@ unsigned int config_file_get_int(ConfigFile *config, char *key,
 
   item = (ConfigFileItem *)hashmap_get(config->map, &c_key);
 
-  if (item == NULL || strlen(item->value) == 0) {
+  if (item == NULL || strnlen(item->value, STR_LEN) == 0) {
     return default_value;
   }
 
