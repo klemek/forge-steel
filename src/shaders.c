@@ -22,6 +22,19 @@
 
 static const GLuint unused_uniform = (GLuint)-1;
 
+bool check_glerror(ShaderProgram *program) {
+  unsigned int code;
+
+  code = glGetError();
+
+  if (code > 0) {
+    log_warn("GL Error: %04x", code);
+    program->error = true;
+  }
+
+  return code > 0;
+}
+
 static void init_gl(ShaderProgram *program) {
   gladLoadGL(glfwGetProcAddress);
 
@@ -44,8 +57,6 @@ static void init_textures(ShaderProgram *program,
     glActiveTexture(GL_TEXTURE0 + i);
 
     glBindTexture(GL_TEXTURE_2D, program->textures[i]);
-
-    glEnable(GL_TEXTURE_2D);
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
@@ -399,28 +410,52 @@ void shaders_init(ShaderProgram *program, const Project *project,
 
     init_gl(program);
 
+    if (check_glerror(program)) {
+      return;
+    }
+
     init_shaders(program, project);
 
-    if (program->error) {
+    if (program->error || check_glerror(program)) {
       return;
     }
 
     init_textures(program, context);
 
+    if (check_glerror(program)) {
+      return;
+    }
+
     init_input(program, &project->config, inputs);
+
+    if (check_glerror(program)) {
+      return;
+    }
 
     init_framebuffers(program, &project->config);
 
+    if (check_glerror(program)) {
+      return;
+    }
+
     init_programs(program, &project->config, &project->state_config);
+
+    if (check_glerror(program)) {
+      return;
+    }
 
     init_vertices(program);
 
-    // log_debug("Error after init: %04x",
-    //           glGetError()); // TODO check error at each step
+    if (check_glerror(program)) {
+      return;
+    }
   }
 
   bind_vertices(program, rebind ? 1 : 0);
-  ;
+
+  if (check_glerror(program)) {
+    return;
+  }
 }
 
 void shaders_update(const ShaderProgram *program, const File *fragment_shader,
