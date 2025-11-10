@@ -61,7 +61,7 @@ bool file_update(File *file) {
   // close file
   fclose(file_pointer);
   // append null byte
-  file->content[length] = '\0';
+  file->content[length] = 0;
   // read last update time
   file->last_write = get_file_time(file);
 

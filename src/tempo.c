@@ -52,6 +52,10 @@ static long get_average_tap_duration(Tempo tempo) {
     running_total += tempo.tap_durations[i];
   }
 
+  if (amount == 0) {
+    amount = 1; // should never happen
+  }
+
   average_tap_duration = running_total / amount;
   if (average_tap_duration < MIN_BEAT_LENGTH) {
     return MIN_BEAT_LENGTH;
