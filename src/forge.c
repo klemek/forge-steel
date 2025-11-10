@@ -125,8 +125,14 @@ static void key_callback(Window *window, int key,
     window_close(window);
   } else if (window_char_key(key, action, 82)) {
     // R: randomize
-    log_info("[R] Randomizing...");
+    log_info("[R] Randomized");
     state_randomize(context, &project.state_config);
+    state_apply(context, &project.state_config, &midi);
+  } else if (window_char_key(key, action, 48)) {
+    // 0: reset
+    log_info("[0] Reset");
+    state_reset(context);
+    state_apply(context, &project.state_config, &midi);
   } else if (window_char_key(key, action, 68)) {
     // D: demo on/off
     log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));

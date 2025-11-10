@@ -159,7 +159,8 @@ make install
 When running, the following hotkeys are available:
 
 * <kbd>Esc</kbd>: Exit window
-* <kbd>R</kbd>: Randomize shader state
+* <kbd>R</kbd>: Randomize internal values
+* <kbd>0</kbd>: Reset internal values to 0
 * <kbd>D</kbd>: Demo mode On/Off
 * <kbd>A</kbd>: Auto Random mode On/Off
 

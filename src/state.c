@@ -279,6 +279,13 @@ void state_apply_event(SharedContext *context, const StateConfig *state_config,
   }
 }
 
+void state_apply(SharedContext *context, const StateConfig *state_config,
+                 const MidiDevice *midi) {
+  if (!midi->error) {
+    update_values(context, state_config, midi);
+  }
+}
+
 bool state_background_write(SharedContext *context,
                             const StateConfig *state_config,
                             const MidiDevice *midi) {
@@ -322,6 +329,8 @@ bool state_background_write(SharedContext *context,
 
     if (context->auto_random && change && !last_change) {
       state_randomize(context, state_config);
+
+      state_apply(context, state_config, midi);
     }
 
     last_change = change;
@@ -403,7 +412,17 @@ void state_init(SharedContext *context, const StateConfig *state_config,
   }
 }
 
+void state_reset(SharedContext *context) {
+  memset(context->values, 0, sizeof(context->values));
+  memset(context->state.values, 0, sizeof(context->state.values));
+}
+
 void state_randomize(SharedContext *context, const StateConfig *state_config) {
+  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
+    context->values[i][0] = (float)rand_uint(MIDI_MAX) / MIDI_MAX;
+    context->values[i][1] = (float)rand_uint(MIDI_MAX) / MIDI_MAX;
+    context->values[i][2] = (float)rand_uint(MIDI_MAX) / MIDI_MAX;
+  }
   for (unsigned int i = 0; i < context->state.length; i++) {
     context->state.values[i] = rand_uint(state_config->state_max);
   }
