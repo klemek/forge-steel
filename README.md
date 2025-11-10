@@ -12,8 +12,7 @@ Discover an engine where user-defined fragment shaders collide to produce stunni
 
 ![](./docs/preview.png)
 
-See [Demo #1 - 1H](https://youtu.be/-RMXGxP8Uks) and [Demo #2 - Monitor View](https://youtu.be/q4ili24DlRE) on YouTube
-b
+See [Demo #1 - 1H](https://youtu.be/-RMXGxP8Uks) and [Demo #2 - Monitor View](https://youtu.be/q4ili24DlRE) on YouTube.
 
 ## Quick Start
 
@@ -64,9 +63,9 @@ Here are some pointers if you want to customize your FORGE experience:
   - [Runtime hotkeys](#runtime-hotkeys)
   - [CLI arguments](#cli-arguments)
 - [Default Project](#default-project)
-  - [Sources and Effects](#sources-and-effects)
-  - [Debug View](#debug-view)
-  - [NanoKontrol2 Controller mapping](#nanokontrol2-controller-mapping)
+  - [Monitor and debug view](#monitor-and-debug-view)
+  - [nanoKONTROL2 layout for the default project](#nanokontrol2-layout-for-the-default-project)
+  - [Available sources and effects](#available-sources-and-effects)
 - [Making your own FORGE project](#making-your-own-forge-project)
   - [`forge_project.cfg`](#forge_projectcfg)
   - [Writing your fragment shaders](#writing-your-fragment-shaders)
@@ -80,7 +79,7 @@ Here are some pointers if you want to customize your FORGE experience:
 
 ## What is FORGE ?
 
-![](images/forge.drawio.png)
+![](./docs/forge.drawio.png)
 
 TODO
 
@@ -178,7 +177,32 @@ options:
 
 > A.K.A Kleπek's shaders
 
-### Sources and Effects
+FORGE come pre-loaded with a default project, the following explains how to use it.
+
+### Monitor and debug view
+
+When opening the monitor view, here's what to expect:
+
+![A sample monitor view](./docs/monitor.png)
+
+On the bottom left corner, here's how to read the internal state:
+
+![how to read the debug view](./docs/debug.jpg)
+
+### nanoKONTROL2 layout for the default project
+
+In order to control the default project, you can expect it to work with this layout:
+
+![nanoKONTROL2 layout for default project](./docs/nanokontrol.jpg)
+
+> In blue is a sample "stage" as most sources/effects use a combination of 4 stages (see table below)
+
+> ⚠️ you'll need to change your nanoKONTROL2 settings to remove the "toggle" behavior of the buttons and use "external" led control.
+> (Use the [KORG KONTROL Editor](https://www.korg.com/us/support/download/software/1/133/1355/) and the [provided data file](./docs/forge.nktrl2_data) to setup your controller.)
+
+### Available sources and effects
+
+Working with pages and items, you can use the following predefined sources and effects:
 
 | P     | #     | SRC               | _COL2_            | _COL3_          | _COL4_             | FX               | _COL6_          | _COL7_        | _COL8_         |
 | ----- | ----- | ----------------- | ----------------- | --------------- | ------------------ | ---------------- | --------------- | ------------- | -------------- |
@@ -197,19 +221,6 @@ options:
 |       | **C** | Credenza          | _Zoom_            | _Shape_         | _Ripples_          | Sobel Filter    | _Horz. filter_   | _Vert. filter_ | _Filter Size_ |
 |       | **D** | Cursor            | _Size_            | _Pos X_         | _Pos Y_            | Isometric       | _Zoom_           | _Scroll_       | _Rotate_      |
 |       | **E** | (Random source)   | ---               | ---             | ---                | (Random effect)  | ---              | ---          |  ---          |
-
-### Debug View
-
-![](./docs/debug.jpg)
-
-### NanoKontrol2 Controller mapping
-
-![](./docs/nanokontrol.jpg)
-
-> In blue is a sample "stage" as most sources/effects use a combination of 4 stages (see table above)
-
-> ⚠️ you'll need to change your NanoKontrol2 settings to remove the "toggle" behavior of the buttons and use "external" led control.
-> (Use the [KORG KONTROL Editor](https://www.korg.com/us/support/download/software/1/133/1355/) and the [provided data file](./docs/forge.nktrl2_data) to setup your controller.)
 
 ## Making your own FORGE project
 
