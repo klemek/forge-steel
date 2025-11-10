@@ -14,7 +14,8 @@
 static bool parse_fragment_shader_file(Project *project, unsigned int i) {
   File tmp_file;
   char file_path[STR_LEN];
-  char *include_pos, *include_end;
+  char *include_pos;
+  char *include_end;
   char included_file[STR_LEN];
   char *new_content;
 
@@ -78,7 +79,6 @@ static bool read_fragment_shader_file(Project *project, char *frag_prefix,
 void project_init(Project *project, char *project_path, char *config_file) {
   char config_path[STR_LEN];
   char *frag_prefix;
-  unsigned int i;
 
   strlcpy(project->path, project_path, STR_LEN);
 
@@ -102,7 +102,7 @@ void project_init(Project *project, char *project_path, char *config_file) {
 
   project->sub_counts.length = project->frag_count;
 
-  for (i = 0; i < project->frag_count; i++) {
+  for (unsigned int i = 0; i < project->frag_count; i++) {
     project->sub_counts.values[i] = 0;
     if (!read_fragment_shader_file(project, frag_prefix, i)) {
       project_free(project);
@@ -113,13 +113,12 @@ void project_init(Project *project, char *project_path, char *config_file) {
 }
 
 void project_reload(Project *project, void (*reload_callback)(unsigned int)) {
-  unsigned int i, j;
   bool should_update;
 
-  for (i = 0; i < project->frag_count; i++) {
+  for (unsigned int i = 0; i < project->frag_count; i++) {
     should_update = file_should_update(&project->fragment_shaders[i][0]);
 
-    for (j = 0; j < project->sub_counts.values[i]; j++) {
+    for (unsigned int j = 0; j < project->sub_counts.values[i]; j++) {
       should_update = should_update ||
                       file_should_update(&project->fragment_shaders[i][j + 1]);
     }
@@ -136,9 +135,7 @@ void project_reload(Project *project, void (*reload_callback)(unsigned int)) {
 }
 
 void project_free(Project *project) {
-  unsigned int i;
-
-  for (i = 0; i < project->frag_count; i++) {
+  for (unsigned int i = 0; i < project->frag_count; i++) {
     file_free(&project->fragment_shaders[i][0]);
   }
 

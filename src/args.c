@@ -91,18 +91,22 @@ static char *split_arg_value(char *arg) {
 }
 
 static unsigned int parse_uint(char *arg, char *value) {
+  unsigned long long tmp_value;
+
   if (!string_is_number(value)) {
     invalid_value(arg, value);
   }
-  unsigned long long tmp_value = (unsigned long long)atoll(value);
+
+  tmp_value = (unsigned long long)atoll(value);
+
   if (tmp_value >= UINT_MAX) {
     invalid_value(arg, value);
   }
+
   return (unsigned int)tmp_value;
 }
 
 void args_parse(Parameters *params, int argc, char **argv) {
-  int i;
   char *arg;
   char *value;
 
@@ -126,7 +130,7 @@ void args_parse(Parameters *params, int argc, char **argv) {
   params->trace_midi = false;
   params->trace_fps = false;
 
-  for (i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; i++) {
     arg = argv[i];
     value = split_arg_value(arg);
     if (is_arg(arg, "-h") || is_arg(arg, "--help")) {

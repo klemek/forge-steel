@@ -10,9 +10,9 @@
 #include "main.h"
 #include "rand.h"
 
-int main(int argc, char **argv) {
-  Parameters params;
+static Parameters params;
 
+int main(int argc, char **argv) {
   args_parse(&params, argc, argv);
 
   puts(PACKAGE " " VERSION);

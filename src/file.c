@@ -14,9 +14,11 @@
 
 static time_t get_file_time(File *file) {
   struct stat attr;
+
   if (stat(file->path, &attr) == 0) {
     return attr.st_mtim.tv_sec;
   }
+
   return 0;
 }
 
@@ -97,7 +99,6 @@ void file_dump(char *path, char *content) {
 }
 
 void file_write(char *path, StringArray *lines) {
-  unsigned int i;
   FILE *file_pointer;
 
   log_info("Writing %s...", path);
@@ -110,7 +111,7 @@ void file_write(char *path, StringArray *lines) {
   }
 
   // write file
-  for (i = 0; i < lines->length; i++) {
+  for (unsigned int i = 0; i < lines->length; i++) {
     fprintf(file_pointer, "%s\n", lines->values[i]);
   }
 

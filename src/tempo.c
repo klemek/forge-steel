@@ -39,8 +39,9 @@ static bool is_chain_active(Tempo tempo, long t) {
 }
 
 static long get_average_tap_duration(Tempo tempo) {
-  unsigned int amount, i;
-  long running_total, average_tap_duration;
+  unsigned int amount;
+  long running_total;
+  long average_tap_duration;
 
   amount = tempo.taps_in_chain - 1;
   if (amount > TOTAL_TAP_VALUES) {
@@ -48,7 +49,7 @@ static long get_average_tap_duration(Tempo tempo) {
   }
 
   running_total = 0;
-  for (i = 0; i < amount; i++) {
+  for (unsigned int i = 0; i < amount; i++) {
     running_total += tempo.tap_durations[i];
   }
 

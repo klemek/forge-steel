@@ -13,13 +13,14 @@
 #include "tempo.h"
 
 void state_parse_config(StateConfig *state_config, ConfigFile *config) {
-  unsigned int i, j, offset, count;
+  unsigned int offset;
+  unsigned int count;
   char name[STR_LEN];
 
   state_config->select_page_codes.length =
       config_file_get_int(config, "SELECT_PAGE_COUNT", 0);
 
-  for (i = 0; i < state_config->select_page_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->select_page_codes.length; i++) {
     snprintf(name, STR_LEN, "SELECT_PAGE_%d", i + 1);
     state_config->select_page_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
@@ -28,7 +29,7 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
   state_config->select_item_codes.length =
       config_file_get_int(config, "SELECT_ITEM_COUNT", 0);
 
-  for (i = 0; i < state_config->select_item_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->select_item_codes.length; i++) {
     snprintf(name, STR_LEN, "SELECT_ITEM_%d", i + 1);
     state_config->select_item_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
@@ -40,7 +41,7 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
   state_config->select_frag_codes.length =
       config_file_get_int(config, "FRAG_COUNT", 1);
 
-  for (i = 0; i < state_config->select_frag_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->select_frag_codes.length; i++) {
     snprintf(name, STR_LEN, "SELECT_FRAG_%d", i + 1);
     state_config->select_frag_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
@@ -53,7 +54,7 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
                   config_file_get_int(config, "MIDI_COUNT", 0);
 
   count = 0;
-  for (i = 0; i < state_config->midi_active_counts.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
     snprintf(name, STR_LEN, "MIDI_%d_ACTIVE_COUNT", i + 1);
     state_config->midi_active_counts.values[i] =
         config_file_get_int(config, name, 1);
@@ -63,8 +64,9 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
 
   state_config->midi_active_codes.length = count;
 
-  for (i = 0; i < state_config->midi_active_counts.length; i++) {
-    for (j = 0; j < state_config->midi_active_counts.values[i]; j++) {
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
+    for (unsigned int j = 0; j < state_config->midi_active_counts.values[i];
+         j++) {
       snprintf(name, STR_LEN, "MIDI_%d_ACTIVE_%d", i + 1, j + 1);
       state_config->midi_active_codes
           .values[state_config->midi_active_offsets.values[i] + j] =
@@ -74,7 +76,7 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
 
   count = 0;
   offset = 0;
-  for (i = 0; i < state_config->midi_counts.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_counts.length; i++) {
     snprintf(name, STR_LEN, "MIDI_%d_COUNT", i + 1);
     state_config->midi_counts.values[i] = config_file_get_int(config, name, 0);
     state_config->midi_offsets.values[i] = count;
@@ -86,9 +88,9 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
 
   state_config->midi_codes.length = count * 3;
 
-  for (i = 0; i < state_config->midi_counts.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_counts.length; i++) {
     offset = state_config->midi_offsets.values[i];
-    for (j = 0; j < state_config->midi_counts.values[i]; j++) {
+    for (unsigned int j = 0; j < state_config->midi_counts.values[i]; j++) {
       snprintf(name, STR_LEN, "MIDI_%d_%d_X", i + 1, j + 1);
       state_config->midi_codes.values[(offset + j) * 3] =
           config_file_get_int(config, name, UNSET_MIDI_CODE);
@@ -106,7 +108,7 @@ void state_parse_config(StateConfig *state_config, ConfigFile *config) {
   state_config->fader_codes.length =
       config_file_get_int(config, "FADER_COUNT", 0);
 
-  for (i = 0; i < state_config->fader_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->fader_codes.length; i++) {
     snprintf(name, STR_LEN, "FADER_%d", i + 1);
     state_config->fader_codes.values[i] =
         config_file_get_int(config, name, UNSET_MIDI_CODE);
@@ -125,9 +127,10 @@ static void safe_midi_write(MidiDevice *midi, unsigned int code,
 
 static void update_page(SharedContext *context, StateConfig *state_config,
                         MidiDevice *midi) {
-  unsigned int i, page_item_min, page_item_max;
+  unsigned int page_item_min;
+  unsigned int page_item_max;
   // SHOW PAGE
-  for (i = 0; i < state_config->select_page_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->select_page_codes.length; i++) {
     safe_midi_write(midi, state_config->select_page_codes.values[i],
                     i == context->page ? MIDI_MAX : 0);
   }
@@ -138,7 +141,7 @@ static void update_page(SharedContext *context, StateConfig *state_config,
 
   if (context->state.values[context->selected] >= page_item_min &&
       context->state.values[context->selected] < page_item_max) {
-    for (i = 0; i < state_config->select_item_codes.length; i++) {
+    for (unsigned int i = 0; i < state_config->select_item_codes.length; i++) {
       safe_midi_write(midi, state_config->select_item_codes.values[i],
                       i == context->state.values[context->selected] -
                                   page_item_min
@@ -146,7 +149,7 @@ static void update_page(SharedContext *context, StateConfig *state_config,
                           : 0);
     }
   } else {
-    for (i = 0; i < state_config->select_item_codes.length; i++) {
+    for (unsigned int i = 0; i < state_config->select_item_codes.length; i++) {
       safe_midi_write(midi, state_config->select_item_codes.values[i], 0);
     }
   }
@@ -154,10 +157,11 @@ static void update_page(SharedContext *context, StateConfig *state_config,
 
 static void update_active(SharedContext *context, StateConfig *state_config,
                           MidiDevice *midi) {
-  unsigned int i, j, k;
+  unsigned int k;
 
-  for (i = 0; i < state_config->midi_active_counts.length; i++) {
-    for (j = 0; j < state_config->midi_active_counts.values[i]; j++) {
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
+    for (unsigned int j = 0; j < state_config->midi_active_counts.values[i];
+         j++) {
       k = state_config->midi_active_offsets.values[i] + j;
       safe_midi_write(midi, state_config->midi_active_codes.values[k],
                       context->active[i] == j ? MIDI_MAX : 0);
@@ -167,9 +171,11 @@ static void update_active(SharedContext *context, StateConfig *state_config,
 
 static void update_values(SharedContext *context, StateConfig *state_config,
                           MidiDevice *midi) {
-  unsigned int i, j, k, part;
+  unsigned int j;
+  unsigned int k;
+  unsigned int part;
 
-  for (i = 0; i < state_config->midi_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
     j = i / 3;
     part = arr_uint_remap_index(state_config->midi_offsets, &j);
     k = state_config->values_offsets.values[part] +
@@ -325,7 +331,6 @@ static void state_load(SharedContext *context, StateConfig *state_config,
                        char *state_file) {
   ConfigFile saved_state;
   char key[STR_LEN];
-  unsigned int i;
 
   config_file_read(&saved_state, state_file);
 
@@ -334,7 +339,7 @@ static void state_load(SharedContext *context, StateConfig *state_config,
   context->page = config_file_get_int(&saved_state, "page", 0);
   context->selected = config_file_get_int(&saved_state, "selected", 0);
 
-  for (i = 0; i < context->state.length; i++) {
+  for (unsigned int i = 0; i < context->state.length; i++) {
     snprintf(key, STR_LEN, "seed_%d", i);
     context->seeds[i] =
         config_file_get_int(&saved_state, key, context->seeds[i]);
@@ -342,12 +347,12 @@ static void state_load(SharedContext *context, StateConfig *state_config,
     context->state.values[i] = config_file_get_int(&saved_state, key, 0);
   }
 
-  for (i = 0; i < state_config->midi_active_counts.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
     snprintf(key, STR_LEN, "active_%d", i);
     context->active[i] = config_file_get_int(&saved_state, key, 0);
   }
 
-  for (i = 0; i < state_config->midi_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
     snprintf(key, STR_LEN, "value_%d_x", i);
     context->values[i][0] =
         (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
@@ -365,8 +370,6 @@ static void state_load(SharedContext *context, StateConfig *state_config,
 void state_init(SharedContext *context, StateConfig *state_config, bool demo,
                 bool auto_random, unsigned int base_tempo, char *state_file,
                 bool load_state) {
-  unsigned int i;
-
   tempo_init(&context->tempo);
   tempo_set(&context->tempo, base_tempo);
   context->demo = demo;
@@ -387,7 +390,7 @@ void state_init(SharedContext *context, StateConfig *state_config, bool demo,
 
   memset(context->seeds, 0, sizeof(context->seeds));
 
-  for (i = 0; i < context->state.length; i++) {
+  for (unsigned int i = 0; i < context->state.length; i++) {
     context->seeds[i] = rand_uint(1000);
   }
 
@@ -397,9 +400,7 @@ void state_init(SharedContext *context, StateConfig *state_config, bool demo,
 }
 
 void state_randomize(SharedContext *context, StateConfig *state_config) {
-  unsigned int i;
-
-  for (i = 0; i < context->state.length; i++) {
+  for (unsigned int i = 0; i < context->state.length; i++) {
     context->state.values[i] = rand_uint(state_config->state_max);
   }
 }
@@ -407,7 +408,6 @@ void state_randomize(SharedContext *context, StateConfig *state_config) {
 void state_save(SharedContext *context, StateConfig *state_config,
                 char *state_file) {
   StringArray lines;
-  unsigned int i;
 
   log_info("Saving state to '%s'...", state_file);
 
@@ -419,19 +419,19 @@ void state_save(SharedContext *context, StateConfig *state_config,
   snprintf(lines.values[lines.length++], STR_LEN, "selected=%d",
            context->selected);
 
-  for (i = 0; i < context->state.length; i++) {
+  for (unsigned int i = 0; i < context->state.length; i++) {
     snprintf(lines.values[lines.length++], STR_LEN, "seed_%d=%d", i,
              context->seeds[i]);
     snprintf(lines.values[lines.length++], STR_LEN, "state_%d=%d", i,
              context->state.values[i]);
   }
 
-  for (i = 0; i < state_config->midi_active_counts.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
     snprintf(lines.values[lines.length++], STR_LEN, "active_%d=%d", i,
              context->active[i]);
   }
 
-  for (i = 0; i < state_config->midi_codes.length; i++) {
+  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
     snprintf(lines.values[lines.length++], STR_LEN, "value_%d_x=%d", i,
              (unsigned int)(context->values[i][0] * MIDI_MAX));
     snprintf(lines.values[lines.length++], STR_LEN, "value_%d_y=%d", i,

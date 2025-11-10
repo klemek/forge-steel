@@ -58,8 +58,6 @@ static void compute_fps(bool trace_fps) {
 }
 
 static void init_context(Parameters *params, unsigned int in_count) {
-  unsigned int i;
-
   state_init(context, &project.state_config, params->demo, params->auto_random,
              params->base_tempo, params->state_file, params->load_state);
 
@@ -69,7 +67,7 @@ static void init_context(Parameters *params, unsigned int in_count) {
   memset(context->input_formats, 0, sizeof(context->input_formats));
   memset(context->input_fps, 0, sizeof(context->input_fps));
 
-  for (i = 0; i < in_count; i++) {
+  for (unsigned int i = 0; i < in_count; i++) {
     if (!inputs.values[i].error) {
       context->input_resolutions[i][0] = inputs.values[i].width;
       context->input_resolutions[i][1] = inputs.values[i].height;
@@ -85,19 +83,15 @@ static void reload_shader(unsigned int i) {
 }
 
 static void init_inputs(StringArray *video_in, unsigned int video_size) {
-  unsigned int i;
-
   inputs.length = video_in->length;
 
-  for (i = 0; i < video_in->length; i++) {
+  for (unsigned int i = 0; i < video_in->length; i++) {
     video_init(&inputs.values[i], video_in->values[i], video_size);
   }
 }
 
 static bool start_video_captures(unsigned int video_count, bool trace_fps) {
-  unsigned int i;
-
-  for (i = 0; i < video_count; i++) {
+  for (unsigned int i = 0; i < video_count; i++) {
     if (!inputs.values[i].error &&
         !video_background_read(&inputs.values[i], context, i, trace_fps)) {
       return false;
@@ -108,9 +102,7 @@ static bool start_video_captures(unsigned int video_count, bool trace_fps) {
 }
 
 static void free_video_captures(unsigned int video_count) {
-  unsigned int i;
-
-  for (i = 0; i < video_count; i++) {
+  for (unsigned int i = 0; i < video_count; i++) {
     shaders_free_input(&program, &inputs.values[i]);
 
     video_free(&inputs.values[i]);

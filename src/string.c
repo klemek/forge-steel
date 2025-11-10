@@ -41,16 +41,19 @@ static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
 bool string_is_number(char *value) {
   unsigned long value_len;
-  unsigned int i;
+
   if (value == NULL) {
     return false;
   }
+
   value_len = strnlen(value, STR_LEN);
-  for (i = 0; i < value_len; i++) {
+
+  for (unsigned int i = 0; i < value_len; i++) {
     if (!is_digit(value[i])) {
       return false;
     }
   }
+
   return true;
 }
 
