@@ -81,7 +81,22 @@ Here are some pointers if you want to customize your FORGE experience:
 
 ![](./docs/forge.drawio.png)
 
-TODO
+FORGE is an engine rendering a project into visuals.
+
+Using OpenGL GLSL language, it talks to your graphic card to generate layers of textures defined by the fragment shaders and outputs it to your screen.
+
+Here's a quick rundown of the process:
+
+1. Reads the `forge_project.cfg` defined in the project folder.
+2. Reads the `.glsl` files, including common parts while parsing them.
+3. Creates and links all the OpenGL elements (programs, uniforms, textures, framebuffers, etc.)
+4. Creates a [GLFW](https://www.glfw.org/) window
+5. (optional) Connects to a MIDI controller (ALSA library) and read events to the background
+6. (optional) Opens a video device stream (V4L2 library) and read buffers in the background
+7. Updates context and pass it to the OpenGL programs (time, resolution, state, etc.)
+8. Renders each texture from its OpenGL program
+9. Renders window
+10. Repeat at step 7
 
 ## Install
 
