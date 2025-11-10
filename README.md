@@ -10,13 +10,50 @@
 
 Discover an engine where user-defined fragment shaders collide to produce stunning visuals.
 
-![](./images/preview.png)
+![](./docs/preview.png)
 
 See [Demo #1 - 1H](https://youtu.be/-RMXGxP8Uks) and [Demo #2 - Monitor View](https://youtu.be/q4ili24DlRE) on YouTube
 b
+
+## Quick Start
+
+FORGE default project is controlled with a [KORG nanoKONTROL2](https://www.korg.com/us/products/computergear/nanokontrol2/).
+
+Don't worry if you don't have one, the demo mode will still run great.
+
+After you [install](#install) the project, you can test run the following commands:
+
+```shell
+# demo mode, works out of the box
+forge --demo
+# see the monitor output
+forge --demo --monitor-only
+# open to another screen
+forge --demo --screen=1
+# open both output and monitor
+forge --demo -screen=0 --monitor=1
+# nanoKONTROL2 plugged, control the default project
+forge
+# nanoKONTROL2 plugged, add video devices
+forge --video-in=/dev/video0 --video-in=/dev/video1
+# run the sample projet and work on it
+forge --project=./sample --hot-reload
+```
+
+### What to do next
+
+Here are some pointers if you want to customize your FORGE experience:
+
+* [Discover the hotkeys](#runtime-hotkeys)
+* [Familiarize with the CLI arguments](#cli-arguments)
+* [Discover how to use the default project](#default-project)
+* [Make your own FORGE project](#making-your-own-forge-project)
+
 <!-- omit from toc -->
 ## Table of Contents
 
+- [Quick Start](#quick-start)
+  - [What to do next](#what-to-do-next)
 - [What is FORGE ?](#what-is-forge-)
 - [Install](#install)
   - [Prerequisites](#prerequisites)
@@ -24,7 +61,7 @@ b
   - [From repository (PKGBUILD)](#from-repository-pkgbuild)
   - [From repository (dev version)](#from-repository-dev-version)
 - [Usage](#usage)
-  - [Runtime keybindings](#runtime-keybindings)
+  - [Runtime hotkeys](#runtime-hotkeys)
   - [CLI arguments](#cli-arguments)
 - [Default Project](#default-project)
   - [Sources and Effects](#sources-and-effects)
@@ -36,8 +73,10 @@ b
   - [Working with `#include`](#working-with-include)
 - [Frequently Asked Questions](#frequently-asked-questions)
   - [Why "steel"?](#why-steel)
+  - [My nanoKontrol2 is acting strange](#my-nanokontrol2-is-acting-strange)
   - [How do I report a bug?](#how-do-i-report-a-bug)
   - [Help I got low FPS on my video device](#help-i-got-low-fps-on-my-video-device)
+  - [How do I change the default project built-in sentences?](#how-do-i-change-the-default-project-built-in-sentences)
 
 ## What is FORGE ?
 
@@ -55,7 +94,7 @@ TODO
 | libGL     | libgl-dev      | extra/libglvnd  |
 | libasound | libasound2-dev | extra/alsa-lib  |
 | libv4l2   | libv4l-dev     | extra/v4l-utils |
-| libbsd    | libbsd-dev     | extra/libbsd |
+| libbsd    | libbsd-dev     | extra/libbsd    |
 
 ### From release
 
@@ -93,9 +132,9 @@ make install
 
 ## Usage
 
-### Runtime keybindings
+### Runtime hotkeys
 
-When running, the following keybindings are available:
+When running, the following hotkeys are available:
 
 * <kbd>Esc</kbd>: Exit window
 * <kbd>R</kbd>: Randomize shader state
@@ -159,19 +198,18 @@ options:
 |       | **D** | Cursor            | _Size_            | _Pos X_         | _Pos Y_            | Isometric       | _Zoom_           | _Scroll_       | _Rotate_      |
 |       | **E** | (Random source)   | ---               | ---             | ---                | (Random effect)  | ---              | ---          |  ---          |
 
-TODO update
-
 ### Debug View
 
-![](./images/debug.jpg)
+![](./docs/debug.jpg)
 
 ### NanoKontrol2 Controller mapping
 
-![](./images/nanokontrol.jpg)
+![](./docs/nanokontrol.jpg)
 
 > In blue is a sample "stage" as most sources/effects use a combination of 4 stages (see table above)
 
-> ⚠️ you'll need to change your NanoKontrol2 settings to remove the "toggle" behavior of the buttons and use "external" led control
+> ⚠️ you'll need to change your NanoKontrol2 settings to remove the "toggle" behavior of the buttons and use "external" led control.
+> (Use the [KORG KONTROL Editor](https://www.korg.com/us/support/download/software/1/133/1355/) and the [provided data file](./docs/forge.nktrl2_data) to setup your controller.)
 
 ## Making your own FORGE project
 
@@ -197,10 +235,24 @@ FORGE is a concept which is intended to be derived onto other forms (like Raspbe
 
 FORGE (steel) describe the linux version.
 
+### My nanoKontrol2 is acting strange
+
+You may need to change your NanoKontrol2 settings to remove the "toggle" behavior of the buttons and use "external" led control.
+
+Use the [KORG KONTROL Editor](https://www.korg.com/us/support/download/software/1/133/1355/) and the [provided data file](./docs/forge.nktrl2_data) to setup your controller.
+
 ### How do I report a bug?
 
-TODO
+You're free to open a new issue in the [Issues page](https://github.com/klemek/forge-steel/issues).
+
+Don't forget to add all information available to your bug (version, operating system, etc.).
 
 ### Help I got low FPS on my video device
 
-TODO
+There's already an [open issue](https://github.com/klemek/forge-steel/issues/1) on this subject.
+
+### How do I change the default project built-in sentences?
+
+The sentences are defined in [default/inc_sentences.glsl](./default/inc_sentences.glsl).
+
+The script [scripts/sentences.py] can help you update them.

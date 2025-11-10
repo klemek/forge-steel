@@ -25,6 +25,5 @@ forge-*
 confdeps.*
 conftest.*
 forge_saved_state.txt
-*.py
 error.glsl
 draft/
