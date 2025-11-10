@@ -10,7 +10,7 @@
 
 Discover an engine where user-defined fragment shaders collide to produce stunning visuals.
 
-![FORGE preview](./docs/preview.png)
+![FORGE preview](./docs/preview.gif)
 
 See [Demo #1 - 1H](https://youtu.be/-RMXGxP8Uks) and [Demo #2 - Monitor View](https://youtu.be/q4ili24DlRE) on YouTube.
 
