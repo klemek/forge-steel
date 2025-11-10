@@ -99,7 +99,7 @@ make -f Makefile.dev release-arch
   - [x] fx 15 : random fx
   - [x] frag 10 : move debug screen here
   - [x] debug : add src/fx/A/B indicators
-- [ ] Other
+- [x] Other
   - [x] `forge_project.cfg`
   - [x] Define frag prefix in config
   - [x] Use custom `#include xxx.glsl` preprocessor
@@ -109,7 +109,7 @@ make -f Makefile.dev release-arch
   - [x] `--auto-random` / `--no-auto-random`
   - [x] Dump failed compilation into tmp file
   - [x] Update readme with usage documentation
-  - [ ] Sample gif in README
+  - [x] Sample gif in README
   - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup
   - [x] Minimal sample shaders
