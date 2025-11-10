@@ -54,6 +54,7 @@ TODO
 | libGL     | libgl-dev      | extra/libglvnd  |
 | libasound | libasound2-dev | extra/alsa-lib  |
 | libv4l2   | libv4l-dev     | extra/v4l-utils |
+| libbsd    | libbsd-dev     | extra/libbsd |
 
 ### From release
 

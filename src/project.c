@@ -1,3 +1,4 @@
+#include <bsd/string.h>
 #include <string.h>
 
 #include "types.h"

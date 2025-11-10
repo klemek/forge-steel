@@ -14,7 +14,7 @@ build:
 		-Iinclude \
 		hashmap.c/hashmap.c \
 		log.c/src/log.c \
-		-lm -lGL -lglfw -lasound \
+		-lm -lGL -lglfw -lasound -lbsd \
 		-Wall -Wextra \
 		-Wno-format-truncation \
 		-DGLFW_INCLUDE_NONE \

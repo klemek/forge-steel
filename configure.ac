@@ -23,6 +23,8 @@ AC_CHECK_HEADERS([string.h])
 AC_CHECK_HEADERS([time.h])
 AC_CHECK_HEADERS([unistd.h])
 
+AC_CHECK_HEADERS([bsd/string.h])
+
 AC_CHECK_HEADERS([linux/videodev2.h])
 
 AC_CHECK_HEADERS([alsa/rawmidi.h])
