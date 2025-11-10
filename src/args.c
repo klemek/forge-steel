@@ -86,8 +86,11 @@ static bool is_arg(char *arg, const char *ref) {
 }
 
 static char *split_arg_value(char *arg) {
-  strtok(arg, "=");
-  return strtok(NULL, "=");
+  char *rest;
+
+  strtok_r(arg, "=", &rest);
+
+  return rest;
 }
 
 static unsigned int parse_uint(char *arg, char *value) {
