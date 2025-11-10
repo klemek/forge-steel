@@ -1,4 +1,5 @@
 [![CI](https://github.com/klemek/forge-steel/actions/workflows/ci.yml/badge.svg)](https://github.com/klemek/forge-steel/actions/workflows/ci.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=klemek_forge-steel&metric=alert_status&token=b68ccdc07773027cc51403bc5712d9364d64febf)](https://sonarcloud.io/summary/new_code?id=klemek_forge-steel)
 
 <!-- omit from toc -->
 # F.O.R.G.E. (Steel)
