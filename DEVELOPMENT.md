@@ -109,6 +109,7 @@ make -f Makefile.dev release-arch
   - [x] `--auto-random` / `--no-auto-random`
   - [x] Dump failed compilation into tmp file
   - [ ] Update readme with usage documentation
+  - [ ] Sample gif in README
   - [x] Documentation in default config file
   - [x] Clone "shaders" and config in system path at setup
   - [ ] Minimal sample shaders

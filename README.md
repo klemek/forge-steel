@@ -11,7 +11,7 @@ Discover an engine where user-defined fragment shaders collide to produce stunni
 
 ![](./images/preview.png)
 
-See [Demo #1 - 1H](https://youtu.be/HgErrasSs-w) and [Demo #2 - Monitor View](https://youtu.be/RW9Pno7YAzg) on YouTube
+See [Demo #1 - 1H](https://youtu.be/-RMXGxP8Uks) and [Demo #2 - Monitor View](https://youtu.be/q4ili24DlRE) on YouTube
 b
 <!-- omit from toc -->
 ## Table of Contents
@@ -141,7 +141,7 @@ options:
 
 | P     | #     | SRC               | _COL2_            | _COL3_          | _COL4_             | FX               | _COL6_          | _COL7_        | _COL8_         |
 | ----- | ----- | ----------------- | ----------------- | --------------- | ------------------ | ---------------- | --------------- | ------------- | -------------- |
-| **1** | **0** | Feedback + Thru   | _Hue_             | _Saturation_    | _Light_            | Thru             | _Hue_           | _Saturation_  | \_Light        |
+| **1** | **0** | Feedback + Thru   | _Hue_             | _Saturation_    | _Light_            | Thru             | _Hue_           | _Saturation_  | _Light        |
 |       | **1** | Lines             | _Thick. / Dezoom_ | _Rotation_      | _Distortion_       | Feedback + Shift | _Zoom / Dezoom_ | _X Shift_     | _Y Shift_      |
 |       | **2** | Dots              | _Zoom_            | _Rotation_      | _Lens_             | Shift            | _Zoom / Dezoom_ | _X Shift_     | _Y Shift_      |
 |       | **3** | Waves             | _Spacing_         | _Thickness_     | _Vert. Scroll (R)_ | Colorize         | _Black Color_   | _White Color_ | _Shift_        |
