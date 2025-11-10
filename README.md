@@ -10,7 +10,7 @@
 
 Discover an engine where user-defined fragment shaders collide to produce stunning visuals.
 
-![](./docs/preview.png)
+![FORGE preview](./docs/preview.png)
 
 See [Demo #1 - 1H](https://youtu.be/-RMXGxP8Uks) and [Demo #2 - Monitor View](https://youtu.be/q4ili24DlRE) on YouTube.
 
@@ -85,7 +85,7 @@ Here are some pointers if you want to customize your FORGE experience:
 
 ## What is FORGE ?
 
-![](./docs/forge.drawio.png)
+![FORGE concept schema](./docs/forge.drawio.png)
 
 FORGE is an engine rendering a project into visuals.
 
@@ -208,7 +208,7 @@ When opening the monitor view, here's what to expect:
 
 On the bottom left corner, here's how to read the internal state:
 
-![how to read the debug view](./docs/debug.jpg)
+![How to read the debug view](./docs/debug.jpg)
 
 ### nanoKONTROL2 layout for the default project
 
