@@ -230,7 +230,7 @@ Working with pages and items, you can use the following predefined sources and e
 
 | P     | #     | SRC               | _COL2_            | _COL3_          | _COL4_             | FX               | _COL6_          | _COL7_        | _COL8_         |
 | ----- | ----- | ----------------- | ----------------- | --------------- | ------------------ | ---------------- | --------------- | ------------- | -------------- |
-| **1** | **0** | Feedback + Thru   | _Hue_             | _Saturation_    | _Light_            | Thru             | _Hue_           | _Saturation_  | _Light        |
+| **1** | **0** | Feedback + Thru   | _Hue_             | _Saturation_    | _Light_            | Thru             | _Hue_           | _Saturation_  | _Light_        |
 |       | **1** | Lines             | _Thick. / Dezoom_ | _Rotation_      | _Distortion_       | Feedback + Shift | _Zoom / Dezoom_ | _X Shift_     | _Y Shift_      |
 |       | **2** | Dots              | _Zoom_            | _Rotation_      | _Lens_             | Shift            | _Zoom / Dezoom_ | _X Shift_     | _Y Shift_      |
 |       | **3** | Waves             | _Spacing_         | _Thickness_     | _Vert. Scroll (R)_ | Colorize         | _Black Color_   | _White Color_ | _Shift_        |
@@ -451,7 +451,7 @@ Then if you continue to have problems, you can [open an issue](https://github.co
 ### I didn't understand everything about your tutorial
 
 Please [open an issue](https://github.com/klemek/forge-steel/issues) describing what your having trouble with,
-I'll try to anwer and update the README.
+I'll try to answer and update the README.
 
 ### My nanoKontrol2 is acting strange
 
