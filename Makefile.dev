@@ -88,10 +88,10 @@ release-%: clean clean-release
 	sed -i -E "s/pkgver=[0-9]+\\.[0-9]+\\.[0-9]+/pkgver=$*/g" PKGBUILD
 	sha256sum build/forge-steel-$*.tar.gz | cut -d' ' -f1 | xargs -I{} sed -i -E "s/sha256sums=\\('.*'\\)/sha256sums=\\('{}'\\)/g" PKGBUILD
 	git add configure.ac PKGBUILD
-	git commit -am "forge steel-$*"
-	git tag steel-$* -m "forge steel-$*"
+	git commit -am "forge (steel) v$*"
+	git tag v$* -m "forge (steel) v$*"
 	@echo "Push release: git push origin master --tags"
-	@echo "Rollback release: git reset HEAD~1 --hard && git tag -d steel-$*"
+	@echo "Rollback release: git reset HEAD~1 --hard && git tag -d v$*"
 
 
 .PHONY: release-arch
