@@ -281,7 +281,7 @@ void state_apply_event(SharedContext *context, const StateConfig *state_config,
   }
 }
 
-void state_apply(SharedContext *context, const StateConfig *state_config,
+void state_apply(const SharedContext *context, const StateConfig *state_config,
                  const MidiDevice *midi) {
   if (!midi->error) {
     update_values(context, state_config, midi);

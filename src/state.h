@@ -21,7 +21,7 @@ void state_reset(SharedContext *context);
 
 void state_randomize(SharedContext *context, const StateConfig *state_config);
 
-void state_apply(SharedContext *context, const StateConfig *state_config,
+void state_apply(const SharedContext *context, const StateConfig *state_config,
                  const MidiDevice *midi);
 
 void state_save(const SharedContext *context, const StateConfig *state_config,
