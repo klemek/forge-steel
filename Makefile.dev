@@ -54,6 +54,7 @@ clean-release:
 		configure~ \
 		depcomp \
 		**/.deps \
+		**/**/.deps \
 		$(TARGET) \
 		$(TARGET)-*.tar.gz \
 		$(TARGET)-*.pkg.tar.zst \
