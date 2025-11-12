@@ -1,5 +1,4 @@
-[![CI](https://github.com/klemek/forge-steel/actions/workflows/ci.yml/badge.svg)](https://github.com/klemek/forge-steel/actions/workflows/ci.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=klemek_forge-steel&metric=alert_status&token=b68ccdc07773027cc51403bc5712d9364d64febf)](https://sonarcloud.io/summary/new_code?id=klemek_forge-steel)
+[![GitHub Release](https://img.shields.io/github/v/release/klemek/forge-steel?style=flat-square)](https://github.com/klemek/forge-steel/releases) [![GitHub Release Date](https://img.shields.io/github/release-date/klemek/forge-steel?style=flat-square)](https://github.com/klemek/forge-steel/releases) [![GitHub last commit](https://img.shields.io/github/last-commit/klemek/forge?style=flat-square)](https://github.com/klemek/forge-steel/commits/master/) [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/klemek/forge-steel/ci.yml?style=flat-square)](https://github.com/klemek/forge-steel/actions/workflows/ci.yml) [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/klemek_forge-steel?server=https%3A%2F%2Fsonarcloud.io&style=flat-square)](https://sonarcloud.io/summary/new_code?id=klemek_forge-steel) ![LOC](https://img.shields.io/badge/LOC-~3500-blue?style=flat-square)
 
 <!-- omit from toc -->
 # F.O.R.G.E. (Steel)
