@@ -13,6 +13,7 @@ uniform vec2 iInputResolution2;
 uniform int iInputFormat1;
 uniform int iInputFormat2;
 
+uniform int iDemo;
 uniform int iAutoRand;
 uniform int iPage;
 uniform int iSelected;
@@ -99,6 +100,7 @@ vec4 debug(vec2 vUV)
     float mfx_value = magic(iMidi2_3[6].xy, vec3(1, 0, 0), iSeed8);
     bool mfx_invert = magic_trigger(vec3(iMidi2_3[6].z, 0, 0), iSeed8);
     float mix_value = magic(iMidi3_1[1].xy, vec3(1, 0, 0), iSeed7);
+    mix_value = mix(mix_value, mix_value * 0.9 + 0.05, iDemo);
     bool mix_type = magic_trigger(vec3(iMidi3_1[0].x, 0, 0), iSeed7 + 10);
 
     // logic

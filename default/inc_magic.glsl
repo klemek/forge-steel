@@ -3,13 +3,11 @@
 #ifndef INC_MAGIC
 #define INC_MAGIC
 
-uniform int iDemo;
-
 vec2 magic_f(vec2 F, vec3 B, float i)
 {
     return vec2(
-        mix(F.x, randTime(i + 1), min(1, B.z + iDemo)),
-        mix(F.y, randTime(i + 2), min(1, B.z + iDemo))
+        mix(F.x, randTime(i + 1), min(1, B.z)),
+        mix(F.y, randTime(i + 2), min(1, B.z))
     );
 }
 
@@ -21,9 +19,9 @@ vec2 magic_f(float i)
 vec3 magic_b(vec3 B, float i)
 {
     return vec3(
-        mix(B.x, step(0.2, randTime(i + 3)), min(1, B.z + iDemo)),
-        mix(B.y, step(0.5, randTime(i + 4)), min(1, B.z + iDemo)),
-        min(1, B.z + iDemo)
+        mix(B.x, step(0.2, randTime(i + 3)), min(1, B.z)),
+        mix(B.y, step(0.5, randTime(i + 4)), min(1, B.z)),
+        min(1, B.z)
     );
 }
 

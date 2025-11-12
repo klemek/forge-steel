@@ -5,6 +5,8 @@
 #ifndef INC_SRC
 #define INC_SRC
 
+uniform int iDemo;
+
 uniform sampler2D iTex0;
 uniform sampler2D iTex3;
 uniform sampler2D iTex4;

@@ -12,6 +12,7 @@ out vec4 fragColor;
 #include inc_magic.glsl
 #include inc_functions.glsl
 
+uniform int iDemo;
 uniform sampler2D iTex7;
 uniform sampler2D iTex8;
 uniform int iSeed7;
@@ -26,7 +27,7 @@ void main() {
 
     float k = mean(color_a);
 
-    mix_value = mix(mix_value * 0.9 + 0.05, mix_value, 1 - iDemo);
+    mix_value = mix(mix_value, mix_value * 0.9 + 0.05, iDemo);
 
     fragColor = mix(color_b, color_a, mix_type ? step(mix_value, k) : mix_value);
 }
