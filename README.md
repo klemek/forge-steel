@@ -89,7 +89,7 @@ Here are some pointers if you want to customize your FORGE experience:
 
 ![FORGE concept schema](./docs/forge.drawio.png)
 
-FORGE is an engine rendering a project into visuals.
+FORGE is an graphical engine rendering a project into visuals.
 
 Using OpenGL GLSL language, it talks to your graphic card to generate layers of textures defined by the fragment shaders and outputs it to your screen.
 

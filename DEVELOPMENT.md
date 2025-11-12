@@ -117,9 +117,12 @@ make -f Makefile.dev release-arch
   - [x] Printable PDF of default scr/fx
   - [x] Add NanoKontrol setup file
   - [x] Find and fix opengl errors 0500 ?
-- [ ] Bonus
+- [ ] Improvements
   - [ ] Record show as text files
   - [ ] Play from record text file
+  - [ ] Key codes as inputs
+  - [ ] Mouse position and scroll as inputs
+- [ ] Fixes
   - [ ] Try to write NanoKontrol config
   - [ ] Investigate video device fps loss (bad unregister ?)
     -  explore libv4l directly [github](https://github.com/philips/libv4l) (with `-lv4l2`)
