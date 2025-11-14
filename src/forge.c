@@ -119,36 +119,23 @@ static void error_callback(int error, const char *description) {
 
 static void key_callback(Window *window, int key,
                          __attribute__((unused)) int scancode, int action,
-                         __attribute__((unused)) int mods) {
+                         int mods) {
+  unsigned int event;
+
+  event = window_read_key(key, action, mods);
+
   if (window_escape_key(key, action)) {
     // close window on escape key
     log_info("[ESC] Closing...");
     window_close(window);
-  } else if (window_char_key(key, action, 82)) {
-    // R: randomize
-    log_info("[R] Randomized");
-    state_randomize(context, &project.state_config);
-    state_apply(context, &project.state_config, &midi);
-  } else if (window_char_key(key, action, 48)) {
-    // 0: reset
-    log_info("[0] Reset");
-    state_reset(context);
-    state_apply(context, &project.state_config, &midi);
-  } else if (window_char_key(key, action, 68)) {
-    // D: demo on/off
-    log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
-    context->demo = !context->demo;
-  } else if (window_char_key(key, action, 65)) {
-    // A: auto random on/off
-    log_info(
-        (context->auto_random ? "[A] Auto Random OFF" : "[A] Auto Random ON"));
-    context->auto_random = !context->auto_random;
+  } else if (event > 0) {
+    state_key_event(context, &project.state_config, event, &midi);
   }
 }
 
 static void midi_callback(unsigned char code, unsigned char value) {
-  state_apply_event(context, &project.state_config, &midi, code, value,
-                    trace_midi);
+  state_midi_event(context, &project.state_config, &midi, code, value,
+                   trace_midi);
 }
 
 static void loop(bool hr, bool trace_fps) {

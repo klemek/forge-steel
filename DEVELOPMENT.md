@@ -118,12 +118,13 @@ make -f Makefile.dev release-arch
   - [x] Add NanoKontrol setup file
   - [x] Find and fix opengl errors 0500 ?
 - [ ] Extra features
-  - [ ] `--auto-random-cycle=4`
+  - [x] `--auto-random-cycle=4`
   - [ ] Arrows (up-down: bpm / left-right: cycle)
   - [ ] Save states (numkey: load / shift + numkey: save)
   - [ ] Configurable key codes
   - [ ] Key codes as inputs
   - [ ] Mouse position and scroll as inputs
+  - [ ] Joystick as input
   - [ ] Record show as text files
   - [ ] Play from record text file
 - [ ] Fixes

@@ -145,6 +145,23 @@ bool window_escape_key(int key, int action) {
   return key == GLFW_KEY_ESCAPE && action == GLFW_PRESS;
 }
 
-bool window_char_key(int key, int action, const int char_code) {
-  return key == char_code && action == GLFW_PRESS;
+unsigned int window_read_key(int key, int action, int mods) {
+  unsigned int result;
+  if (action == GLFW_RELEASE || key == GLFW_KEY_LEFT_SHIFT ||
+      key == GLFW_KEY_RIGHT_SHIFT || key == GLFW_KEY_LEFT_CONTROL ||
+      key == GLFW_KEY_RIGHT_CONTROL || key == GLFW_KEY_LEFT_ALT ||
+      key == GLFW_KEY_RIGHT_ALT) {
+    return 0;
+  }
+  result = key;
+  if ((mods & GLFW_MOD_SHIFT) > 0) {
+    result += 1000;
+  }
+  if ((mods & GLFW_MOD_CONTROL) > 0) {
+    result += 10000;
+  }
+  if ((mods & GLFW_MOD_ALT) > 0) {
+    result += 100000;
+  }
+  return result;
 }

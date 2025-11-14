@@ -190,9 +190,9 @@ static void update_values(const SharedContext *context,
   }
 }
 
-void state_apply_event(SharedContext *context, const StateConfig *state_config,
-                       const MidiDevice *midi, unsigned char code,
-                       unsigned char value, bool trace_midi) {
+void state_midi_event(SharedContext *context, const StateConfig *state_config,
+                      const MidiDevice *midi, unsigned char code,
+                      unsigned char value, bool trace_midi) {
   unsigned int i, j, k, part;
   bool found;
 
@@ -278,6 +278,31 @@ void state_apply_event(SharedContext *context, const StateConfig *state_config,
     midi_write(midi, code, value);
   } else if (trace_midi) {
     log_trace("midi: %d %d", code, value);
+  }
+}
+
+void state_key_event(SharedContext *context, const StateConfig *state_config,
+                     unsigned int code, const MidiDevice *midi) {
+  if (code == 82) {
+    // R: randomize
+    log_info("[R] Randomized");
+    state_randomize(context, state_config);
+    state_apply(context, state_config, midi);
+  } else if (code == 48) {
+    log_info("[0] Reset");
+    state_reset(context);
+    state_apply(context, state_config, midi);
+  } else if (code == 68) {
+    // D: demo on/off
+    log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
+    context->demo = !context->demo;
+  } else if (code == 65) {
+    // A: auto random on/off
+    log_info(
+        (context->auto_random ? "[A] Auto Random OFF" : "[A] Auto Random ON"));
+    context->auto_random = !context->auto_random;
+  } else {
+    log_info("[%d] No hotkey defined", code);
   }
 }
 
