@@ -281,17 +281,50 @@ void state_midi_event(SharedContext *context, const StateConfig *state_config,
   }
 }
 
+static void reset(SharedContext *context) {
+  memset(context->values, 0, sizeof(context->values));
+  memset(context->state.values, 0, sizeof(context->state.values));
+}
+
+static void randomize(SharedContext *context, const StateConfig *state_config) {
+  unsigned int j;
+  unsigned int l;
+  unsigned int part;
+
+  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
+    j = i / 3;
+    part = arr_uint_remap_index(state_config->midi_offsets, &j);
+    for (unsigned int k = 0; k < state_config->midi_active_counts.values[part];
+         k++) {
+      l = state_config->values_offsets.values[part] +
+          k * state_config->midi_counts.values[part] + j;
+
+      if (arr_uint_index_of(state_config->fader_codes,
+                            state_config->midi_codes.values[i]) !=
+          ARRAY_NOT_FOUND) {
+        context->values[l][i % 3] = (float)rand_uint(MIDI_MAX + 1) / MIDI_MAX;
+      } else {
+        context->values[l][i % 3] = rand_uint(2) == 1 ? 1 : 0;
+      }
+    }
+  }
+
+  for (unsigned int i = 0; i < context->state.length; i++) {
+    context->state.values[i] = rand_uint(state_config->state_max);
+  }
+}
+
 void state_key_event(SharedContext *context, const StateConfig *state_config,
                      unsigned int code, const MidiDevice *midi) {
   if (code == 82) {
     // R: randomize
     log_info("[R] Randomized");
-    state_randomize(context, state_config);
-    state_apply(context, state_config, midi);
-  } else if (code == 48) {
-    log_info("[0] Reset");
-    state_reset(context);
-    state_apply(context, state_config, midi);
+    randomize(context, state_config);
+    update_values(context, state_config, midi);
+  } else if (code == 1082) {
+    log_info("[SHIFT+R] Reset");
+    reset(context);
+    update_values(context, state_config, midi);
   } else if (code == 68) {
     // D: demo on/off
     log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
@@ -323,13 +356,6 @@ void state_key_event(SharedContext *context, const StateConfig *state_config,
     log_info("[DOWN] Tempo: %f", context->tempo);
   } else {
     log_info("[%d] No hotkey defined", code);
-  }
-}
-
-void state_apply(const SharedContext *context, const StateConfig *state_config,
-                 const MidiDevice *midi) {
-  if (!midi->error) {
-    update_values(context, state_config, midi);
   }
 }
 
@@ -376,9 +402,9 @@ bool state_background_write(SharedContext *context,
                             (double)context->auto_random_cycle) < 0.5;
 
     if (context->auto_random && change && !last_change) {
-      state_randomize(context, state_config);
+      randomize(context, state_config);
 
-      state_apply(context, state_config, midi);
+      update_values(context, state_config, midi);
     }
 
     last_change = change;
@@ -442,7 +468,7 @@ void state_init(SharedContext *context, const StateConfig *state_config,
   memset(context->state.values, 0, sizeof(context->state.values));
 
   if (auto_random) {
-    state_randomize(context, state_config);
+    randomize(context, state_config);
   }
 
   memset(context->active, 0, sizeof(context->active));
@@ -459,39 +485,6 @@ void state_init(SharedContext *context, const StateConfig *state_config,
 
   if (load_state) {
     state_load(context, state_config, state_file);
-  }
-}
-
-void state_reset(SharedContext *context) {
-  memset(context->values, 0, sizeof(context->values));
-  memset(context->state.values, 0, sizeof(context->state.values));
-}
-
-void state_randomize(SharedContext *context, const StateConfig *state_config) {
-  unsigned int j;
-  unsigned int l;
-  unsigned int part;
-
-  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
-    j = i / 3;
-    part = arr_uint_remap_index(state_config->midi_offsets, &j);
-    for (unsigned int k = 0; k < state_config->midi_active_counts.values[part];
-         k++) {
-      l = state_config->values_offsets.values[part] +
-          k * state_config->midi_counts.values[part] + j;
-
-      if (arr_uint_index_of(state_config->fader_codes,
-                            state_config->midi_codes.values[i]) !=
-          ARRAY_NOT_FOUND) {
-        context->values[l][i % 3] = (float)rand_uint(MIDI_MAX + 1) / MIDI_MAX;
-      } else {
-        context->values[l][i % 3] = rand_uint(2) == 1 ? 1 : 0;
-      }
-    }
-  }
-
-  for (unsigned int i = 0; i < context->state.length; i++) {
-    context->state.values[i] = rand_uint(state_config->state_max);
   }
 }
 
