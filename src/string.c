@@ -6,6 +6,8 @@
 #include "config.h"
 #include "string.h"
 
+static bool is_digit(char c) { return c >= '0' && c <= '9'; }
+
 unsigned int string_trim(char *str) {
   // https://www.delftstack.com/howto/c/trim-string-in-c/
   unsigned int start;
@@ -36,8 +38,6 @@ unsigned int string_trim(char *str) {
 
   return end - start + 1;
 }
-
-static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
 bool string_is_number(const char *value) {
   unsigned long value_len;

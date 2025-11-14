@@ -270,6 +270,24 @@ static void close_stream(const VideoCapture *video_capture) {
   ioctl(video_capture->fd, VIDIOC_STREAMOFF, &buf_type);
 }
 
+static bool read_video(VideoCapture *video_capture) {
+  if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) == -1) {
+    ioctl_error(video_capture, "VIDIOC_DQBUF",
+                "buffer type not supported or no buffer allocated or the index "
+                "is out of bounds");
+    return false;
+  }
+
+  if (ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf) == -1) {
+    ioctl_error(video_capture, "VIDIOC_QBUF",
+                "buffer type not supported or no buffer allocated or the index "
+                "is out of bounds");
+    return false;
+  }
+
+  return true;
+}
+
 void video_init(VideoCapture *video_capture, const char *name,
                 unsigned int preferred_height) {
   open_device(video_capture, name);
@@ -303,24 +321,6 @@ void video_init(VideoCapture *video_capture, const char *name,
   }
 
   create_image_buffer(video_capture);
-}
-
-static bool read_video(VideoCapture *video_capture) {
-  if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) == -1) {
-    ioctl_error(video_capture, "VIDIOC_DQBUF",
-                "buffer type not supported or no buffer allocated or the index "
-                "is out of bounds");
-    return false;
-  }
-
-  if (ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf) == -1) {
-    ioctl_error(video_capture, "VIDIOC_QBUF",
-                "buffer type not supported or no buffer allocated or the index "
-                "is out of bounds");
-    return false;
-  }
-
-  return true;
 }
 
 bool video_background_read(VideoCapture *video_capture, SharedContext *context,

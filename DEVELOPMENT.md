@@ -121,7 +121,7 @@ make -f Makefile.dev release-arch
   - [x] `--auto-random-cycle=4`
   - [x] Arrows (up-down: bpm / left-right: cycle)
   - [x] Save states (numkey: load / shift + numkey: save)
-  - [ ] (clean) static functions at top of files
+  - [x] (clean) static functions at top of files
   - [x] Configurable key codes
   - [ ] Key codes as inputs
   - [ ] Mouse position and scroll as inputs

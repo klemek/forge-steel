@@ -25,17 +25,6 @@ static void reset_tap_chain(Tempo *tempo, long t) {
   memset(tempo->tap_durations, 0, sizeof(tempo->tap_durations));
 }
 
-void tempo_init(Tempo *tempo, float value) {
-  long t;
-
-  t = now();
-
-  reset_tap_chain(tempo, t);
-
-  tempo->tempo = value;
-  tempo->beat_length = 60000.0 / value;
-}
-
 static bool is_chain_active(const Tempo tempo, long t) {
   return (tempo.last_tap + MAX_BEAT_LENGTH) > t &&
          (tempo.last_tap + (tempo.beat_length * BEATS_UNTIL_CHAIN_RESET)) > t;
@@ -99,6 +88,17 @@ static void add_tap_to_chain(Tempo *tempo, long t) {
   tempo->beat_length = get_average_tap_duration(*tempo);
 
   tempo->tempo = 60000.0 / tempo->beat_length;
+}
+
+void tempo_init(Tempo *tempo, float value) {
+  long t;
+
+  t = now();
+
+  reset_tap_chain(tempo, t);
+
+  tempo->tempo = value;
+  tempo->beat_length = 60000.0 / value;
 }
 
 void tempo_set(Tempo *tempo, float value) {

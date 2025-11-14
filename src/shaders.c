@@ -391,90 +391,6 @@ static void init_programs(ShaderProgram *program, const ConfigFile *config,
   }
 }
 
-void shaders_init(ShaderProgram *program, const Project *project,
-                  const SharedContext *context, VideoCaptureArray *inputs,
-                  bool rebind) {
-  if (!rebind) {
-    program->error = false;
-    program->last_resolution[0] = context->resolution[0];
-    program->last_resolution[1] = context->resolution[1];
-    program->tex_count = config_file_get_int(&project->config, "TEX_COUNT", 9);
-    program->frag_count = project->frag_count;
-    program->frag_output_index =
-        config_file_get_int(&project->config, "FRAG_OUTPUT", 1) - 1;
-    program->frag_monitor_index =
-        config_file_get_int(&project->config, "FRAG_MONITOR", 1) - 1;
-    program->sub_type_count =
-        config_file_get_int(&project->config, "SUB_TYPE_COUNT", 0);
-    program->in_count = config_file_get_int(&project->config, "IN_COUNT", 0);
-    program->sub_variant_count = project->state_config.state_max;
-    program->active_count = project->state_config.midi_active_counts.length;
-    program->midi_lengths.length = 0;
-
-    init_gl(program);
-
-    if (check_glerror(program)) {
-      return;
-    }
-
-    init_shaders(program, project);
-
-    if (program->error || check_glerror(program)) {
-      return;
-    }
-
-    init_textures(program, context);
-
-    if (check_glerror(program)) {
-      return;
-    }
-
-    init_input(program, &project->config, inputs);
-
-    if (check_glerror(program)) {
-      return;
-    }
-
-    init_framebuffers(program, &project->config);
-
-    if (check_glerror(program)) {
-      return;
-    }
-
-    init_programs(program, &project->config, &project->state_config);
-
-    if (check_glerror(program)) {
-      return;
-    }
-
-    init_vertices(program);
-
-    if (check_glerror(program)) {
-      return;
-    }
-  }
-
-  bind_vertices(program, rebind ? 1 : 0);
-
-  if (check_glerror(program)) {
-    return;
-  }
-}
-
-void shaders_update(ShaderProgram *program, const File *fragment_shader,
-                    unsigned int i, const Project *project) {
-  bool result;
-
-  result = compile_shader(program->fragment_shaders[i], fragment_shader->path,
-                          fragment_shader->content);
-
-  if (result) {
-    init_single_program(program, i, &project->config, &project->state_config);
-
-    log_info("Program %d updated", i + 1);
-  }
-}
-
 static void update_viewport(ShaderProgram *program,
                             const SharedContext *context) {
   // viewport changed
@@ -615,6 +531,90 @@ static void use_program(const ShaderProgram *program, int i, bool output,
 
   // draw output
   glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void shaders_init(ShaderProgram *program, const Project *project,
+                  const SharedContext *context, VideoCaptureArray *inputs,
+                  bool rebind) {
+  if (!rebind) {
+    program->error = false;
+    program->last_resolution[0] = context->resolution[0];
+    program->last_resolution[1] = context->resolution[1];
+    program->tex_count = config_file_get_int(&project->config, "TEX_COUNT", 9);
+    program->frag_count = project->frag_count;
+    program->frag_output_index =
+        config_file_get_int(&project->config, "FRAG_OUTPUT", 1) - 1;
+    program->frag_monitor_index =
+        config_file_get_int(&project->config, "FRAG_MONITOR", 1) - 1;
+    program->sub_type_count =
+        config_file_get_int(&project->config, "SUB_TYPE_COUNT", 0);
+    program->in_count = config_file_get_int(&project->config, "IN_COUNT", 0);
+    program->sub_variant_count = project->state_config.state_max;
+    program->active_count = project->state_config.midi_active_counts.length;
+    program->midi_lengths.length = 0;
+
+    init_gl(program);
+
+    if (check_glerror(program)) {
+      return;
+    }
+
+    init_shaders(program, project);
+
+    if (program->error || check_glerror(program)) {
+      return;
+    }
+
+    init_textures(program, context);
+
+    if (check_glerror(program)) {
+      return;
+    }
+
+    init_input(program, &project->config, inputs);
+
+    if (check_glerror(program)) {
+      return;
+    }
+
+    init_framebuffers(program, &project->config);
+
+    if (check_glerror(program)) {
+      return;
+    }
+
+    init_programs(program, &project->config, &project->state_config);
+
+    if (check_glerror(program)) {
+      return;
+    }
+
+    init_vertices(program);
+
+    if (check_glerror(program)) {
+      return;
+    }
+  }
+
+  bind_vertices(program, rebind ? 1 : 0);
+
+  if (check_glerror(program)) {
+    return;
+  }
+}
+
+void shaders_update(ShaderProgram *program, const File *fragment_shader,
+                    unsigned int i, const Project *project) {
+  bool result;
+
+  result = compile_shader(program->fragment_shaders[i], fragment_shader->path,
+                          fragment_shader->content);
+
+  if (result) {
+    init_single_program(program, i, &project->config, &project->state_config);
+
+    log_info("Program %d updated", i + 1);
+  }
 }
 
 void shaders_compute(ShaderProgram *program, const SharedContext *context,
