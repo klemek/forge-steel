@@ -91,6 +91,17 @@ void config_file_read(ConfigFile *config, const char *path) {
   file_free(&file);
 }
 
+bool config_file_has(const ConfigFile *config, const char *key) {
+  ConfigFileItem c_key;
+  const ConfigFileItem *item;
+
+  strlcpy(c_key.key, key, STR_LEN);
+
+  item = (const ConfigFileItem *)hashmap_get(config->map, &c_key);
+
+  return item != NULL && strnlen(item->value, STR_LEN) > 0;
+}
+
 const char *config_file_get_str(const ConfigFile *config, const char *key,
                                 const char *default_value) {
   ConfigFileItem c_key;

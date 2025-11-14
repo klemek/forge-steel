@@ -122,7 +122,7 @@ make -f Makefile.dev release-arch
   - [x] Arrows (up-down: bpm / left-right: cycle)
   - [x] Save states (numkey: load / shift + numkey: save)
   - [ ] (clean) static functions at top of files
-  - [ ] Configurable key codes
+  - [x] Configurable key codes
   - [ ] Key codes as inputs
   - [ ] Mouse position and scroll as inputs
   - [ ] Joystick as input

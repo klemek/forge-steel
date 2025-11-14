@@ -5,6 +5,8 @@
 
 void config_file_read(ConfigFile *config, const char *path);
 
+bool config_file_has(const ConfigFile *config, const char *key);
+
 const char *config_file_get_str(const ConfigFile *config, const char *key,
                                 const char *default_value);
 

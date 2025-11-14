@@ -348,6 +348,68 @@ void state_parse_config(StateConfig *state_config, const ConfigFile *config) {
   strlcpy(state_config->save_file_prefix,
           config_file_get_str(config, "SAVE_FILE_PREFIX", "forge_save"),
           STR_LEN);
+
+  state_config->hotkey_randomize =
+      config_file_get_int(config, "HOTKEY_RANDOMIZE", 82);
+  state_config->hotkey_reset =
+      config_file_get_int(config, "HOTKEY_RESET", 1082);
+  state_config->hotkey_demo = config_file_get_int(config, "HOTKEY_DEMO", 68);
+  state_config->hotkey_autorand =
+      config_file_get_int(config, "HOTKEY_AUTORAND", 65);
+  state_config->hotkey_autorand_down =
+      config_file_get_int(config, "HOTKEY_AUTORAND_DOWN", 263);
+  state_config->hotkey_autorand_up =
+      config_file_get_int(config, "HOTKEY_AUTORAND_UP", 262);
+  state_config->hotkey_tempo_down =
+      config_file_get_int(config, "HOTKEY_TEMPO_DOWN", 264);
+  state_config->hotkey_tempo_up =
+      config_file_get_int(config, "HOTKEY_TEMPO_UP", 265);
+
+  if (config_file_has(config, "HOTKEY_LOAD_COUNT")) {
+    state_config->hotkey_load.length =
+        config_file_get_int(config, "HOTKEY_LOAD_COUNT", 0);
+
+    for (unsigned int i = 0; i < state_config->hotkey_load.length; i++) {
+      snprintf(name, STR_LEN, "HOTKEY_LOAD_%d", i + 1);
+      state_config->hotkey_load.values[i] =
+          config_file_get_int(config, name, 0);
+    }
+  } else {
+    state_config->hotkey_load.length = 10;
+    state_config->hotkey_load.values[0] = 49;
+    state_config->hotkey_load.values[1] = 50;
+    state_config->hotkey_load.values[2] = 51;
+    state_config->hotkey_load.values[3] = 52;
+    state_config->hotkey_load.values[4] = 53;
+    state_config->hotkey_load.values[5] = 54;
+    state_config->hotkey_load.values[6] = 55;
+    state_config->hotkey_load.values[7] = 56;
+    state_config->hotkey_load.values[8] = 57;
+    state_config->hotkey_load.values[9] = 48;
+  }
+
+  if (config_file_has(config, "HOTKEY_SAVE_COUNT")) {
+    state_config->hotkey_save.length =
+        config_file_get_int(config, "HOTKEY_SAVE_COUNT", 0);
+
+    for (unsigned int i = 0; i < state_config->hotkey_save.length; i++) {
+      snprintf(name, STR_LEN, "HOTKEY_SAVE_%d", i + 1);
+      state_config->hotkey_save.values[i] =
+          config_file_get_int(config, name, 0);
+    }
+  } else {
+    state_config->hotkey_save.length = 10;
+    state_config->hotkey_save.values[0] = 1049;
+    state_config->hotkey_save.values[1] = 1050;
+    state_config->hotkey_save.values[2] = 1051;
+    state_config->hotkey_save.values[3] = 1052;
+    state_config->hotkey_save.values[4] = 1053;
+    state_config->hotkey_save.values[5] = 1054;
+    state_config->hotkey_save.values[6] = 1055;
+    state_config->hotkey_save.values[7] = 1056;
+    state_config->hotkey_save.values[8] = 1057;
+    state_config->hotkey_save.values[9] = 1048;
+  }
 }
 
 void state_midi_event(SharedContext *context, const StateConfig *state_config,
@@ -443,51 +505,57 @@ void state_midi_event(SharedContext *context, const StateConfig *state_config,
 
 void state_key_event(SharedContext *context, const StateConfig *state_config,
                      unsigned int code, const MidiDevice *midi) {
-  if (code == 82) {
-    // R: randomize
-    log_info("[R] Randomized");
+  unsigned int index;
+
+  if (code == state_config->hotkey_randomize) {
+    log_info("[%d] Randomized", code);
     randomize(context, state_config);
     update_values(context, state_config, midi);
-  } else if (code == 1082) {
-    log_info("[SHIFT+R] Reset");
+  } else if (code == state_config->hotkey_reset) {
+    log_info("[%d] Reset", code);
     reset(context);
     update_values(context, state_config, midi);
-  } else if (code == 68) {
-    // D: demo on/off
-    log_info((context->demo ? "[D] Demo OFF" : "[D] Demo ON"));
+  } else if (code == state_config->hotkey_demo) {
+    log_info((context->demo ? "[%d] Demo OFF" : "[%d] Demo ON"), code);
     context->demo = !context->demo;
-  } else if (code == 65) {
-    // A: auto random on/off
+  } else if (code == state_config->hotkey_autorand) {
     log_info(
-        (context->auto_random ? "[A] Auto Random OFF" : "[A] Auto Random ON"));
+        (context->auto_random ? "[%d] Auto Random OFF" : "[%d] Auto Random ON"),
+        code);
     context->auto_random = !context->auto_random;
-  } else if (code == 263) {
-    // LEFT ARROW
+  } else if (code == state_config->hotkey_autorand_down) {
     if (context->auto_random_cycle > 1) {
       context->auto_random_cycle -= 1;
     }
-    log_info("[LEFT] Auto Random Cycle: %d", context->auto_random_cycle);
-  } else if (code == 262) {
-    // RIGHT ARROW
+    log_info("[%d] Auto Random Cycle: %d", code, context->auto_random_cycle);
+  } else if (code == state_config->hotkey_autorand_up) {
     context->auto_random_cycle += 1;
-    log_info("[RIGHT] Auto Random Cycle: %d", context->auto_random_cycle);
-  } else if (code == 265) {
-    // UP ARROW
+    log_info("[%d] Auto Random Cycle: %d", code, context->auto_random_cycle);
+  } else if (code == state_config->hotkey_tempo_up) {
     tempo_set(&context->tempo, context->tempo.tempo + 1);
-    log_info("[UP] Tempo: %f", context->tempo);
-  } else if (code == 264) {
-    // DOWN ARROW
+    log_info("[%d] Tempo: %f", code, context->tempo);
+  } else if (code == state_config->hotkey_tempo_down) {
     if (context->tempo.tempo > 0) {
       tempo_set(&context->tempo, context->tempo.tempo - 1);
     }
-    log_info("[DOWN] Tempo: %f", context->tempo);
-  } else if (code >= 48 && code <= 57) {
-    log_info("[%d] Loading state %d", code - 48, code - 48);
-    load_from_index_file(context, state_config, code - 48);
-  } else if (code >= 1048 && code <= 1057) {
-    log_info("[%d] Saving state %d", code - 1048, code - 1048);
-    save_to_index_file(context, state_config, code - 1048);
+    log_info("[%d] Tempo: %f", code, context->tempo);
   } else {
+    index = arr_uint_index_of(state_config->hotkey_load, code);
+
+    if (index != ARRAY_NOT_FOUND) {
+      log_info("[%d] Loading state %d", code, index + 1);
+      load_from_index_file(context, state_config, index + 1);
+      return;
+    }
+
+    index = arr_uint_index_of(state_config->hotkey_save, code);
+
+    if (index != ARRAY_NOT_FOUND) {
+      log_info("[%d] Saving state %d", code, index + 1);
+      save_to_index_file(context, state_config, index + 1);
+      return;
+    }
+
     log_info("[%d] No hotkey defined", code);
   }
 }
@@ -550,8 +618,7 @@ bool state_background_write(SharedContext *context,
 void state_init(SharedContext *context, const StateConfig *state_config,
                 bool demo, bool auto_random, unsigned int auto_random_cycles,
                 unsigned int base_tempo, bool load_state) {
-  tempo_init(&context->tempo);
-  tempo_set(&context->tempo, base_tempo);
+  tempo_init(&context->tempo, base_tempo);
   context->demo = demo;
   context->auto_random = auto_random;
   context->auto_random_cycle = auto_random_cycles;

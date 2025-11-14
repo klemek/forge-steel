@@ -214,6 +214,18 @@ typedef struct StateConfig {
   unsigned int tap_tempo_code;
 
   char save_file_prefix[STR_LEN];
+
+  unsigned int hotkey_randomize;
+  unsigned int hotkey_reset;
+  unsigned int hotkey_demo;
+  unsigned int hotkey_autorand;
+  unsigned int hotkey_autorand_up;
+  unsigned int hotkey_autorand_down;
+  unsigned int hotkey_tempo_up;
+  unsigned int hotkey_tempo_down;
+
+  UintArray hotkey_load;
+  UintArray hotkey_save;
 } StateConfig;
 
 // timer.c

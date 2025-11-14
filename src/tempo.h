@@ -3,7 +3,7 @@
 #ifndef TEMPO_H
 #define TEMPO_H
 
-void tempo_init(Tempo *tempo);
+void tempo_init(Tempo *tempo, float value);
 
 void tempo_tap(Tempo *tempo);
 

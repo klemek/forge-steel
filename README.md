@@ -169,6 +169,8 @@ When running, the following hotkeys are available:
 | <kbd>0</kbd>-<kbd>9</kbd> | Load state 0 to 9 |
 | <kbd>Shift</kbd> + <kbd>0</kbd>-<kbd>9</kbd> | Save state 0 to 9 |
 
+These are configurable in the [`forge_project.cfg`](#forge_projectcfg).
+
 ### CLI arguments
 
 ```txt

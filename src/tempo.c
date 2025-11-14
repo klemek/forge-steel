@@ -25,12 +25,15 @@ static void reset_tap_chain(Tempo *tempo, long t) {
   memset(tempo->tap_durations, 0, sizeof(tempo->tap_durations));
 }
 
-void tempo_init(Tempo *tempo) {
+void tempo_init(Tempo *tempo, float value) {
   long t;
 
   t = now();
 
   reset_tap_chain(tempo, t);
+
+  tempo->tempo = value;
+  tempo->beat_length = 60000.0 / value;
 }
 
 static bool is_chain_active(const Tempo tempo, long t) {
