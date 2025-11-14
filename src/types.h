@@ -43,6 +43,7 @@ typedef struct Parameters {
   float base_tempo;
   bool demo;
   bool auto_random;
+  unsigned int auto_random_cycles;
   StringArray video_in;
   unsigned int video_size;
   unsigned int internal_size;
@@ -182,6 +183,7 @@ typedef struct SharedContext {
   vec3 values[ARRAY_SIZE];
   bool demo;
   bool auto_random;
+  unsigned int auto_random_cycles;
   unsigned int seeds[MAX_FRAG];
   bool monitor;
 

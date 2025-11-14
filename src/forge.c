@@ -59,7 +59,8 @@ static void compute_fps(bool trace_fps) {
 
 static void init_context(const Parameters *params, unsigned int in_count) {
   state_init(context, &project.state_config, params->demo, params->auto_random,
-             params->base_tempo, params->state_file, params->load_state);
+             params->auto_random_cycles, params->base_tempo, params->state_file,
+             params->load_state);
 
   context->monitor = params->monitor;
 

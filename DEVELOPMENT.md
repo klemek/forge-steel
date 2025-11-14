@@ -117,11 +117,15 @@ make -f Makefile.dev release-arch
   - [x] Printable PDF of default scr/fx
   - [x] Add NanoKontrol setup file
   - [x] Find and fix opengl errors 0500 ?
-- [ ] Improvements
-  - [ ] Record show as text files
-  - [ ] Play from record text file
+- [ ] Extra features
+  - [ ] `--auto-random-cycle=4`
+  - [ ] Arrows (up-down: bpm / left-right: cycle)
+  - [ ] Save states (numkey: load / shift + numkey: save)
+  - [ ] Configurable key codes
   - [ ] Key codes as inputs
   - [ ] Mouse position and scroll as inputs
+  - [ ] Record show as text files
+  - [ ] Play from record text file
 - [ ] Fixes
   - [ ] Try to write NanoKontrol config
   - [ ] Investigate video device fps loss (bad unregister ?)

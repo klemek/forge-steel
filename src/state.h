@@ -14,8 +14,9 @@ bool state_background_write(SharedContext *context,
                             const MidiDevice *midi);
 
 void state_init(SharedContext *context, const StateConfig *state_config,
-                bool demo, bool auto_random, unsigned int base_tempo,
-                const char *state_file, bool load_state);
+                bool demo, bool auto_random, unsigned int auto_random_cycles,
+                unsigned int base_tempo, const char *state_file,
+                bool load_state);
 
 void state_reset(SharedContext *context);
 

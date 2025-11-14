@@ -13,61 +13,64 @@
 #include "string.h"
 
 static void print_help(int status_code) {
-  puts(PACKAGE
-       " " VERSION "\n\n"
-       "usage: " PACKAGE " "
-       "[-h] "
-       "[-v] "
-       "[-p=PROJECT_PATH] "
-       "[-c=CFG_FILE] "
-       "[-hr] "
-       "[-s=SCREEN] "
-       "[-m=SCREEN] "
-       "[-mo] "
-       "[-w] "
-       "[-t=TEMPO] "
-       "[-d] "
-       "[-ar / -nar] "
-       "[-v=FILE] "
-       "[-vs=SIZE] "
-       "[-is=SIZE] "
-       "[-sf=STATE_PATH] "
-       "[-ls / -nls] "
-       "[-ss / -nss] "
-       "[-tm] "
-       "[-tf] "
-       "\n\n"
-       "Fusion Of Real-time Generative Effects.\n\n"
-       "options:\n"
-       "  -h, --help                show this help message and exit\n"
-       "  -v, --version             print version\n"
-       "  -p, --project             forge project directory (default: " DATADIR
-       "/default)\n"
-       "  -c, --config              config file name (default: "
-       "forge_project.cfg)\n"
-       "  -hr, --hot-reload         hot reload of shaders scripts\n"
-       "  -s, --screen              output screen number (default: primary)\n"
-       "  -m, --monitor             monitor screen number (default: none)\n"
-       "  -mo, --monitor-only       no output screen\n"
-       "  -w, --windowed            not fullscreen\n"
-       "  -t, --tempo               base tempo (default: 60)\n"
-       "  -d, --demo                demonstration mode (assume "
-       "--no-save-state, --no-load-state, --auto-random)\n"
-       "  -ar, --auto-random        randomize state every 4 beats\n"
-       "  -nar, --no-auto-random    do not randomize state (default)\n"
-       "  -v, --video-in            path to video capture device (multiple "
-       "allowed)\n"
-       "  -vs, --video-size         video capture desired height (default: "
-       "internal texture height)\n"
-       "  -is, --internal-size      internal texture height (default: 720)\n"
-       "  -sf, --state-file         saved state file (default: "
-       "forge_saved_state.txt)\n"
-       "  -ls, --load-state         load saved state (default)\n"
-       "  -nls, --no-load-state     do not load saved state\n"
-       "  -ss, --save-state         save state (default)\n"
-       "  -nss, --no-save-state     do not save state\n"
-       "  -tm, --trace-midi         print midi code and values\n"
-       "  -tf, --trace-fps          print fps status of subsystems\n");
+  puts(
+      PACKAGE
+      " " VERSION "\n\n"
+      "usage: " PACKAGE " "
+      "[-h] "
+      "[-v] "
+      "[-p=PROJECT_PATH] "
+      "[-c=CFG_FILE] "
+      "[-hr] "
+      "[-s=SCREEN] "
+      "[-m=SCREEN] "
+      "[-mo] "
+      "[-w] "
+      "[-t=TEMPO] "
+      "[-d] "
+      "[-ar / -nar] "
+      "[-arc=CYCLES] "
+      "[-v=FILE] "
+      "[-vs=SIZE] "
+      "[-is=SIZE] "
+      "[-sf=STATE_PATH] "
+      "[-ls / -nls] "
+      "[-ss / -nss] "
+      "[-tm] "
+      "[-tf] "
+      "\n\n"
+      "Fusion Of Real-time Generative Effects.\n\n"
+      "options:\n"
+      "  -h, --help                  show this help message and exit\n"
+      "  -v, --version               print version\n"
+      "  -p, --project               forge project directory (default: " DATADIR
+      "/default)\n"
+      "  -c, --config                config file name (default: "
+      "forge_project.cfg)\n"
+      "  -hr, --hot-reload           hot reload of shaders scripts\n"
+      "  -s, --screen                output screen number (default: primary)\n"
+      "  -m, --monitor               monitor screen number (default: none)\n"
+      "  -mo, --monitor-only         no output screen\n"
+      "  -w, --windowed              not fullscreen\n"
+      "  -t, --tempo                 base tempo (default: 60)\n"
+      "  -d, --demo                  demonstration mode (assume "
+      "--no-save-state, --no-load-state, --auto-random)\n"
+      "  -ar, --auto-random          randomize state every cycle (4 beats)\n"
+      "  -nar, --no-auto-random      do not randomize state (default)\n"
+      "  -arc, --auto-random-cycle   auto random cycle length (default: 4)\n"
+      "  -v, --video-in              path to video capture device (multiple "
+      "allowed)\n"
+      "  -vs, --video-size           video capture desired height (default: "
+      "internal texture height)\n"
+      "  -is, --internal-size        internal texture height (default: 720)\n"
+      "  -sf, --state-file           saved state file (default: "
+      "forge_saved_state.txt)\n"
+      "  -ls, --load-state           load saved state (default)\n"
+      "  -nls, --no-load-state       do not load saved state\n"
+      "  -ss, --save-state           save state (default)\n"
+      "  -nss, --no-save-state       do not save state\n"
+      "  -tm, --trace-midi           print midi code and values\n"
+      "  -tf, --trace-fps            print fps status of subsystems\n");
   exit(status_code);
 }
 
@@ -124,6 +127,7 @@ void args_parse(Parameters *params, int argc, char **argv) {
   params->base_tempo = 60.0f;
   params->demo = false;
   params->auto_random = false;
+  params->auto_random_cycles = 4;
   params->video_in.length = 0;
   params->video_size = 0;
   params->internal_size = 720;
@@ -168,6 +172,11 @@ void args_parse(Parameters *params, int argc, char **argv) {
       params->auto_random = true;
     } else if (is_arg(arg, "-nar") || is_arg(arg, "--no-auto-random")) {
       params->auto_random = false;
+    } else if (is_arg(arg, "-arc") || is_arg(arg, "--auto-random-cycle")) {
+      params->auto_random_cycles = parse_uint(arg, value);
+      if (params->auto_random_cycles == 0) {
+        invalid_value(arg, value);
+      }
     } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
       if (params->video_in.length == MAX_VIDEO) {
         log_error("maximum video input reached");

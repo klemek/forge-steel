@@ -314,7 +314,7 @@ bool state_background_write(SharedContext *context,
   last_change = false;
 
   while (!context->stop) {
-    beat_active = tempo_progress(&context->tempo, 1.0) < 0.25;
+    beat_active = tempo_progress(&context->tempo, 1.0) < 0.5;
 
     if (!midi->error && beat_active != last_active) {
       safe_midi_write(midi, state_config->tap_tempo_code,
@@ -327,7 +327,8 @@ bool state_background_write(SharedContext *context,
 
     last_active = beat_active;
 
-    change = tempo_progress(&context->tempo, 4.0) < 0.25;
+    change = tempo_progress(&context->tempo,
+                            (double)context->auto_random_cycles) < 0.5;
 
     if (context->auto_random && change && !last_change) {
       state_randomize(context, state_config);
@@ -383,12 +384,14 @@ static void state_load(SharedContext *context, const StateConfig *state_config,
 }
 
 void state_init(SharedContext *context, const StateConfig *state_config,
-                bool demo, bool auto_random, unsigned int base_tempo,
-                const char *state_file, bool load_state) {
+                bool demo, bool auto_random, unsigned int auto_random_cycles,
+                unsigned int base_tempo, const char *state_file,
+                bool load_state) {
   tempo_init(&context->tempo);
   tempo_set(&context->tempo, base_tempo);
   context->demo = demo;
   context->auto_random = auto_random;
+  context->auto_random_cycles = auto_random_cycles;
 
   context->state.length = state_config->select_frag_codes.length;
   memset(context->state.values, 0, sizeof(context->state.values));

@@ -166,34 +166,35 @@ When running, the following hotkeys are available:
 ### CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-p=PROJECT_PATH] [-c=CFG_FILE] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-w] [-t=TEMPO] [-d] [-ar / -nar] [-v=FILE] [-vs=SIZE] [-is=SIZE] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-tm] [-tf] 
+usage: forge [-h] [-v] [-p=PROJECT_PATH] [-c=CFG_FILE] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-w] [-t=TEMPO] [-d] [-ar / -nar] [-arc=CYCLES] [-v=FILE] [-vs=SIZE] [-is=SIZE] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-tm] [-tf] 
 
 Fusion Of Real-time Generative Effects.
 
 options:
-  -h, --help                show this help message and exit
-  -v, --version             print version
-  -p, --project             forge project directory (default: /usr/share/forge/default)
-  -c, --config              config file name (default: forge_project.cfg)
-  -hr, --hot-reload         hot reload of shaders scripts
-  -s, --screen              output screen number (default: primary)
-  -m, --monitor             monitor screen number (default: none)
-  -mo, --monitor-only       no output screen
-  -w, --windowed            not fullscreen
-  -t, --tempo               base tempo (default: 60)
-  -d, --demo                demonstration mode (assume --no-save-state, --no-load-state, --auto-random)
-  -ar, --auto-random        randomize state every 4 beats
-  -nar, --no-auto-random    do not randomize state (default)
-  -v, --video-in            path to video capture device (multiple allowed)
-  -vs, --video-size         video capture desired height (default: internal texture height)
-  -is, --internal-size      internal texture height (default: 720)
-  -sf, --state-file         saved state file (default: forge_saved_state.txt)
-  -ls, --load-state         load saved state (default)
-  -nls, --no-load-state     do not load saved state
-  -ss, --save-state         save state (default)
-  -nss, --no-save-state     do not save state
-  -tm, --trace-midi         print midi code and values
-  -tf, --trace-fps          print fps status of subsystems
+  -h, --help                  show this help message and exit
+  -v, --version               print version
+  -p, --project               forge project directory (default: /usr/share/forge/default)
+  -c, --config                config file name (default: forge_project.cfg)
+  -hr, --hot-reload           hot reload of shaders scripts
+  -s, --screen                output screen number (default: primary)
+  -m, --monitor               monitor screen number (default: none)
+  -mo, --monitor-only         no output screen
+  -w, --windowed              not fullscreen
+  -t, --tempo                 base tempo (default: 60)
+  -d, --demo                  demonstration mode (assume --no-save-state, --no-load-state, --auto-random)
+  -ar, --auto-random          randomize state every cycle (4 beats)
+  -nar, --no-auto-random      do not randomize state (default)
+  -arc, --auto-random-cycle   auto random cycle length (default: 4)
+  -v, --video-in              path to video capture device (multiple allowed)
+  -vs, --video-size           video capture desired height (default: internal texture height)
+  -is, --internal-size        internal texture height (default: 720)
+  -sf, --state-file           saved state file (default: forge_saved_state.txt)
+  -ls, --load-state           load saved state (default)
+  -nls, --no-load-state       do not load saved state
+  -ss, --save-state           save state (default)
+  -nss, --no-save-state       do not save state
+  -tm, --trace-midi           print midi code and values
+  -tf, --trace-fps            print fps status of subsystems
 ```
 
 ## Default Project
