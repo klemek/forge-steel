@@ -21,6 +21,10 @@ void midi_open(MidiDevice *device, const char *name) {
 
 void midi_write(const MidiDevice *device, unsigned char code,
                 unsigned char value) {
+  if (device->error) {
+    return;
+  }
+
   unsigned char buffer[3];
 
   buffer[0] = 0xB0;

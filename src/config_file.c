@@ -75,8 +75,11 @@ void config_file_read(ConfigFile *config, const char *path) {
   file_read(&file, path);
 
   if (file.error) {
+    config->error = true;
     return;
   }
+
+  config->error = false;
 
   line = strtok_r(file.content, "\n", &rest);
 

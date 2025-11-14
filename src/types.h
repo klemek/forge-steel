@@ -47,7 +47,6 @@ typedef struct Parameters {
   StringArray video_in;
   unsigned int video_size;
   unsigned int internal_size;
-  char state_file[STR_LEN];
   bool load_state;
   bool save_state;
   bool trace_midi;
@@ -213,6 +212,8 @@ typedef struct StateConfig {
   unsigned int value_count;
 
   unsigned int tap_tempo_code;
+
+  char save_file_prefix[STR_LEN];
 } StateConfig;
 
 // timer.c
@@ -227,6 +228,7 @@ typedef struct Timer {
 
 typedef struct ConfigFile {
   struct hashmap *map;
+  bool error;
 } ConfigFile;
 
 typedef struct ConfigFileItem {

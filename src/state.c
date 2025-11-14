@@ -12,6 +12,232 @@
 #include "state.h"
 #include "tempo.h"
 
+static void safe_midi_write(const MidiDevice *midi, unsigned int code,
+                            unsigned char value) {
+  if (code != UNSET_MIDI_CODE) {
+    midi_write(midi, code, value);
+  }
+}
+
+static void update_page(const SharedContext *context,
+                        const StateConfig *state_config,
+                        const MidiDevice *midi) {
+  unsigned int page_item_min;
+  unsigned int page_item_max;
+  // SHOW PAGE
+  for (unsigned int i = 0; i < state_config->select_page_codes.length; i++) {
+    safe_midi_write(midi, state_config->select_page_codes.values[i],
+                    i == context->page ? MIDI_MAX : 0);
+  }
+
+  // SHOW PAGE ITEM
+  page_item_min = state_config->select_item_codes.length * context->page;
+  page_item_max = page_item_min + state_config->select_item_codes.length;
+
+  if (context->state.values[context->selected] >= page_item_min &&
+      context->state.values[context->selected] < page_item_max) {
+    for (unsigned int i = 0; i < state_config->select_item_codes.length; i++) {
+      safe_midi_write(midi, state_config->select_item_codes.values[i],
+                      i == context->state.values[context->selected] -
+                                  page_item_min
+                          ? MIDI_MAX
+                          : 0);
+    }
+  } else {
+    for (unsigned int i = 0; i < state_config->select_item_codes.length; i++) {
+      safe_midi_write(midi, state_config->select_item_codes.values[i], 0);
+    }
+  }
+}
+
+static void update_active(const SharedContext *context,
+                          const StateConfig *state_config,
+                          const MidiDevice *midi) {
+  unsigned int k;
+
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
+    for (unsigned int j = 0; j < state_config->midi_active_counts.values[i];
+         j++) {
+      k = state_config->midi_active_offsets.values[i] + j;
+      safe_midi_write(midi, state_config->midi_active_codes.values[k],
+                      context->active[i] == j ? MIDI_MAX : 0);
+    }
+  }
+}
+
+static void update_values(const SharedContext *context,
+                          const StateConfig *state_config,
+                          const MidiDevice *midi) {
+  unsigned int j;
+  unsigned int k;
+  unsigned int part;
+
+  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
+    j = i / 3;
+    part = arr_uint_remap_index(state_config->midi_offsets, &j);
+    k = state_config->values_offsets.values[part] +
+        context->active[part] * state_config->midi_counts.values[part] + j;
+    safe_midi_write(midi, state_config->midi_codes.values[i],
+                    context->values[k][i % 3] * MIDI_MAX);
+  }
+}
+
+static void reset(SharedContext *context) {
+  memset(context->values, 0, sizeof(context->values));
+  memset(context->state.values, 0, sizeof(context->state.values));
+}
+
+static void randomize(SharedContext *context, const StateConfig *state_config) {
+  unsigned int j;
+  unsigned int l;
+  unsigned int part;
+
+  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
+    j = i / 3;
+    part = arr_uint_remap_index(state_config->midi_offsets, &j);
+    for (unsigned int k = 0; k < state_config->midi_active_counts.values[part];
+         k++) {
+      l = state_config->values_offsets.values[part] +
+          k * state_config->midi_counts.values[part] + j;
+
+      if (arr_uint_index_of(state_config->fader_codes,
+                            state_config->midi_codes.values[i]) !=
+          ARRAY_NOT_FOUND) {
+        context->values[l][i % 3] = (float)rand_uint(MIDI_MAX + 1) / MIDI_MAX;
+      } else {
+        context->values[l][i % 3] = rand_uint(2) == 1 ? 1 : 0;
+      }
+    }
+  }
+
+  for (unsigned int i = 0; i < context->state.length; i++) {
+    context->state.values[i] = rand_uint(state_config->state_max);
+  }
+}
+
+static void load_from_file(SharedContext *context,
+                           const StateConfig *state_config, char *state_file) {
+  ConfigFile saved_state;
+  char key[STR_LEN];
+
+  config_file_read(&saved_state, state_file);
+
+  if (saved_state.error) {
+    return;
+  }
+
+  tempo_set(&context->tempo,
+            config_file_get_int(&saved_state, "tempo", context->tempo.tempo));
+  context->page = config_file_get_int(&saved_state, "page", 0);
+  context->selected = config_file_get_int(&saved_state, "selected", 0);
+
+  for (unsigned int i = 0; i < context->state.length; i++) {
+    snprintf(key, STR_LEN, "seed_%d", i);
+    context->seeds[i] =
+        config_file_get_int(&saved_state, key, context->seeds[i]);
+    snprintf(key, STR_LEN, "state_%d", i);
+    context->state.values[i] = config_file_get_int(&saved_state, key, 0);
+  }
+
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
+    snprintf(key, STR_LEN, "active_%d", i);
+    context->active[i] = config_file_get_int(&saved_state, key, 0);
+  }
+
+  for (unsigned int i = 0; i < state_config->value_count; i++) {
+    snprintf(key, STR_LEN, "value_%d_x", i);
+    context->values[i][0] =
+        (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
+    snprintf(key, STR_LEN, "value_%d_y", i);
+    context->values[i][1] =
+        (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
+    snprintf(key, STR_LEN, "value_%d_z", i);
+    context->values[i][2] =
+        (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
+  }
+
+  config_file_free(&saved_state);
+}
+
+static void load_from_default_file(SharedContext *context,
+                                   const StateConfig *state_config) {
+  char state_file[STR_LEN];
+
+  snprintf(state_file, STR_LEN, "%s.txt", state_config->save_file_prefix);
+
+  load_from_file(context, state_config, state_file);
+}
+
+static void load_from_index_file(SharedContext *context,
+                                 const StateConfig *state_config,
+                                 unsigned int index) {
+  char state_file[STR_LEN];
+
+  snprintf(state_file, STR_LEN, "%s.%d.txt", state_config->save_file_prefix,
+           index);
+
+  load_from_file(context, state_config, state_file);
+}
+
+static void save_to_file(const SharedContext *context,
+                         const StateConfig *state_config,
+                         const char *state_file) {
+  StringArray lines;
+
+  log_info("Saving state to '%s'...", state_file);
+
+  lines.length = 0;
+
+  snprintf(lines.values[lines.length++], STR_LEN, "tempo=%d",
+           (unsigned int)context->tempo.tempo);
+  snprintf(lines.values[lines.length++], STR_LEN, "page=%d", context->page);
+  snprintf(lines.values[lines.length++], STR_LEN, "selected=%d",
+           context->selected);
+
+  for (unsigned int i = 0; i < context->state.length; i++) {
+    snprintf(lines.values[lines.length++], STR_LEN, "seed_%d=%d", i,
+             context->seeds[i]);
+    snprintf(lines.values[lines.length++], STR_LEN, "state_%d=%d", i,
+             context->state.values[i]);
+  }
+
+  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
+    snprintf(lines.values[lines.length++], STR_LEN, "active_%d=%d", i,
+             context->active[i]);
+  }
+
+  for (unsigned int i = 0; i < state_config->value_count; i++) {
+    snprintf(lines.values[lines.length++], STR_LEN, "value_%d_x=%d", i,
+             (unsigned int)(context->values[i][0] * MIDI_MAX));
+    snprintf(lines.values[lines.length++], STR_LEN, "value_%d_y=%d", i,
+             (unsigned int)(context->values[i][1] * MIDI_MAX));
+    snprintf(lines.values[lines.length++], STR_LEN, "value_%d_z=%d", i,
+             (unsigned int)(context->values[i][2] * MIDI_MAX));
+  }
+
+  file_write(state_file, &lines);
+}
+
+static void save_to_default_file(const SharedContext *context,
+                                 const StateConfig *state_config) {
+  char state_file[STR_LEN];
+
+  snprintf(state_file, STR_LEN, "%s.txt", state_config->save_file_prefix);
+
+  save_to_file(context, state_config, state_file);
+}
+
+static void save_to_index_file(const SharedContext *context,
+                               const StateConfig *state_config,
+                               unsigned int index) {
+  char state_file[STR_LEN];
+
+  snprintf(state_file, STR_LEN, "%s.%d.txt", state_config->save_file_prefix,
+           index);
+
+  save_to_file(context, state_config, state_file);
+}
+
 void state_parse_config(StateConfig *state_config, const ConfigFile *config) {
   unsigned int offset;
   unsigned int count;
@@ -118,76 +344,10 @@ void state_parse_config(StateConfig *state_config, const ConfigFile *config) {
 
   state_config->tap_tempo_code =
       config_file_get_int(config, "TAP_TEMPO", UNSET_MIDI_CODE);
-}
 
-static void safe_midi_write(const MidiDevice *midi, unsigned int code,
-                            unsigned char value) {
-  if (code != UNSET_MIDI_CODE) {
-    midi_write(midi, code, value);
-  }
-}
-
-static void update_page(const SharedContext *context,
-                        const StateConfig *state_config,
-                        const MidiDevice *midi) {
-  unsigned int page_item_min;
-  unsigned int page_item_max;
-  // SHOW PAGE
-  for (unsigned int i = 0; i < state_config->select_page_codes.length; i++) {
-    safe_midi_write(midi, state_config->select_page_codes.values[i],
-                    i == context->page ? MIDI_MAX : 0);
-  }
-
-  // SHOW PAGE ITEM
-  page_item_min = state_config->select_item_codes.length * context->page;
-  page_item_max = page_item_min + state_config->select_item_codes.length;
-
-  if (context->state.values[context->selected] >= page_item_min &&
-      context->state.values[context->selected] < page_item_max) {
-    for (unsigned int i = 0; i < state_config->select_item_codes.length; i++) {
-      safe_midi_write(midi, state_config->select_item_codes.values[i],
-                      i == context->state.values[context->selected] -
-                                  page_item_min
-                          ? MIDI_MAX
-                          : 0);
-    }
-  } else {
-    for (unsigned int i = 0; i < state_config->select_item_codes.length; i++) {
-      safe_midi_write(midi, state_config->select_item_codes.values[i], 0);
-    }
-  }
-}
-
-static void update_active(const SharedContext *context,
-                          const StateConfig *state_config,
-                          const MidiDevice *midi) {
-  unsigned int k;
-
-  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
-    for (unsigned int j = 0; j < state_config->midi_active_counts.values[i];
-         j++) {
-      k = state_config->midi_active_offsets.values[i] + j;
-      safe_midi_write(midi, state_config->midi_active_codes.values[k],
-                      context->active[i] == j ? MIDI_MAX : 0);
-    }
-  }
-}
-
-static void update_values(const SharedContext *context,
-                          const StateConfig *state_config,
-                          const MidiDevice *midi) {
-  unsigned int j;
-  unsigned int k;
-  unsigned int part;
-
-  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
-    j = i / 3;
-    part = arr_uint_remap_index(state_config->midi_offsets, &j);
-    k = state_config->values_offsets.values[part] +
-        context->active[part] * state_config->midi_counts.values[part] + j;
-    safe_midi_write(midi, state_config->midi_codes.values[i],
-                    context->values[k][i % 3] * MIDI_MAX);
-  }
+  strlcpy(state_config->save_file_prefix,
+          config_file_get_str(config, "SAVE_FILE_PREFIX", "forge_save"),
+          STR_LEN);
 }
 
 void state_midi_event(SharedContext *context, const StateConfig *state_config,
@@ -281,39 +441,6 @@ void state_midi_event(SharedContext *context, const StateConfig *state_config,
   }
 }
 
-static void reset(SharedContext *context) {
-  memset(context->values, 0, sizeof(context->values));
-  memset(context->state.values, 0, sizeof(context->state.values));
-}
-
-static void randomize(SharedContext *context, const StateConfig *state_config) {
-  unsigned int j;
-  unsigned int l;
-  unsigned int part;
-
-  for (unsigned int i = 0; i < state_config->midi_codes.length; i++) {
-    j = i / 3;
-    part = arr_uint_remap_index(state_config->midi_offsets, &j);
-    for (unsigned int k = 0; k < state_config->midi_active_counts.values[part];
-         k++) {
-      l = state_config->values_offsets.values[part] +
-          k * state_config->midi_counts.values[part] + j;
-
-      if (arr_uint_index_of(state_config->fader_codes,
-                            state_config->midi_codes.values[i]) !=
-          ARRAY_NOT_FOUND) {
-        context->values[l][i % 3] = (float)rand_uint(MIDI_MAX + 1) / MIDI_MAX;
-      } else {
-        context->values[l][i % 3] = rand_uint(2) == 1 ? 1 : 0;
-      }
-    }
-  }
-
-  for (unsigned int i = 0; i < context->state.length; i++) {
-    context->state.values[i] = rand_uint(state_config->state_max);
-  }
-}
-
 void state_key_event(SharedContext *context, const StateConfig *state_config,
                      unsigned int code, const MidiDevice *midi) {
   if (code == 82) {
@@ -354,6 +481,12 @@ void state_key_event(SharedContext *context, const StateConfig *state_config,
       tempo_set(&context->tempo, context->tempo.tempo - 1);
     }
     log_info("[DOWN] Tempo: %f", context->tempo);
+  } else if (code >= 48 && code <= 57) {
+    log_info("[%d] Loading state %d", code - 48, code - 48);
+    load_from_index_file(context, state_config, code - 48);
+  } else if (code >= 1048 && code <= 1057) {
+    log_info("[%d] Saving state %d", code - 1048, code - 1048);
+    save_to_index_file(context, state_config, code - 1048);
   } else {
     log_info("[%d] No hotkey defined", code);
   }
@@ -414,50 +547,9 @@ bool state_background_write(SharedContext *context,
   return false;
 }
 
-static void state_load(SharedContext *context, const StateConfig *state_config,
-                       const char *state_file) {
-  ConfigFile saved_state;
-  char key[STR_LEN];
-
-  config_file_read(&saved_state, state_file);
-
-  tempo_set(&context->tempo,
-            config_file_get_int(&saved_state, "tempo", context->tempo.tempo));
-  context->page = config_file_get_int(&saved_state, "page", 0);
-  context->selected = config_file_get_int(&saved_state, "selected", 0);
-
-  for (unsigned int i = 0; i < context->state.length; i++) {
-    snprintf(key, STR_LEN, "seed_%d", i);
-    context->seeds[i] =
-        config_file_get_int(&saved_state, key, context->seeds[i]);
-    snprintf(key, STR_LEN, "state_%d", i);
-    context->state.values[i] = config_file_get_int(&saved_state, key, 0);
-  }
-
-  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
-    snprintf(key, STR_LEN, "active_%d", i);
-    context->active[i] = config_file_get_int(&saved_state, key, 0);
-  }
-
-  for (unsigned int i = 0; i < state_config->value_count; i++) {
-    snprintf(key, STR_LEN, "value_%d_x", i);
-    context->values[i][0] =
-        (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
-    snprintf(key, STR_LEN, "value_%d_y", i);
-    context->values[i][1] =
-        (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
-    snprintf(key, STR_LEN, "value_%d_z", i);
-    context->values[i][2] =
-        (float)config_file_get_int(&saved_state, key, 0) / MIDI_MAX;
-  }
-
-  config_file_free(&saved_state);
-}
-
 void state_init(SharedContext *context, const StateConfig *state_config,
                 bool demo, bool auto_random, unsigned int auto_random_cycles,
-                unsigned int base_tempo, const char *state_file,
-                bool load_state) {
+                unsigned int base_tempo, bool load_state) {
   tempo_init(&context->tempo);
   tempo_set(&context->tempo, base_tempo);
   context->demo = demo;
@@ -484,44 +576,10 @@ void state_init(SharedContext *context, const StateConfig *state_config,
   }
 
   if (load_state) {
-    state_load(context, state_config, state_file);
+    load_from_default_file(context, state_config);
   }
 }
 
-void state_save(const SharedContext *context, const StateConfig *state_config,
-                const char *state_file) {
-  StringArray lines;
-
-  log_info("Saving state to '%s'...", state_file);
-
-  lines.length = 0;
-
-  snprintf(lines.values[lines.length++], STR_LEN, "tempo=%d",
-           (unsigned int)context->tempo.tempo);
-  snprintf(lines.values[lines.length++], STR_LEN, "page=%d", context->page);
-  snprintf(lines.values[lines.length++], STR_LEN, "selected=%d",
-           context->selected);
-
-  for (unsigned int i = 0; i < context->state.length; i++) {
-    snprintf(lines.values[lines.length++], STR_LEN, "seed_%d=%d", i,
-             context->seeds[i]);
-    snprintf(lines.values[lines.length++], STR_LEN, "state_%d=%d", i,
-             context->state.values[i]);
-  }
-
-  for (unsigned int i = 0; i < state_config->midi_active_counts.length; i++) {
-    snprintf(lines.values[lines.length++], STR_LEN, "active_%d=%d", i,
-             context->active[i]);
-  }
-
-  for (unsigned int i = 0; i < state_config->value_count; i++) {
-    snprintf(lines.values[lines.length++], STR_LEN, "value_%d_x=%d", i,
-             (unsigned int)(context->values[i][0] * MIDI_MAX));
-    snprintf(lines.values[lines.length++], STR_LEN, "value_%d_y=%d", i,
-             (unsigned int)(context->values[i][1] * MIDI_MAX));
-    snprintf(lines.values[lines.length++], STR_LEN, "value_%d_z=%d", i,
-             (unsigned int)(context->values[i][2] * MIDI_MAX));
-  }
-
-  file_write(state_file, &lines);
+void state_save(const SharedContext *context, const StateConfig *state_config) {
+  save_to_default_file(context, state_config);
 }

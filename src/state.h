@@ -18,10 +18,8 @@ bool state_background_write(SharedContext *context,
 
 void state_init(SharedContext *context, const StateConfig *state_config,
                 bool demo, bool auto_random, unsigned int auto_random_cycles,
-                unsigned int base_tempo, const char *state_file,
-                bool load_state);
+                unsigned int base_tempo, bool load_state);
 
-void state_save(const SharedContext *context, const StateConfig *state_config,
-                const char *state_file);
+void state_save(const SharedContext *context, const StateConfig *state_config);
 
 #endif /* STATE_H */

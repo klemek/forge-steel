@@ -166,11 +166,13 @@ When running, the following hotkeys are available:
 | <kbd>A</kbd> | Auto Random mode On/Off |
 | <kbd>&larr;</kbd> / <kbd>&rarr;</kbd> | Auto Random Cycle -/+ 1 |
 | <kbd>&uarr;</kbd> / <kbd>&darr;</kbd> | BPM +/- 1 |
+| <kbd>0</kbd>-<kbd>9</kbd> | Load state 0 to 9 |
+| <kbd>Shift</kbd> + <kbd>0</kbd>-<kbd>9</kbd> | Save state 0 to 9 |
 
 ### CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-p=PROJECT_PATH] [-c=CFG_FILE] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-w] [-t=TEMPO] [-d] [-ar / -nar] [-arc=CYCLES] [-v=FILE] [-vs=SIZE] [-is=SIZE] [-sf=STATE_PATH] [-ls / -nls] [-ss / -nss] [-tm] [-tf] 
+usage: forge [-h] [-v] [-p=PROJECT_PATH] [-c=CFG_FILE] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-w] [-t=TEMPO] [-d] [-ar / -nar] [-arc=CYCLES] [-v=FILE] [-vs=SIZE] [-is=SIZE] [-ls / -nls] [-ss / -nss] [-tm] [-tf] 
 
 Fusion Of Real-time Generative Effects.
 
@@ -192,7 +194,6 @@ options:
   -v, --video-in              path to video capture device (multiple allowed)
   -vs, --video-size           video capture desired height (default: internal texture height)
   -is, --internal-size        internal texture height (default: 720)
-  -sf, --state-file           saved state file (default: forge_saved_state.txt)
   -ls, --load-state           load saved state (default)
   -nls, --no-load-state       do not load saved state
   -ss, --save-state           save state (default)

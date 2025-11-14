@@ -59,8 +59,7 @@ static void compute_fps(bool trace_fps) {
 
 static void init_context(const Parameters *params, unsigned int in_count) {
   state_init(context, &project.state_config, params->demo, params->auto_random,
-             params->auto_random_cycle, params->base_tempo, params->state_file,
-             params->load_state);
+             params->auto_random_cycle, params->base_tempo, params->load_state);
 
   context->monitor = params->monitor;
 
@@ -247,7 +246,7 @@ void forge_run(const Parameters *params) {
   context->stop = true;
 
   if (params->save_state) {
-    state_save(context, &project.state_config, params->state_file);
+    state_save(context, &project.state_config);
   }
 
   shaders_free(&program);

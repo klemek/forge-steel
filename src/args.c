@@ -33,7 +33,6 @@ static void print_help(int status_code) {
       "[-v=FILE] "
       "[-vs=SIZE] "
       "[-is=SIZE] "
-      "[-sf=STATE_PATH] "
       "[-ls / -nls] "
       "[-ss / -nss] "
       "[-tm] "
@@ -63,8 +62,6 @@ static void print_help(int status_code) {
       "  -vs, --video-size           video capture desired height (default: "
       "internal texture height)\n"
       "  -is, --internal-size        internal texture height (default: 720)\n"
-      "  -sf, --state-file           saved state file (default: "
-      "forge_saved_state.txt)\n"
       "  -ls, --load-state           load saved state (default)\n"
       "  -nls, --no-load-state       do not load saved state\n"
       "  -ss, --save-state           save state (default)\n"
@@ -131,7 +128,6 @@ void args_parse(Parameters *params, int argc, char **argv) {
   params->video_in.length = 0;
   params->video_size = 0;
   params->internal_size = 720;
-  strlcpy(params->state_file, "forge_saved_state.txt", STR_LEN);
   params->load_state = true;
   params->save_state = true;
   params->trace_midi = false;
@@ -194,8 +190,6 @@ void args_parse(Parameters *params, int argc, char **argv) {
       if (params->internal_size == 0) {
         invalid_value(arg, value);
       }
-    } else if (is_arg(arg, "-sf") || is_arg(arg, "--state-file")) {
-      strlcpy(params->state_file, value, STR_LEN);
     } else if (is_arg(arg, "-ls") || is_arg(arg, "--load-state")) {
       params->load_state = true;
     } else if (is_arg(arg, "-nls") || is_arg(arg, "--no-load-state")) {
