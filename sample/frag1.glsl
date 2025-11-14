@@ -10,7 +10,6 @@ uniform float iTempo; // current tempo in bpm
 uniform float iBeats; // elapsed beats since last tempo reset
 uniform int iFPS; // output window frames per seconds
 uniform int iDemo; // 0/1 if demo mode
-uniform int iAutoRand; // 0/1 if auto random mode
 uniform int iSeed1; // a random seed assigned at start
 uniform vec2 iResolution; // output window resolution in pixels
 uniform vec3 iMidi1_1[20]; // all midi inputs defined

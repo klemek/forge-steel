@@ -280,6 +280,9 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
   program->iautorand_locations[i] = glGetUniformLocation(
       program->programs[i],
       config_file_get_str(config, "UNIFORM_AUTORAND", "iAutoRand"));
+  program->iautorandcycle_locations[i] = glGetUniformLocation(
+      program->programs[i],
+      config_file_get_str(config, "UNIFORM_AUTORANDCYCLE", "iAutoRandCycle"));
   program->ipage_locations[i] = glGetUniformLocation(
       program->programs[i],
       config_file_get_str(config, "UNIFORM_PAGE", "iPage"));
@@ -545,6 +548,8 @@ static void use_program(const ShaderProgram *program, int i, bool output,
   write_uniform_1i(program->idemo_locations[i], context->demo ? 1 : 0);
   write_uniform_1i(program->iautorand_locations[i],
                    context->auto_random ? 1 : 0);
+  write_uniform_1i(program->iautorandcycle_locations[i],
+                   context->auto_random_cycle);
   write_uniform_1i(program->ipage_locations[i], context->page);
   write_uniform_1i(program->iselected_locations[i], context->selected + 1);
   write_uniform_2f(program->ires_locations[i], &context->resolution);

@@ -372,6 +372,20 @@ float write_int(vec2 uv, vec2 pos, uint value, uint magnitude)
     return d;
 }
 
+float write_int_left(vec2 uv, vec2 pos, uint value, uint magnitude)
+{
+    int i;
+    uint m = 1;
+    float d = 0;
+    for (i = 0; i < magnitude; i++) {
+        if (i == 0 || value >= m) {
+            pos.x += 1;
+            m *= 10u;
+        }
+    }
+    return write_int(uv, pos, value, magnitude);
+}
+
 int read(sampler2D tex, vec2 uv, float k, int d, float t)
 {
     float inv_k = 1 / k;

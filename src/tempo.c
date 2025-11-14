@@ -99,8 +99,17 @@ static void add_tap_to_chain(Tempo *tempo, long t) {
 }
 
 void tempo_set(Tempo *tempo, float value) {
+  long t;
+  long progress;
+
+  t = now();
+
+  progress = (t - tempo->last_reset) % tempo->beat_length;
+
   tempo->tempo = value;
   tempo->beat_length = 60000.0 / value;
+
+  reset_tap_chain(tempo, t - progress);
 }
 
 void tempo_tap(Tempo *tempo) {

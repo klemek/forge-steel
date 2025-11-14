@@ -157,11 +157,15 @@ make install
 
 When running, the following hotkeys are available:
 
-* <kbd>Esc</kbd>: Exit window
-* <kbd>R</kbd>: Randomize internal values
-* <kbd>0</kbd>: Reset internal values to 0
-* <kbd>D</kbd>: Demo mode On/Off
-* <kbd>A</kbd>: Auto Random mode On/Off
+| Hotkey | Function |
+| ------ | -------- |
+| <kbd>Esc</kbd> | Exit FORGE | 
+| <kbd>R</kbd> | Randomize internal values |
+| <kbd>Shift</kbd> + <kbd>R</kbd> | Reset internal values to 0 |
+| <kbd>D</kbd> | Demo mode On/Off | 
+| <kbd>A</kbd> | Auto Random mode On/Off |
+| <kbd>&larr;</kbd> / <kbd>&rarr;</kbd> | Auto Random Cycle -/+ 1 |
+| <kbd>&uarr;</kbd> / <kbd>&darr;</kbd> | BPM +/- 1 |
 
 ### CLI arguments
 

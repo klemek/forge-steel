@@ -119,7 +119,7 @@ make -f Makefile.dev release-arch
   - [x] Find and fix opengl errors 0500 ?
 - [ ] Extra features
   - [x] `--auto-random-cycle=4`
-  - [ ] Arrows (up-down: bpm / left-right: cycle)
+  - [x] Arrows (up-down: bpm / left-right: cycle)
   - [ ] Save states (numkey: load / shift + numkey: save)
   - [ ] Configurable key codes
   - [ ] Key codes as inputs

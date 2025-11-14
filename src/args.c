@@ -127,7 +127,7 @@ void args_parse(Parameters *params, int argc, char **argv) {
   params->base_tempo = 60.0f;
   params->demo = false;
   params->auto_random = false;
-  params->auto_random_cycles = 4;
+  params->auto_random_cycle = 4;
   params->video_in.length = 0;
   params->video_size = 0;
   params->internal_size = 720;
@@ -173,8 +173,8 @@ void args_parse(Parameters *params, int argc, char **argv) {
     } else if (is_arg(arg, "-nar") || is_arg(arg, "--no-auto-random")) {
       params->auto_random = false;
     } else if (is_arg(arg, "-arc") || is_arg(arg, "--auto-random-cycle")) {
-      params->auto_random_cycles = parse_uint(arg, value);
-      if (params->auto_random_cycles == 0) {
+      params->auto_random_cycle = parse_uint(arg, value);
+      if (params->auto_random_cycle == 0) {
         invalid_value(arg, value);
       }
     } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {

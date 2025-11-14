@@ -15,6 +15,7 @@ uniform int iInputFormat2;
 
 uniform int iDemo;
 uniform int iAutoRand;
+uniform int iAutoRandCycle;
 uniform int iPage;
 uniform int iSelected;
 
@@ -225,22 +226,22 @@ vec4 debug(vec2 vUV)
     float x = 0;
 
     x = -15;
-    f += write_5(uv3, vec2(x,13), texts[0]);
-    f += write_int(uv3, vec2(x - 3.5,13), iFPS, 3);
+    f += write_5(uv3, vec2(x - 4,13), texts[0]);
+    f += write_int(uv3, vec2(x + 1, 13), iFPS, 3);
     v = min(1, iFPS/60.0);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
     
     x = 0;
-    f += write_5(uv3, vec2(x,13), texts[1]);
-    f += write_int(uv3, vec2(x - 3.5,13), int(iTempo), 3);
+    f += write_5(uv3, vec2(x - 4,13), texts[1]);
+    f += write_int(uv3, vec2(x + 1,13), int(iTempo), 3);
     v = fract(iBeats);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
 
     x = 15;
-    f += write_5(uv3, vec2(x,13), texts[2]);
-    f += write_int(uv3, vec2(x - 5.5,13), int(iTime), 5);
+    f += write_5(uv3, vec2(x - 4,13), texts[2]);
+    f += write_int(uv3, vec2(x - 1,13), int(iTime), 5);
     v = fract(iTime);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
@@ -248,6 +249,7 @@ vec4 debug(vec2 vUV)
     if (iAutoRand > 0) {
         f += write_5(uv3, vec2(-4,-15), iDemo > 0 ? texts[3] : texts[4]);
         f += write_5(uv3, vec2(0,-15), texts[5]);
+        f += write_int_left(uv3, vec2(3, -15), iAutoRandCycle, 3);
     } else {
         f += write_5(uv3, vec2(-2,-15), iDemo > 0 ? texts[3] : texts[4]);
     }

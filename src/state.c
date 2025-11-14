@@ -301,6 +301,26 @@ void state_key_event(SharedContext *context, const StateConfig *state_config,
     log_info(
         (context->auto_random ? "[A] Auto Random OFF" : "[A] Auto Random ON"));
     context->auto_random = !context->auto_random;
+  } else if (code == 263) {
+    // LEFT ARROW
+    if (context->auto_random_cycle > 1) {
+      context->auto_random_cycle -= 1;
+    }
+    log_info("[LEFT] Auto Random Cycle: %d", context->auto_random_cycle);
+  } else if (code == 262) {
+    // RIGHT ARROW
+    context->auto_random_cycle += 1;
+    log_info("[RIGHT] Auto Random Cycle: %d", context->auto_random_cycle);
+  } else if (code == 265) {
+    // UP ARROW
+    tempo_set(&context->tempo, context->tempo.tempo + 1);
+    log_info("[UP] Tempo: %f", context->tempo);
+  } else if (code == 264) {
+    // DOWN ARROW
+    if (context->tempo.tempo > 0) {
+      tempo_set(&context->tempo, context->tempo.tempo - 1);
+    }
+    log_info("[DOWN] Tempo: %f", context->tempo);
   } else {
     log_info("[%d] No hotkey defined", code);
   }
@@ -353,7 +373,7 @@ bool state_background_write(SharedContext *context,
     last_active = beat_active;
 
     change = tempo_progress(&context->tempo,
-                            (double)context->auto_random_cycles) < 0.5;
+                            (double)context->auto_random_cycle) < 0.5;
 
     if (context->auto_random && change && !last_change) {
       state_randomize(context, state_config);
@@ -416,7 +436,7 @@ void state_init(SharedContext *context, const StateConfig *state_config,
   tempo_set(&context->tempo, base_tempo);
   context->demo = demo;
   context->auto_random = auto_random;
-  context->auto_random_cycles = auto_random_cycles;
+  context->auto_random_cycle = auto_random_cycles;
 
   context->state.length = state_config->select_frag_codes.length;
   memset(context->state.values, 0, sizeof(context->state.values));
