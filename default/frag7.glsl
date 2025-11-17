@@ -29,5 +29,9 @@ void main() {
 
     mix_value = mix(mix_value, mix_value * 0.9 + 0.05, iDemo);
 
-    fragColor = mix(color_b, color_a, mix_type ? step(mix_value, k) : mix_value);
+    if (mix_type) {
+        fragColor = mix(color_a, color_b, step(mix_value, k));    
+    } else {
+        fragColor = mix(color_b, color_a, mix_value);
+    }
 }
