@@ -101,7 +101,7 @@ subroutine(src_stage_sub) vec4 src_3(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
     return vec4(f);
 }
 
-// SRC 4 : waves
+// SRC 4 : circuit
 subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 b2, vec2 f2, vec3 b3, vec2 f3)
 {
     // start
@@ -112,34 +112,123 @@ subroutine(src_stage_sub) vec4 src_4(vec2 vUV, int seed, vec3 b1, vec2 f1, vec3 
 
     // controls
 
-    float spacing = magic(f1, b1, seed + 10);
-    float thickness = magic(f2, b2, seed + 20);
-    float scroll = magic_reverse(f3, b3, seed + 30);
+    float z = 10 + magic(f1, b1, 123) * 20;
+    float h = magic(f2, b2, seed + 20) * 0.8 + 0.1;
+    float v = magic_reverse(f3, b3, seed + 30) * 0.8 + 0.1;
 
     // logic
 
-    vec2 uv2 = uv1;
-    uv2.y += 0.5;
-    uv2 *= 2.25;
-    uv2 = vec2((uv2.x + 1) * 0.5, -uv2.y);
-    float m1 = spacing * 4.5 + 0.5;
-    float y = log(-uv2.y) * m1;
-    y = mod(y + scroll * 5.0 - iBeats / 16, 5.);
-    float id = floor(y) * 32;
-    float s = cos(uv2.x * rand(id + 837) * 100 + rand(id + 281) * PI)
-                + cos(uv2.x * rand(id + 231) * 100 + rand(id + 526) * PI)
-                + cos(uv2.x * rand(id + 746) * 100 + rand(id + 621) * PI)
-                + cos(uv2.x * rand(id + 235) * 100 + rand(id + 315) * PI)
-                + cos(uv2.x * rand(id + 782) * 100 + rand(id + 314) * PI)
-                + cos(uv2.x * rand(id + 241) * 100 + rand(id + 734) * PI)
-                + cos(uv2.x * rand(id + 416) * 100 + rand(id + 425) * PI)
-                + cos(uv2.x * rand(id + 315) * 100 + rand(id + 525) * PI)
-                + cos(uv2.x * rand(id + 423) * 100 + rand(id + 743) * PI)
-                + cos(uv2.x * rand(id + 637) * 100 + rand(id + 245) * PI);
-    s *= 0.1;
-    float cut =  0.025 + thickness * 0.475;
-    float y2 = min(1.0, -(uv2.y));
-    float f = (0.1 + 0.9 * (cos((y2 + 1.0) * PI) * 0.5 + 0.5)) * istep(0, uv2.y) * istep(cut, fract(y + (s - 1) * (1 - cut) * 0.5));
+    uv1 *= z;
+    uv1 += iBeats;
+
+    float s0 = rand(floor(mod(uv1, 1000))) * 1000;
+    float s1 = rand(floor(mod(uv1 + vec2(0, 1), 1000))) * 1000;
+    float s2 = rand(floor(mod(uv1 - vec2(1, 0), 1000))) * 1000;
+
+    bool up = rand(s1 + 1) < h;
+    bool left = rand(s2 + 2) < v;
+    bool down = rand(s0 + 1) < h;
+    bool right = rand(s0 + 2) < v;
+    bool up_down = up && down;
+    bool left_right = left && right;
+
+    uv1 = mod(uv1, 1.0) - 0.5;
+
+    const float t = 0.1;
+
+    float f = 0;
+    int c = 0;
+
+    if (up) {
+        f += stripe(uv1.x, -t * 0.5, t * 0.5) * step(-t * 0.5, uv1.y);
+        c += 1;
+    }
+
+    if (down) {
+        f += stripe(uv1.x, -t * 0.5, t * 0.5) * istep(t * 0.5, uv1.y);
+        c += 1;
+    }
+
+    if (left) {
+        f += stripe(uv1.y, -t * 0.5, t * 0.5) * istep(t * 0.5, uv1.x);
+        c += 1;
+    }
+
+    if (right) {
+        f += stripe(uv1.y, -t * 0.5, t * 0.5) * step(-t * 0.5, uv1.x);
+        c += 1;
+    }
+
+    if (c == 1) {
+        f += istep(t, length(uv1));
+    }
+
+    f = min(f, 1);
+
+    if ((up_down ^^ left_right) && c == 2) {
+        if (up_down) {
+            uv1.xy = uv1.yx;
+        }
+        if (rand(s0 + 3) < 0.5) {
+            uv1.x = -uv1.x;
+        }
+        float k = rand(s0 + 4) * 60;
+        f -= rect(uv1, vec2(0), vec2(t * 3, t));
+        f = max(0, f);
+        if (k < 10) { // resistor
+            f += line(uv1, vec2(-t * 3.25, -t * 0.5), vec2(-t * 2.5, t * 2), t * 0.75);
+            f += line(uv1, vec2(-t * 2.5, t * 2), vec2(-t * 1.5, -t * 2), t * 0.75);
+            f += line(uv1, vec2(-t * 1.5, -t * 2), vec2(-t * 0.5, t * 2), t * 0.75);
+            f += line(uv1, vec2(-t * 0.5, t * 2), vec2(t * 0.5, -t * 2), t * 0.75);
+            f += line(uv1, vec2(t * 0.5, -t * 2), vec2(t * 1.5, t * 2), t * 0.75);
+            f += line(uv1, vec2(t * 1.5, t * 2), vec2(t * 2.5, -t * 2), t * 0.75);
+            f += line(uv1, vec2(t * 2.5, -t * 2), vec2(t * 3.25, t * 0.5), t * 0.75);
+        } else if (k < 20) { // capacitor
+            f += rect(uv1, vec2(-t * 2, 0), vec2(t, t * 0.5));
+            f += rect(uv1, vec2(t * 2, 0), vec2(t, t * 0.5));
+            f += rect(uv1, vec2(t, 0), vec2(t * 0.5, t * 3.5));
+            f += rect(uv1, vec2(-t, 0), vec2(t * 0.5, t * 3.5));
+        } else if (k < 30) { // diode
+            f += line(uv1, vec2(-t * 2, t * 2.5), vec2(t * 2, 0), t);
+            f += line(uv1, vec2(-t * 2, -t * 2.5), vec2(t * 2, 0), t);
+            f += rect(uv1, vec2(t * 2.5, 0), vec2(t * 0.5, t * 3));
+            f += rect(uv1, vec2(-t * 2.5, 0), vec2(t * 0.5, t * 3));
+        } else if (k < 40) { // lamp
+            f += istep(t * 3.5, length(uv1));
+            f -= istep(t * 2.5, length(uv1));
+            f += line(uv1, vec2(-t * 2), vec2(t * 2), t);
+            f += line(uv1, vec2(-t * 2, t * 2), vec2(t * 2, -t * 2), t);
+        } else if (k < 50) { // inductor
+            f += istep(t * 2, length(uv1 - vec2(t * 2.5,0)));
+            f += istep(t * 2, length(uv1 - vec2(0,0)));
+            f += istep(t * 2, length(uv1 - vec2(-t * 2.5,0)));
+            f -= 2 * istep(t, length(uv1 - vec2(t * 2.5,0)));
+            f -= 2 * istep(t, length(uv1 - vec2(0,0)));
+            f -= 2 * istep(t, length(uv1 - vec2(-t * 2.5,0)));
+            f *= step(-t * 0.5, uv1.y);
+        } else if (k < 60) { // switch
+            f += istep(t, length(uv1 - vec2(t * 2.5, 0)));
+            f += istep(t, length(uv1 + vec2(t * 2.5, 0)));
+            f += line(uv1, vec2(t * 2, 0), vec2(-t * 2.5, t * (k < 55 ? 3 : 1)), t);
+        }
+    } else if (c == 3) {
+        if (left_right) {
+            uv1.xy = uv1.yx;
+            if (up) {
+                uv1.x = -uv1.x;
+            }
+        } else if (right) {
+            uv1.x = -uv1.x;
+        }
+        float k = rand(s0 + 4) * 20;
+        if (k < 10) {
+            f -= rect(uv1, vec2(0), vec2(t * 3));
+            f = max(0, f);
+            f += rect(uv1, vec2(-t * 3, 0), vec2(t * 0.5, t * 3));
+            f += line(uv1, vec2(t * 0.25, t * 3.25), vec2(-t * 3, t), t);
+            f += line(uv1, vec2(t * 0.25, -t * 3.25), vec2(-t * 3, -t), t);
+        }
+    }
     
     return vec4(f);
 }
