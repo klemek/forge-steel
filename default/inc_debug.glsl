@@ -228,7 +228,7 @@ vec4 debug(vec2 vUV)
     x = -15;
     f += write_5(uv3, vec2(x - 4,13), texts[0]);
     f += write_int(uv3, vec2(x + 1, 13), iFPS, 3);
-    v = min(1, iFPS/60.0);
+    v = min(1, iFPS/30.0);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
     

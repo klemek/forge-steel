@@ -2,6 +2,8 @@
 #define PI 3.1415927
 #endif
 
+#include inc_time.glsl
+#include inc_rand.glsl
 #include inc_res.glsl
 
 #ifndef INC_FUNCTIONS

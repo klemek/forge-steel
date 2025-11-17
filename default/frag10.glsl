@@ -52,12 +52,12 @@ void main() {
     c += s(uv2,1,2) * texture(iTex5, uv2);
     c += s(uv2,2,2) * texture(iTex7, uv2);
 
-    c += s(uv2,1,1) * texture(iTex6, uv2);
-    c += s(uv2,2,1) * texture(iTex8, uv2);
+    c += s(uv2,1,0) * texture(iTex6, uv2);
+    c += s(uv2,2,0) * texture(iTex8, uv2);
 
-    c += s(uv2,0,0) * debug(mod(uv2, 1));
-    c += s(uv2,1,0) * texture(iTex9, uv2);
-    c += s(uv2,2,0) * texture(iTex0, uv2);
+    c += s(uv2,0,1) * debug(mod(uv2, 1));
+    c += s(uv2,1,1) * texture(iTex9, uv2);
+    c += s(uv2,2,1) * texture(iTex0, uv2);
 
     float f = 0;
     float t = 0;
@@ -75,30 +75,30 @@ void main() {
         t += write_5(uv3, vec2(-53,26), texts[9]);
     }
    
-    f += rect(uv3, vec2(-51, 8.5), vec2(2.1, 0.7));
-    t += write_5(uv3, vec2(-53,8), texts[1]);
+    f += rect(uv3, vec2(-51, -11.5), vec2(2.1, 0.7));
+    t += write_5(uv3, vec2(-53,-12), texts[1]);
 
     if (iInputResolution2.x > 0) {
-        c += s(uv2,0,1) * texture(iTex4, uv2);
-        f += rect(uv3, vec2(-50.4, 6.5), vec2(2.8, 0.7));
-        t += write_int(uv3, vec2(-53,6), iInputFPS2, 2);
-        t += write_5(uv3, vec2(-50.5,6), texts[8]);
+        c += s(uv2,0,2) * texture(iTex4, uv2);
+        f += rect(uv3, vec2(-50.4, -13.5), vec2(2.8, 0.7));
+        t += write_int(uv3, vec2(-53,-14), iInputFPS2, 2);
+        t += write_5(uv3, vec2(-50.5,-14), texts[8]);
     } else {
-        f += rect(uv3, vec2(-51.5, 6.5), vec2(1.6, 0.7));
-        t += write_5(uv3, vec2(-53,6), texts[9]);
+        f += rect(uv3, vec2(-51.5, -13.5), vec2(1.6, 0.7));
+        t += write_5(uv3, vec2(-53,-14), texts[9]);
     }
     f += rect(uv3, vec2(-14.5, 28.5), vec2(2.6, 0.7));
     t += write_5(uv3, vec2(-17,28), texts[2]);
-    f += rect(uv3, vec2(-14.5, 8.5), vec2(2.6, 0.7));
-    t += write_5(uv3, vec2(-17,8), texts[3]);
+    f += rect(uv3, vec2(-14.5, -11.5), vec2(2.6, 0.7));
+    t += write_5(uv3, vec2(-17,-12), texts[3]);
     f += rect(uv3, vec2(21, 28.5), vec2(2.1, 0.7));
     t += write_5(uv3, vec2(19,28), texts[4]);
-    f += rect(uv3, vec2(21, 8.5), vec2(2.1, 0.7));
-    t += write_5(uv3, vec2(19,8), texts[5]);
-    f += rect(uv3, vec2(-15.5, -11.5), vec2(1.6, 0.7));
-    t += write_5(uv3, vec2(-17,-12), texts[6]);
-    f += rect(uv3, vec2(20.5, -11.5), vec2(1.6, 0.7));
-    t += write_5(uv3, vec2(19,-12), texts[7]);
+    f += rect(uv3, vec2(21, -11.5), vec2(2.1, 0.7));
+    t += write_5(uv3, vec2(19,-12), texts[5]);
+    f += rect(uv3, vec2(-15.5, 8.5), vec2(1.6, 0.7));
+    t += write_5(uv3, vec2(-17,8), texts[6]);
+    f += rect(uv3, vec2(20.5, 8.5), vec2(1.6, 0.7));
+    t += write_5(uv3, vec2(19,8), texts[7]);
 
     fragColor = mix(c, vec4(f - t), f);
 }
