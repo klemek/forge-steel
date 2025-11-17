@@ -226,6 +226,10 @@ float circle(vec2 uv, vec2 c, float size) {
     return istep(size, length(uv - c));
 }
 
+float h_circle(vec2 uv, vec2 c, float size, float k) {
+    return circle(uv, c, size + k * 0.5) - circle(uv, c, size - k * 0.5);
+}
+
 float stripe(float x, float k1, float k2)
 {
     return k2 > k1 ? (1 - step(x, k1)) * (step(x, k2)) : ((1 - step(x, k2)) * (step(x, k1)));

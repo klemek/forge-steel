@@ -112,7 +112,7 @@ vec4 debug(vec2 vUV)
         {0x54, 0x49, 0x4D, 0x45, 0x00}, // TIME
         {0x44, 0x45, 0x4D, 0x4F, 0x00}, // DEMO
         {0x4C, 0x49, 0x56, 0x45, 0x00}, // LIVE
-        {0x2B, 0x52, 0x41, 0x4E, 0x44}, // +RAND
+        {0x52, 0x41, 0x4E, 0x44, 0x00}, // RAND
         {0x53, 0x52, 0x43, 0x00, 0x00}, // SRC
         {0x46, 0x58, 0x00, 0x00, 0x00}, // FX
         {0x49, 0x4E, 0x00, 0x00, 0x00}, // IN
@@ -142,8 +142,17 @@ vec4 debug(vec2 vUV)
         rect(uv2, vec2(2, -1.55), vec2(0.1, 0.55)) +
         rect(uv2, vec2(0.55, 2), vec2(1.5, 0.1)) +
         rect(uv2, vec2(2, 1.55), vec2(0.1, 0.55)) +
-        rect(uv2, vec2(7.5, 0), vec2(1.5, 0.1)) +
-        h_rect(uv2, vec2(-9, -3.9), vec2(1), 0.1);
+        rect(uv2, vec2(6.8, 0), vec2(0.75, 0.1)) +
+        h_circle(uv2, vec2(7.8, 0), 0.3, 0.1)
+        ;
+    
+    if (iDemo < 1 && iInputFormat1 == YUYV_FOURCC) {
+        f += circle(uv2, vec2(-9, 2), 0.3);
+    }
+
+    if (iDemo < 1 && iInputFormat2 == YUYV_FOURCC) {
+        f += circle(uv2, vec2(-9, -2), 0.3);
+    }
 
     // show selected src/fx
     f += char_at(uv2, vec2(-5.4, 1.45), hex_chars[selected_srca]);
@@ -178,17 +187,17 @@ vec4 debug(vec2 vUV)
 
     f += write_5(uv3 * 0.75, vec2(-11.6,-1.8), texts[6]);
     f += write_5(uv3 * 0.75, vec2(-4.2,-1.8), texts[7]);
-    f += char_at(uv3 * 0.5, vec2(0.5, 0.5), 0x41);
-    f += char_at(uv3 * 0.5, vec2(0.5, -3), 0x42);
+    f += char_at(uv3 * 0.5, vec2(-11.5, 3.5), 0x41);
+    f += char_at(uv3 * 0.5, vec2(-11.5, -6), 0x42);
     if (iDemo < 1 && (iInputFormat1 == YUYV_FOURCC || iInputFormat2 == YUYV_FOURCC)) {
         f += write_5(uv3 * 0.75, vec2(-19.7,-1.8), texts[8]);
     }
     f += write_5(uv3 * 0.75, vec2(10.9,2), texts[9]);
 
     // show inputs / feedback
-    float line_a_a = rect(uv2, vec2(-8, 2), vec2(2, 0.1));
-    float line_a_b = rect(uv2, vec2(-7, 2), vec2(1, 0.1)) + rect(uv2, vec2(-8, 0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-9, -1), vec2(1, 0.1));
-    float line_a_f = rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 4), vec2(7, 0.1)) + rect(uv2, vec2(-7, 3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, 2), vec2(0.1, 2.1));
+    float line_a_a = rect(uv2, vec2(-7.5, 2), vec2(1.5, 0.1));
+    float line_a_b = rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(-8.5, -2), vec2(0.5, 0.1)) + line(uv2, vec2(-7, 2.1), vec2(-8, -2.1), 0.2);
+    float line_a_f = rect(uv2, vec2(-6.5, 2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, 3.6), vec2(7, 0.1)) + rect(uv2, vec2(-7, 2.8), vec2(0.1, 0.9)) + rect(uv2, vec2(7, 1.8), vec2(0.1, 1.9));
     if (selected_srca == 5 && iInputFormat1 == YUYV_FOURCC) {
         f += line_a_a;
     } else if (selected_srca == 10 && iInputFormat2 == YUYV_FOURCC) {
@@ -196,9 +205,10 @@ vec4 debug(vec2 vUV)
     } else if (selected_srca % 5 == 0) {
         f += line_a_f;
     }
-    float line_b_a = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(-7, -0.5), vec2(0.1, 1.6)) + rect(uv2, vec2(-8.5, 1), vec2(1.5, 0.1));
-    float line_b_b = rect(uv2, vec2(-8, -2), vec2(2, 0.1));
-    float line_b_f = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -4), vec2(7, 0.1)) + rect(uv2, vec2(-7, -3), vec2(0.1, 1.1)) + rect(uv2, vec2(7, -2), vec2(0.1, 2.1));
+
+    float line_b_a = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(-8.5, 2), vec2(0.5, 0.1)) + line(uv2, vec2(-7, -2.1), vec2(-8, 2.1), 0.2);
+    float line_b_b = rect(uv2, vec2(-8, -2), vec2(1, 0.1));
+    float line_b_f = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -3.6), vec2(7, 0.1)) + rect(uv2, vec2(-7, -2.8), vec2(0.1, 0.9)) + rect(uv2, vec2(7, -1.8), vec2(0.1, 1.9));
     if (selected_srcb == 5 && iInputFormat1 == YUYV_FOURCC) {
         f += line_b_a;
     } else if (selected_srcb == 10 && iInputFormat2 == YUYV_FOURCC) {
@@ -208,7 +218,9 @@ vec4 debug(vec2 vUV)
     }
 
     // show page
-    f += char_at(uv2, vec2(-9.2, -4.3), hex_chars[iPage]);
+    f += iPage == 0 ? circle(uv2, vec2(-0.75, -4.1), 0.3) : h_circle(uv2, vec2(-0.75, -4.1), 0.25, 0.1);
+    f += iPage == 1 ? circle(uv2, vec2(0, -4.1), 0.3) : h_circle(uv2, vec2(0, -4.1), 0.20, 0.1);
+    f += iPage == 2 ? circle(uv2, vec2(0.75, -4.1), 0.3) : h_circle(uv2, vec2(0.75, -4.1), 0.20, 0.1);
 
     // show fx values
     float fx_rect = 0;
@@ -226,33 +238,24 @@ vec4 debug(vec2 vUV)
     float x = 0;
 
     x = -15;
-    f += write_5(uv3, vec2(x - 4,13), texts[0]);
-    f += write_int(uv3, vec2(x + 1, 13), iFPS, 3);
-    v = min(1, iFPS/30.0);
-    f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
-    f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
-    
-    x = 0;
-    f += write_5(uv3, vec2(x - 4,13), texts[1]);
-    f += write_int(uv3, vec2(x + 1,13), int(iTempo), 3);
+    f += write_5(uv3, vec2(x - 4.5,13), texts[1]);
+    f += write_int(uv3, vec2(x + 1.5,13), int(iTempo), 3);
     v = fract(iBeats);
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
 
     x = 15;
-    f += write_5(uv3, vec2(x - 4,13), texts[2]);
-    f += write_int(uv3, vec2(x - 1,13), int(iTime), 5);
-    v = fract(iTime);
+    if (iAutoRand > 0) {
+        f += write_5(uv3, vec2(x - 4.5,13), texts[5]);
+        f += write_int(uv3, vec2(x - 0.5,13), int(iAutoRandCycle), 5);
+        v = fract(iBeats / iAutoRandCycle);
+    } else {
+        f += write_int(uv3, vec2(x - 0.5,13), int(iTime), 5);
+        v = fract(iTime);
+        f += write_5(uv3, vec2(x - 4.5,13), texts[2]);
+    }
     f += h_rect(uv3, vec2(x, 12), vec2(4, 0.5), 0.2);
     f += rect(uv3, vec2(x + 4 * v - 4, 12), vec2(4 * v, 0.4));
-
-    if (iAutoRand > 0) {
-        f += write_5(uv3, vec2(-4,-15), iDemo > 0 ? texts[3] : texts[4]);
-        f += write_5(uv3, vec2(0,-15), texts[5]);
-        f += write_int_left(uv3, vec2(3, -15), iAutoRandCycle, 3);
-    } else {
-        f += write_5(uv3, vec2(-2,-15), iDemo > 0 ? texts[3] : texts[4]);
-    }
 
     return vec4(f);
 }
