@@ -123,7 +123,7 @@ make -f Makefile.dev release-arch
   - [x] Save states (numkey: load / shift + numkey: save)
   - [x] (clean) static functions at top of files
   - [x] Configurable key codes
-  - [ ] Monitor improvements
+  - [x] Monitor improvements
   - [ ] Ignore some values in auto random
   - [ ] Update README monitor/keymap
   - [ ] Auto reconnect midi input
