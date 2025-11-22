@@ -174,7 +174,7 @@ These are configurable in the [`forge_project.cfg`](#forge_projectcfg).
 ### CLI arguments
 
 ```txt
-usage: forge [-h] [-v] [-p=PROJECT_PATH] [-c=CFG_FILE] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-w] [-t=TEMPO] [-d] [-ar / -nar] [-arc=CYCLES] [-v=FILE] [-vs=SIZE] [-is=SIZE] [-ls / -nls] [-ss / -nss] [-tm] [-tf] 
+usage: forge [-h] [-v] [-p=PROJECT_PATH] [-c=CFG_FILE] [-hr] [-s=SCREEN] [-m=SCREEN] [-mo] [-w] [-t=TEMPO] [-d] [-ar / -nar] [-arc=CYCLES] [-vi=FILE] [-vs=SIZE] [-is=SIZE] [-ls / -nls] [-ss / -nss] [-tm] [-tf] 
 
 Fusion Of Real-time Generative Effects.
 
@@ -193,7 +193,7 @@ options:
   -ar, --auto-random          randomize state every cycle (4 beats)
   -nar, --no-auto-random      do not randomize state (default)
   -arc, --auto-random-cycle   auto random cycle length (default: 4)
-  -v, --video-in              path to video capture device (multiple allowed)
+  -vi, --video-in             path to video capture device (multiple allowed)
   -vs, --video-size           video capture desired height (default: internal texture height)
   -is, --internal-size        internal texture height (default: 720)
   -ls, --load-state           load saved state (default)

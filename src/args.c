@@ -30,7 +30,7 @@ static void print_help(int status_code) {
       "[-d] "
       "[-ar / -nar] "
       "[-arc=CYCLES] "
-      "[-v=FILE] "
+      "[-vi=FILE] "
       "[-vs=SIZE] "
       "[-is=SIZE] "
       "[-ls / -nls] "
@@ -57,7 +57,7 @@ static void print_help(int status_code) {
       "  -ar, --auto-random          randomize state every cycle (4 beats)\n"
       "  -nar, --no-auto-random      do not randomize state (default)\n"
       "  -arc, --auto-random-cycle   auto random cycle length (default: 4)\n"
-      "  -v, --video-in              path to video capture device (multiple "
+      "  -vi, --video-in             path to video capture device (multiple "
       "allowed)\n"
       "  -vs, --video-size           video capture desired height (default: "
       "internal texture height)\n"
@@ -173,7 +173,7 @@ void args_parse(Parameters *params, int argc, char **argv) {
       if (params->auto_random_cycle == 0) {
         invalid_value(arg, value);
       }
-    } else if (is_arg(arg, "-v") || is_arg(arg, "--video-in")) {
+    } else if (is_arg(arg, "-vi") || is_arg(arg, "--video-in")) {
       if (params->video_in.length == MAX_VIDEO) {
         log_error("maximum video input reached");
         exit(EXIT_FAILURE);
