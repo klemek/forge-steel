@@ -534,8 +534,7 @@ static void use_program(const ShaderProgram *program, int i, bool output,
 }
 
 void shaders_init(ShaderProgram *program, const Project *project,
-                  const SharedContext *context, VideoCaptureArray *inputs,
-                  bool rebind) {
+                  const SharedContext *context, bool rebind) {
   if (!rebind) {
     program->error = false;
     program->last_resolution[0] = context->resolution[0];
@@ -571,12 +570,6 @@ void shaders_init(ShaderProgram *program, const Project *project,
       return;
     }
 
-    init_input(program, &project->config, inputs);
-
-    if (check_glerror(program)) {
-      return;
-    }
-
     init_framebuffers(program, &project->config);
 
     if (check_glerror(program)) {
@@ -597,6 +590,15 @@ void shaders_init(ShaderProgram *program, const Project *project,
   }
 
   bind_vertices(program, rebind ? 1 : 0);
+
+  if (check_glerror(program)) {
+    return;
+  }
+}
+
+void shaders_link_inputs(ShaderProgram *program, const Project *project,
+                         VideoCaptureArray *inputs) {
+  init_input(program, &project->config, inputs);
 
   if (check_glerror(program)) {
     return;

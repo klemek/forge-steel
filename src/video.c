@@ -1,3 +1,5 @@
+#ifdef VIDEO_IN
+
 #include <bsd/string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -374,3 +376,5 @@ void video_free(const VideoCapture *video_capture) {
     close(video_capture->fd);
   }
 }
+
+#endif /* VIDEO_IN */

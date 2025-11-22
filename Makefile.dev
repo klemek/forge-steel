@@ -21,6 +21,7 @@ build:
 		-DGLFW_EXPOSE_NATIVE_EGL \
 		-DGLFW_NATIVE_INCLUDE_NONE \
 		-DLOG_USE_COLOR \
+		-DVIDEO_IN \
 		-o build/$(TARGET) \
 		-g -Og
 

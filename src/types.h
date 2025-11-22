@@ -4,7 +4,11 @@
 #include <glad/gl.h>
 #include <hashmap.h>
 #include <linmath.h>
+#ifdef VIDEO_IN
 #include <linux/videodev2.h>
+#else
+struct v4l2_buffer {};
+#endif /* VIDEO_IN */
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>

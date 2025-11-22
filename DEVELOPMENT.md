@@ -125,6 +125,7 @@ make -f Makefile.dev release-arch
   - [x] Configurable key codes
   - [x] Monitor improvements
   - [ ] Ignore some values in auto random
+  - [x] build without video in
   - [ ] Update README monitor/keymap
   - [ ] Auto reconnect midi input
   - [ ] Auto reconnect video device

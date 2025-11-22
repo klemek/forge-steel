@@ -82,6 +82,7 @@ static void reload_shader(unsigned int i) {
   shaders_update(&program, &project.fragment_shaders[i][0], i, &project);
 }
 
+#ifdef VIDEO_IN
 static void init_inputs(const StringArray *video_in, unsigned int video_size) {
   inputs.length = video_in->length;
 
@@ -97,7 +98,6 @@ static bool start_video_captures(unsigned int video_count, bool trace_fps) {
       return false;
     }
   }
-
   return true;
 }
 
@@ -108,6 +108,7 @@ static void free_video_captures(unsigned int video_count) {
     video_free(&inputs.values[i]);
   }
 }
+#endif /* VIDEO_IN */
 
 static void error_callback(int error, const char *description) {
   log_error("[GLFW] %d: %s", error, description);
@@ -177,13 +178,15 @@ void forge_run(const Parameters *params) {
     return;
   }
 
-  init_inputs(&params->video_in, params->video_size);
-
   init_context(params, project.in_count);
+
+#ifdef VIDEO_IN
+  init_inputs(&params->video_in, params->video_size);
 
   if (!start_video_captures(params->video_in.length, params->trace_fps)) {
     return;
   }
+#endif /* VIDEO_IN */
 
   midi_open(&midi, config_file_get_str(&project.config, "MIDI_HW", "hw"));
 
@@ -211,7 +214,7 @@ void forge_run(const Parameters *params) {
 
     window_use(window_output, context);
 
-    shaders_init(&program, &project, context, &inputs, false);
+    shaders_init(&program, &project, context, false);
   } else {
     window_output = NULL;
   }
@@ -223,10 +226,14 @@ void forge_run(const Parameters *params) {
 
     window_use(window_monitor, context);
 
-    shaders_init(&program, &project, context, &inputs, window_output != NULL);
+    shaders_init(&program, &project, context, window_output != NULL);
   } else {
     window_monitor = NULL;
   }
+
+#ifdef VIDEO_IN
+  shaders_link_inputs(&program, &project, &inputs);
+#endif /* VIDEO_IN */
 
   if (program.error) {
     context->stop = true;
@@ -263,7 +270,9 @@ void forge_run(const Parameters *params) {
     shaders_free_window(&program, params->output);
   }
 
+#ifdef VIDEO_IN
   free_video_captures(params->video_in.length);
+#endif /* VIDEO_IN */
 
   free_context();
 

@@ -4,8 +4,10 @@
 #define SHADERS_H
 
 void shaders_init(ShaderProgram *program, const Project *project,
-                  const SharedContext *context, VideoCaptureArray *inputs,
-                  bool rebind);
+                  const SharedContext *context, bool rebind);
+
+void shaders_link_inputs(ShaderProgram *program, const Project *project,
+                         VideoCaptureArray *inputs);
 
 void shaders_update(ShaderProgram *program, const File *fragment_shader,
                     unsigned int i, const Project *project);

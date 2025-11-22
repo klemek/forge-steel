@@ -16,7 +16,7 @@ jobs:
       - name: install libs
         run: sudo apt install -y libglfw3-dev libgl-dev libv4l-dev libasound2-dev libbsd-dev
       - name: gcc
-        run: mkdir -p build && gcc -v -Wall -Wextra -Werror -Wno-format-truncation src/*.c src/*.h -lglfw -lGL -lm -lasound -lbsd -Iinclude hashmap.c/hashmap.c log.c/src/log.c -DGLFW_INCLUDE_NONE -DGLFW_EXPOSE_NATIVE_EGL -DGLFW_NATIVE_INCLUDE_NONE
+        run: mkdir -p build && gcc -v -Wall -Wextra -Werror -Wno-format-truncation src/*.c src/*.h -lglfw -lGL -lm -lasound -lbsd -Iinclude hashmap.c/hashmap.c log.c/src/log.c -DGLFW_INCLUDE_NONE -DGLFW_EXPOSE_NATIVE_EGL -DGLFW_NATIVE_INCLUDE_NONE -DVIDEO_IN
 
   build-release:
     needs: lint
