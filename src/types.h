@@ -1,12 +1,12 @@
 #include <GLFW/glfw3.h>
 #include <alsa/asoundlib.h>
+#ifdef VIDEO_IN
 #include <glad/egl.h>
+#include <linux/videodev2.h>
+#endif /* VIDEO_IN */
 #include <glad/gl.h>
 #include <hashmap.h>
 #include <linmath.h>
-#ifdef VIDEO_IN
-#include <linux/videodev2.h>
-#endif /* VIDEO_IN */
 #include <stdbool.h>
 #include <sys/time.h>
 #include <time.h>
@@ -127,14 +127,12 @@ typedef struct ShaderProgram {
   unsigned int active_count;
 
   unsigned int in_count;
+#ifdef VIDEO_IN
   EGLDisplay egl_display;
+#endif /* VIDEO_IN */
 } ShaderProgram;
 
 // video.c
-
-#ifndef VIDEO_IN
-struct v4l2_buffer {};
-#endif /* VIDEO_IN */
 
 typedef struct VideoCapture {
   char name[STR_LEN];
@@ -145,9 +143,10 @@ typedef struct VideoCapture {
   unsigned int height;
   unsigned int pixelformat;
   unsigned int bytesperline;
-  bool output;
+#ifdef VIDEO_IN
   struct v4l2_buffer buf;
   EGLImageKHR dma_image;
+#endif /* VIDEO_IN */
 } VideoCapture;
 
 typedef ARRAY(VideoCaptureArray, VideoCapture);

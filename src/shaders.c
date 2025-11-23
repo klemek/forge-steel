@@ -14,11 +14,15 @@
 #define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 
+#ifdef VIDEO_IN
 #define GLAD_EGL_IMPLEMENTATION
 #include <glad/egl.h>
+#endif /* VIDEO_IN */
 
 #include <GLFW/glfw3.h>
+#ifdef VIDEO_IN
 #include <GLFW/glfw3native.h>
+#endif /* VIDEO_IN */
 
 static const GLuint unused_uniform = (GLuint)-1;
 
@@ -38,6 +42,7 @@ bool check_glerror(ShaderProgram *program) {
 static void init_gl(ShaderProgram *program) {
   gladLoadGL(glfwGetProcAddress);
 
+#ifdef VIDEO_IN
   program->egl_display = glfwGetEGLDisplay();
   if (program->egl_display == EGL_NO_DISPLAY) {
     log_error("error: glfwGetEGLDisplay no EGLDisplay returned");
@@ -46,6 +51,7 @@ static void init_gl(ShaderProgram *program) {
   }
 
   gladLoadEGL(program->egl_display, glfwGetProcAddress);
+#endif /* VIDEO_IN */
 }
 
 static void init_textures(ShaderProgram *program,
@@ -80,6 +86,7 @@ static void rebind_textures(const ShaderProgram *program) {
   }
 }
 
+#ifdef VIDEO_IN
 static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
                                   unsigned int texture_index) {
   input->dma_image = EGL_NO_IMAGE_KHR;
@@ -136,6 +143,7 @@ static void init_input(ShaderProgram *program, const ConfigFile *config,
     }
   }
 }
+#endif /* VIDEO_IN */
 
 static void init_framebuffers(ShaderProgram *program,
                               const ConfigFile *config) {
@@ -598,11 +606,13 @@ void shaders_init(ShaderProgram *program, const Project *project,
 
 void shaders_link_inputs(ShaderProgram *program, const Project *project,
                          VideoCaptureArray *inputs) {
+#ifdef VIDEO_IN
   init_input(program, &project->config, inputs);
 
   if (check_glerror(program)) {
     return;
   }
+#endif /* VIDEO_IN */
 }
 
 void shaders_update(ShaderProgram *program, const File *fragment_shader,
@@ -659,7 +669,9 @@ void shaders_free_window(const ShaderProgram *program, bool secondary) {
 
 void shaders_free_input(const ShaderProgram *program,
                         const VideoCapture *input) {
+#ifdef VIDEO_IN
   if (!input->error && input->dma_image != EGL_NO_IMAGE_KHR) {
     eglDestroyImageKHR(program->egl_display, input->dma_image);
   }
+#endif /* VIDEO_IN */
 }

@@ -17,6 +17,9 @@
 #include "timer.h"
 #include "video.h"
 
+static const unsigned int pixel_format = V4L2_PIX_FMT_YUYV;
+static const enum v4l2_buf_type buf_type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
 static void ioctl_error(VideoCapture *video_capture, const char *operation,
                         const char *default_msg) {
   if (errno == EINVAL) {
@@ -116,7 +119,7 @@ static bool get_available_sizes(VideoCapture *video_capture,
 
   index = 0;
   fmt_enum.index = index;
-  fmt_enum.pixel_format = V4L2_PIX_FMT_YUYV;
+  fmt_enum.pixel_format = pixel_format;
 
   found = false;
   video_capture->width = 0;
@@ -148,7 +151,7 @@ static bool get_available_sizes(VideoCapture *video_capture,
 
     memset(&fmt_enum, 0, sizeof(fmt_enum));
     fmt_enum.index = ++index;
-    fmt_enum.pixel_format = V4L2_PIX_FMT_YUYV;
+    fmt_enum.pixel_format = pixel_format;
   }
 
   if (video_capture->height == 0) {
@@ -163,26 +166,18 @@ static bool get_available_sizes(VideoCapture *video_capture,
 static bool set_format(VideoCapture *video_capture) {
   struct v4l2_format fmt;
 
-  video_capture->output = false;
-
   memset(&fmt, 0, sizeof(fmt));
 
-  fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  fmt.type = buf_type;
   fmt.fmt.pix.width = video_capture->width;
   fmt.fmt.pix.height = video_capture->height;
-  fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+  fmt.fmt.pix.pixelformat = pixel_format;
   fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
   if (ioctl(video_capture->fd, VIDIOC_S_FMT, &fmt) == -1) {
-    fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-
-    video_capture->output = true;
-
-    if (ioctl(video_capture->fd, VIDIOC_S_FMT, &fmt) == -1) {
-      ioctl_error(video_capture, "VIDIOC_S_FMT",
-                  "Requested buffer type not supported");
-      return false;
-    }
+    ioctl_error(video_capture, "VIDIOC_S_FMT",
+                "Requested buffer type not supported");
+    return false;
   }
 
   video_capture->width = fmt.fmt.pix.width;
@@ -204,8 +199,7 @@ static bool request_buffers(VideoCapture *video_capture) {
 
   memset(&reqbuf, 0, sizeof(reqbuf));
 
-  reqbuf.type = video_capture->output ? V4L2_BUF_TYPE_VIDEO_OUTPUT
-                                      : V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  reqbuf.type = buf_type;
   reqbuf.memory = V4L2_MEMORY_MMAP;
   reqbuf.count = 1;
 
@@ -227,8 +221,7 @@ static bool export_buffer(VideoCapture *video_capture) {
 
   memset(&expbuf, 0, sizeof(expbuf));
 
-  expbuf.type = video_capture->output ? V4L2_BUF_TYPE_VIDEO_OUTPUT
-                                      : V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  expbuf.type = buf_type;
   expbuf.index = 0;
   expbuf.flags = O_RDONLY;
 
@@ -244,8 +237,6 @@ static bool export_buffer(VideoCapture *video_capture) {
   return true;
 }
 
-static const enum v4l2_buf_type buf_type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
 static bool open_stream(VideoCapture *video_capture) {
   if (ioctl(video_capture->fd, VIDIOC_STREAMON, &buf_type) == -1) {
     ioctl_error(
@@ -260,8 +251,7 @@ static bool open_stream(VideoCapture *video_capture) {
 static void create_image_buffer(VideoCapture *video_capture) {
   memset(&video_capture->buf, 0, sizeof(video_capture->buf));
 
-  video_capture->buf.type = video_capture->output ? V4L2_BUF_TYPE_VIDEO_OUTPUT
-                                                  : V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  video_capture->buf.type = buf_type;
   video_capture->buf.memory = V4L2_MEMORY_MMAP;
   video_capture->buf.index = 0;
 
