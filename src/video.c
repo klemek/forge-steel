@@ -275,13 +275,13 @@ static void close_stream(const VideoCapture *video_capture) {
 }
 
 static bool read_video(VideoCapture *video_capture) {
-  bool result;
+  if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) != -1) {
+    ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
 
-  result = ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) != -1;
+    return true;
+  }
 
-  ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
-
-  return result;
+  return false;
 }
 
 void video_init(VideoCapture *video_capture, const char *name,
