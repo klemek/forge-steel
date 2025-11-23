@@ -58,6 +58,10 @@ static void compute_fps(bool trace_fps) {
 }
 
 static void init_context(const Parameters *params) {
+  context = shared_init_context("/" PACKAGE "_context");
+
+  context->stop = false;
+
   state_init(context, &project.state_config, params->demo, params->auto_random,
              params->auto_random_cycle, params->base_tempo, params->load_state);
 
@@ -134,44 +138,11 @@ static void midi_callback(unsigned char code, unsigned char value) {
                    trace_midi);
 }
 
-static void loop(bool hr, bool trace_fps) {
-  if (hr) {
-    project_reload(&project, reload_shader);
-  }
-
-  compute_fps(trace_fps);
-
-  context->time = window_get_time();
-  context->tempo_total = (float)tempo_total(&context->tempo);
-
-  if (window_output != NULL) {
-    window_use(window_output, context);
-
-    shaders_compute(&program, context, false, false);
-
-    window_refresh(window_output);
-  }
-
-  if (window_monitor != NULL) {
-    window_use(window_monitor, context);
-
-    shaders_compute(&program, context, true, window_output != NULL);
-
-    window_refresh(window_monitor);
-  }
-
-  window_events();
-}
-
-void forge_run(const Parameters *params) {
-  context = shared_init_context("/" PACKAGE "_context");
-
-  context->stop = false;
-
+static bool init(const Parameters *params) {
   project_init(&project, params->project_path, params->config_file);
 
   if (project.error) {
-    return;
+    return false;
   }
 
   init_context(params);
@@ -180,7 +151,7 @@ void forge_run(const Parameters *params) {
   init_inputs(&params->video_in, params->video_size);
 
   if (!start_video_captures(params->video_in.length, params->trace_fps)) {
-    return;
+    return false;
   }
 #endif /* VIDEO_IN */
 
@@ -192,12 +163,12 @@ void forge_run(const Parameters *params) {
     trace_midi = params->trace_midi;
 
     if (!midi_background_listen(&midi, context, midi_callback)) {
-      return;
+      return false;
     }
   }
 
   if (!state_background_write(context, &project.state_config, &midi)) {
-    return;
+    return false;
   }
 
   window_startup(error_callback);
@@ -241,11 +212,44 @@ void forge_run(const Parameters *params) {
 
   log_info("Initialized");
 
-  while ((window_output == NULL || !window_should_close(window_output)) &&
-         (window_monitor == NULL || !window_should_close(window_monitor))) {
-    loop(params->hot_reload, params->trace_fps);
+  return true;
+}
+
+static bool should_close() {
+  return (window_output != NULL && window_should_close(window_output)) ||
+         (window_monitor != NULL && window_should_close(window_monitor));
+}
+
+static void loop(bool hr, bool trace_fps) {
+  if (hr) {
+    project_reload(&project, reload_shader);
   }
 
+  compute_fps(trace_fps);
+
+  context->time = window_get_time();
+  context->tempo_total = (float)tempo_total(&context->tempo);
+
+  if (window_output != NULL) {
+    window_use(window_output, context);
+
+    shaders_compute(&program, context, false, false);
+
+    window_refresh(window_output);
+  }
+
+  if (window_monitor != NULL) {
+    window_use(window_monitor, context);
+
+    shaders_compute(&program, context, true, window_output != NULL);
+
+    window_refresh(window_monitor);
+  }
+
+  window_events();
+}
+
+static void shutdown(const Parameters *params) {
   context->stop = true;
 
   if (params->save_state) {
@@ -275,4 +279,16 @@ void forge_run(const Parameters *params) {
   project_free(&project);
 
   window_terminate();
+}
+
+void forge_run(const Parameters *params) {
+  if (!init(params)) {
+    return;
+  }
+
+  while (!should_close()) {
+    loop(params->hot_reload, params->trace_fps);
+  }
+
+  shutdown(params);
 }

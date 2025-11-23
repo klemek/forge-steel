@@ -116,7 +116,8 @@ static void randomize(SharedContext *context, const StateConfig *state_config) {
 }
 
 static void load_from_file(SharedContext *context,
-                           const StateConfig *state_config, char *state_file) {
+                           const StateConfig *state_config,
+                           const char *state_file) {
   ConfigFile saved_state;
   char key[STR_LEN];
 
