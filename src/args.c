@@ -30,8 +30,10 @@ static void print_help(int status_code) {
       "[-d] "
       "[-ar / -nar] "
       "[-arc=CYCLES] "
+#ifdef VIDEO_IN
       "[-vi=FILE] "
       "[-vs=SIZE] "
+#endif /* VIDEO_IN */
       "[-is=SIZE] "
       "[-ls / -nls] "
       "[-ss / -nss] "
@@ -57,10 +59,12 @@ static void print_help(int status_code) {
       "  -ar, --auto-random          randomize state every cycle (4 beats)\n"
       "  -nar, --no-auto-random      do not randomize state (default)\n"
       "  -arc, --auto-random-cycle   auto random cycle length (default: 4)\n"
+#ifdef VIDEO_IN
       "  -vi, --video-in             path to video capture device (multiple "
       "allowed)\n"
       "  -vs, --video-size           video capture desired height (default: "
       "internal texture height)\n"
+#endif /* VIDEO_IN */
       "  -is, --internal-size        internal texture height (default: 720)\n"
       "  -ls, --load-state           load saved state (default)\n"
       "  -nls, --no-load-state       do not load saved state\n"
@@ -174,17 +178,25 @@ void args_parse(Parameters *params, int argc, char **argv) {
         invalid_value(arg, value);
       }
     } else if (is_arg(arg, "-vi") || is_arg(arg, "--video-in")) {
+#ifdef VIDEO_IN
       if (params->video_in.length == MAX_VIDEO) {
         log_error("maximum video input reached");
         exit(EXIT_FAILURE);
       }
       strlcpy(params->video_in.values[params->video_in.length++], value,
               STR_LEN);
+#else
+      invalid_arg(arg);
+#endif /* VIDEO_IN */
     } else if (is_arg(arg, "-vs") || is_arg(arg, "--video-size")) {
+#ifdef VIDEO_IN
       params->video_size = parse_uint(arg, value);
       if (params->video_size == 0) {
         invalid_value(arg, value);
       }
+#else
+      invalid_arg(arg);
+#endif /* VIDEO_IN */
     } else if (is_arg(arg, "-is") || is_arg(arg, "--internal-size")) {
       params->internal_size = parse_uint(arg, value);
       if (params->internal_size == 0) {

@@ -6,8 +6,6 @@
 #include <linmath.h>
 #ifdef VIDEO_IN
 #include <linux/videodev2.h>
-#else
-struct v4l2_buffer {};
 #endif /* VIDEO_IN */
 #include <stdbool.h>
 #include <sys/time.h>
@@ -133,6 +131,10 @@ typedef struct ShaderProgram {
 } ShaderProgram;
 
 // video.c
+
+#ifndef VIDEO_IN
+struct v4l2_buffer {};
+#endif /* VIDEO_IN */
 
 typedef struct VideoCapture {
   char name[STR_LEN];
