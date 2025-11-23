@@ -207,7 +207,7 @@ vec4 debug(vec2 vUV)
     }
 
     float line_b_a = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(-8.5, 2), vec2(0.5, 0.1)) + line(uv2, vec2(-7, -2.1), vec2(-8, 2.1), 0.2);
-    float line_b_b = rect(uv2, vec2(-8, -2), vec2(1, 0.1));
+    float line_b_b = rect(uv2, vec2(-7.5, -2), vec2(1.5, 0.1));
     float line_b_f = rect(uv2, vec2(-6.5, -2), vec2(0.5, 0.1)) + rect(uv2, vec2(0, -3.6), vec2(7, 0.1)) + rect(uv2, vec2(-7, -2.8), vec2(0.1, 0.9)) + rect(uv2, vec2(7, -1.8), vec2(0.1, 1.9));
     if (selected_srcb == 5 && iInputFormat1 == YUYV_FOURCC) {
         f += line_b_a;

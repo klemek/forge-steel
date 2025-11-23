@@ -80,24 +80,24 @@ void main() {
     if (iInputResolution1.x > 0) {
         c += s(uv2,0,2) * texture(iTex3, uv2);
         f += rect(uv3, vec2(-35, 26.75), vec2(2.8, 0.7));
-        t += write_int(uv3, vec2(-37.6,26.25), iInputFPS1, 2);
-        t += write_5(uv3, vec2(-35.1,26.25), texts[8]);
+        t += write_int(uv3, vec2(-37.6,26.1), iInputFPS1, 2);
+        t += write_5(uv3, vec2(-35.1,26.1), texts[8]);
     } else {
         f += rect(uv3, vec2(-35, 26.75), vec2(1.6, 0.7));
-        t += write_5(uv3, vec2(-36.5,26.25), texts[9]);
+        t += write_5(uv3, vec2(-36.5,26.1), texts[9]);
     }
    
     f += rect(uv3, vec2(-35, -11.5), vec2(2.1, 0.7));
     t += write_5(uv3, vec2(-37,-12), texts[1]);
 
     if (iInputResolution2.x > 0) {
-        c += s(uv2,0,2) * texture(iTex4, uv2);
+        c += s(uv2,0,0) * texture(iTex4, uv2);
         f += rect(uv3, vec2(-35, -13.25), vec2(2.8, 0.7));
-        t += write_int(uv3, vec2(-37.6,-13.75), iInputFPS2, 2);
-        t += write_5(uv3, vec2(-35.1,-15.75), texts[8]);
+        t += write_int(uv3, vec2(-37.6,-13.9), iInputFPS2, 2);
+        t += write_5(uv3, vec2(-35.1,-13.9), texts[8]);
     } else {
         f += rect(uv3, vec2(-35, -13.25), vec2(1.6, 0.7));
-        t += write_5(uv3, vec2(-36.5,-13.75), texts[9]);
+        t += write_5(uv3, vec2(-36.5,-13.9), texts[9]);
     }
 
     f += rect(uv3, vec2(-35, 8.5), vec2(2.1, 0.7));
