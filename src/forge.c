@@ -57,7 +57,7 @@ static void compute_fps(bool trace_fps) {
   }
 }
 
-static void init_context(const Parameters *params, unsigned int in_count) {
+static void init_context(const Parameters *params) {
   state_init(context, &project.state_config, params->demo, params->auto_random,
              params->auto_random_cycle, params->base_tempo, params->load_state);
 
@@ -66,14 +66,6 @@ static void init_context(const Parameters *params, unsigned int in_count) {
   memset(context->input_resolutions, 0, sizeof(context->input_resolutions));
   memset(context->input_formats, 0, sizeof(context->input_formats));
   memset(context->input_fps, 0, sizeof(context->input_fps));
-
-  for (unsigned int i = 0; i < in_count; i++) {
-    if (!inputs.values[i].error) {
-      context->input_resolutions[i][0] = inputs.values[i].width;
-      context->input_resolutions[i][1] = inputs.values[i].height;
-      context->input_formats[i] = inputs.values[i].pixelformat;
-    }
-  }
 }
 
 static void free_context() { shared_close_context(context); }
@@ -88,6 +80,12 @@ static void init_inputs(const StringArray *video_in, unsigned int video_size) {
 
   for (unsigned int i = 0; i < video_in->length; i++) {
     video_init(&inputs.values[i], video_in->values[i], video_size);
+
+    if (!inputs.values[i].error) {
+      context->input_resolutions[i][0] = inputs.values[i].width;
+      context->input_resolutions[i][1] = inputs.values[i].height;
+      context->input_formats[i] = inputs.values[i].pixelformat;
+    }
   }
 }
 
@@ -178,7 +176,7 @@ void forge_run(const Parameters *params) {
     return;
   }
 
-  init_context(params, project.in_count);
+  init_context(params);
 
 #ifdef VIDEO_IN
   init_inputs(&params->video_in, params->video_size);

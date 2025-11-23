@@ -137,4 +137,3 @@ make -f Makefile.dev release-arch
 - [ ] Fixes
   - [ ] Try to write NanoKontrol config
   - [ ] Investigate video device fps loss (bad unregister ?)
-    -  explore libv4l directly [github](https://github.com/philips/libv4l) (with `-lv4l2`)

@@ -74,7 +74,7 @@ static void open_device(VideoCapture *video_capture, const char *name) {
   video_capture->fd = -1;
   video_capture->exp_fd = -1;
 
-  video_capture->fd = open(name, O_RDWR);
+  video_capture->fd = open(name, O_RDWR | O_NONBLOCK);
   if (video_capture->fd == -1) {
     log_warn("(%s) Cannot open device", name);
     video_capture->error = true;
@@ -265,6 +265,8 @@ static void create_image_buffer(VideoCapture *video_capture) {
   video_capture->buf.memory = V4L2_MEMORY_MMAP;
   video_capture->buf.index = 0;
 
+  ioctl(video_capture->fd, VIDIOC_PREPARE_BUF);
+
   ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
 }
 
@@ -273,21 +275,13 @@ static void close_stream(const VideoCapture *video_capture) {
 }
 
 static bool read_video(VideoCapture *video_capture) {
-  if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) == -1) {
-    ioctl_error(video_capture, "VIDIOC_DQBUF",
-                "buffer type not supported or no buffer allocated or the index "
-                "is out of bounds");
-    return false;
-  }
+  bool result;
 
-  if (ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf) == -1) {
-    ioctl_error(video_capture, "VIDIOC_QBUF",
-                "buffer type not supported or no buffer allocated or the index "
-                "is out of bounds");
-    return false;
-  }
+  result = ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) != -1;
 
-  return true;
+  ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
+
+  return result;
 }
 
 void video_init(VideoCapture *video_capture, const char *name,
@@ -343,9 +337,8 @@ bool video_background_read(VideoCapture *video_capture, SharedContext *context,
            pid);
   timer_init(&timer, 30);
 
-  while (!context->stop && read_video(video_capture)) {
-    // repeat infinitely
-    if (timer_inc(&timer)) {
+  while (!context->stop) {
+    if (read_video(video_capture) && timer_inc(&timer)) {
       fps = timer_reset(&timer);
 
       context->input_fps[input_index] = (unsigned int)round(fps);
