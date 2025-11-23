@@ -82,6 +82,7 @@ Here are some pointers if you want to customize your FORGE experience:
   - [My nanoKontrol2 is acting strange](#my-nanokontrol2-is-acting-strange)
   - [How do I report a bug?](#how-do-i-report-a-bug)
   - [Help I got low FPS on my video device](#help-i-got-low-fps-on-my-video-device)
+  - [My video feed got strange lines](#my-video-feed-got-strange-lines)
   - [How do I change the default project built-in sentences?](#how-do-i-change-the-default-project-built-in-sentences)
 
 ## What is FORGE ?
@@ -474,7 +475,17 @@ Don't forget to add all information available to your bug (version, operating sy
 
 ### Help I got low FPS on my video device
 
-There's already an [open issue](https://github.com/klemek/forge-steel/issues/1) on this subject.
+Unfortunately, V4L2 is very slow compared to driver-specific decoding.
+
+You can check your device real FPS on [V4L2 UCP](https://github.com/HedgeHawk/v4l2ucp) or [GTK UVC Viewer](https://github.com/jaswdr/guvcview).
+
+Sadly, OpenEGL doesn't support double-buffered DMA buffers so FPS in FORGE may be halved.
+
+### My video feed got strange lines
+
+You need to decode the [V4L2 YUYV format](https://www.kernel.org/doc/html/v4.8/media/uapi/v4l/pixfmt-yuyv.html).
+
+The code is available in the default project [default/inc_yuyv.glsl](./default/inc_yuyv.glsl)
 
 ### How do I change the default project built-in sentences?
 

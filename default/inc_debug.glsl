@@ -1,6 +1,6 @@
 #include inc_magic.glsl
 #include inc_functions.glsl
-#include inc_yuv.glsl
+#include inc_yuyv.glsl
 #include inc_cp437.glsl
 
 #ifndef INC_DEBUG
