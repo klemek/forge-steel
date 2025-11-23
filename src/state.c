@@ -415,7 +415,10 @@ void state_parse_config(StateConfig *state_config, const ConfigFile *config) {
 void state_midi_event(SharedContext *context, const StateConfig *state_config,
                       const MidiDevice *midi, unsigned char code,
                       unsigned char value, bool trace_midi) {
-  unsigned int i, j, k, part;
+  unsigned int i;
+  unsigned int j;
+  unsigned int k;
+  unsigned int part;
   bool found;
 
   found = false;
@@ -564,7 +567,10 @@ bool state_background_write(SharedContext *context,
                             const StateConfig *state_config,
                             const MidiDevice *midi) {
   pid_t pid;
-  bool beat_active, last_active, change, last_change;
+  bool beat_active;
+  bool last_active;
+  bool change;
+  bool last_change;
 
   pid = fork();
   if (pid < 0) {

@@ -121,7 +121,8 @@ void window_events() { glfwPollEvents(); }
 double window_get_time() { return glfwGetTime(); }
 
 void window_use(Window *window, SharedContext *context) {
-  int width, height;
+  int width;
+  int height;
 
   glfwMakeContextCurrent(window);
   glfwGetFramebufferSize(window, &width, &height);

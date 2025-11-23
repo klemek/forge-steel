@@ -59,7 +59,8 @@ bool string_is_number(const char *value) {
 
 char *string_replace_at(const char *src, unsigned int from, unsigned int to,
                         const char *rpl) {
-  unsigned long src_len, rpl_len;
+  unsigned long src_len;
+  unsigned long rpl_len;
   char *dst;
 
   src_len = strnlen(src, STR_LEN * STR_LEN);

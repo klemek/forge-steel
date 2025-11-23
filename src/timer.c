@@ -18,7 +18,8 @@ bool timer_inc(Timer *timer) {
 
 double timer_reset(Timer *timer) {
   struct timeval stop;
-  double secs, per_secs;
+  double secs;
+  double per_secs;
 
   gettimeofday(&stop, NULL);
 
