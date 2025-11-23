@@ -61,8 +61,6 @@ static void init_context(const Parameters *params) {
   state_init(context, &project.state_config, params->demo, params->auto_random,
              params->auto_random_cycle, params->base_tempo, params->load_state);
 
-  context->monitor = params->monitor;
-
   memset(context->input_resolutions, 0, sizeof(context->input_resolutions));
   memset(context->input_formats, 0, sizeof(context->input_formats));
   memset(context->input_fps, 0, sizeof(context->input_fps));

@@ -171,13 +171,10 @@ typedef struct Tempo {
 
 typedef struct SharedContext {
   int fd;
-
   vec2 resolution;
   vec2 tex_resolution;
   vec2 input_resolutions[MAX_VIDEO];
-
   double time;
-  unsigned int fps;
   Tempo tempo;
   double tempo_total;
   UintArray state;
@@ -189,8 +186,7 @@ typedef struct SharedContext {
   bool auto_random;
   unsigned int auto_random_cycle;
   unsigned int seeds[MAX_FRAG];
-  bool monitor;
-
+  unsigned int fps;
   unsigned int input_formats[MAX_VIDEO];
   unsigned int input_fps[MAX_VIDEO];
   bool stop;

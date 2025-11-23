@@ -18,6 +18,7 @@ uniform sampler2D iTex6;
 uniform sampler2D iTex7;
 uniform sampler2D iTex8;
 uniform sampler2D iTex9;
+uniform int iFPS;
 uniform int iInputFPS1;
 uniform int iInputFPS2;
 
@@ -132,8 +133,8 @@ void main() {
     t += write_5(uv3, vec2(33.5,8), texts[7]);
 
     f += rect(uv3, vec2(35, 6.75), vec2(2.8, 0.7));
-    t += write_int(uv3, vec2(32.4,6.25), iFPS, 2);
-    t += write_5(uv3, vec2(34.9,6.25), texts[8]);
+    t += write_int(uv3, vec2(32.4,6.1), iFPS, 2);
+    t += write_5(uv3, vec2(34.9,6.1), texts[8]);
 
     fragColor = mix(c, vec4(min(1, f) - t), min(1, f));
 }

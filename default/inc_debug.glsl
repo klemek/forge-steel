@@ -6,8 +6,6 @@
 #ifndef INC_DEBUG
 #define INC_DEBUG
 
-uniform int iFPS;
-
 uniform vec2 iInputResolution1;
 uniform vec2 iInputResolution2;
 uniform int iInputFormat1;
