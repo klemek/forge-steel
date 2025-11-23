@@ -171,7 +171,7 @@ static bool set_format(VideoCapture *video_capture) {
   fmt.fmt.pix.width = video_capture->width;
   fmt.fmt.pix.height = video_capture->height;
   fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
-  fmt.fmt.pix.field = V4L2_FIELD_ANY;
+  fmt.fmt.pix.field = V4L2_FIELD_INTERLACED;
 
   if (ioctl(video_capture->fd, VIDIOC_S_FMT, &fmt) == -1) {
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
