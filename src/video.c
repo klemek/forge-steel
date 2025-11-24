@@ -286,16 +286,17 @@ static void close_stream(const VideoCapture *video_capture) {
   ioctl(video_capture->fd, VIDIOC_STREAMOFF, &buf_type);
 }
 
-static unsigned int read_video(const VideoCapture *video_capture) {
+static unsigned int read_video(const VideoCapture *video_capture, bool swap) {
   int result;
 
   result = 0;
 
-  if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) != -1) {
+  if ((swap || !video_capture->with_swap) &&
+      ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) != -1) {
     ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
 
     result = 1;
-  } else if (video_capture->with_swap &&
+  } else if (!swap && video_capture->with_swap &&
              ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf_swap) !=
                  -1) {
     ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf_swap);
@@ -361,7 +362,7 @@ bool video_background_read(VideoCapture *video_capture, SharedContext *context,
   timer_init(&timer, 30);
 
   while (!context->stop) {
-    video_result = read_video(video_capture);
+    video_result = read_video(video_capture, context->input_swap[input_index]);
     if (video_result > 0 && timer_inc(&timer)) {
       fps = timer_reset(&timer);
 
