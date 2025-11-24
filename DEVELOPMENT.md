@@ -126,6 +126,7 @@ make -f Makefile.dev release-arch
   - [x] Monitor improvements
   - [ ] Ignore some values in auto random
   - [x] build without video in
+  - [ ] Auto discover video devices
   - [ ] Update README monitor/keymap
   - [ ] Auto reconnect midi input
   - [ ] Auto reconnect video device
@@ -136,4 +137,4 @@ make -f Makefile.dev release-arch
   - [ ] Play from record text file
 - [ ] Fixes
   - [ ] Try to write NanoKontrol config
-  - [ ] Investigate video device fps loss (bad unregister ?)
+  - [x] Investigate video device fps loss (bad unregister ?)

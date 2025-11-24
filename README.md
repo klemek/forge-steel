@@ -479,8 +479,6 @@ Unfortunately, V4L2 is very slow compared to driver-specific decoding.
 
 You can check your device real FPS on [V4L2 UCP](https://github.com/HedgeHawk/v4l2ucp) or [GTK UVC Viewer](https://github.com/jaswdr/guvcview).
 
-Sadly, OpenEGL doesn't support double-buffered DMA buffers so FPS in FORGE may be halved.
-
 ### My video feed got strange lines
 
 You need to decode the [V4L2 YUYV format](https://www.kernel.org/doc/html/v4.8/media/uapi/v4l/pixfmt-yuyv.html).

@@ -9,15 +9,13 @@ out vec4 fragColor;
 #include inc_debug.glsl
 
 uniform sampler2D iTex0;
-uniform sampler2D iTex1;
-uniform sampler2D iTex2;
-uniform sampler2D iTex3;
-uniform sampler2D iTex4;
 uniform sampler2D iTex5;
 uniform sampler2D iTex6;
 uniform sampler2D iTex7;
 uniform sampler2D iTex8;
 uniform sampler2D iTex9;
+uniform sampler2D iTex10;
+uniform sampler2D iTex11;
 uniform int iFPS;
 uniform int iInputFPS1;
 uniform int iInputFPS2;
@@ -52,14 +50,14 @@ void main() {
 
     vec4 c = vec4(0);
     
-    c += s(uv2,1,2) * texture(iTex5, uv2);
-    c += s(uv2,2,2) * texture(iTex7, uv2);
+    c += s(uv2,1,2) * texture(iTex7, uv2);
+    c += s(uv2,2,2) * texture(iTex9, uv2);
 
-    c += s(uv2,1,0) * texture(iTex6, uv2);
-    c += s(uv2,2,0) * texture(iTex8, uv2);
+    c += s(uv2,1,0) * texture(iTex8, uv2);
+    c += s(uv2,2,0) * texture(iTex10, uv2);
 
     c += s(uv2,0,1) * debug(mod(uv2, 1));
-    c += s(uv2,1,1) * texture(iTex9, uv2);
+    c += s(uv2,1,1) * texture(iTex11, uv2);
     c += s(uv2,2,1) * texture(iTex0, uv2);
 
     float sel = 0;
@@ -79,7 +77,7 @@ void main() {
     t += write_5(uv3, vec2(-37,28), texts[0]);
     
     if (iInputResolution1.x > 0) {
-        c += s(uv2,0,2) * texture(iTex3, uv2);
+        c += s(uv2,0,2) * texture(iTex5, uv2);
         f += rect(uv3, vec2(-35, 26.75), vec2(2.8, 0.7));
         t += write_int(uv3, vec2(-37.6,26.1), iInputFPS1, 2);
         t += write_5(uv3, vec2(-35.1,26.1), texts[8]);
@@ -92,7 +90,7 @@ void main() {
     t += write_5(uv3, vec2(-37,-12), texts[1]);
 
     if (iInputResolution2.x > 0) {
-        c += s(uv2,0,0) * texture(iTex4, uv2);
+        c += s(uv2,0,0) * texture(iTex6, uv2);
         f += rect(uv3, vec2(-35, -13.25), vec2(2.8, 0.7));
         t += write_int(uv3, vec2(-37.6,-13.9), iInputFPS2, 2);
         t += write_5(uv3, vec2(-35.1,-13.9), texts[8]);

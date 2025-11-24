@@ -75,7 +75,6 @@ static void open_device(VideoCapture *video_capture, const char *name) {
   strlcpy(video_capture->name, name, STR_LEN);
   video_capture->error = false;
   video_capture->fd = -1;
-  video_capture->exp_fd = -1;
 
   video_capture->fd = open(name, O_RDWR | O_NONBLOCK);
   if (video_capture->fd == -1) {
@@ -201,7 +200,7 @@ static bool request_buffers(VideoCapture *video_capture) {
 
   reqbuf.type = buf_type;
   reqbuf.memory = V4L2_MEMORY_MMAP;
-  reqbuf.count = 1;
+  reqbuf.count = 2;
 
   if (ioctl(video_capture->fd, VIDIOC_REQBUFS, &reqbuf) == -1) {
     ioctl_error(video_capture, "VIDIOC_REQBUFS",
@@ -211,18 +210,21 @@ static bool request_buffers(VideoCapture *video_capture) {
 
   log_info("(%s) V4L2 Buffer Count:  %d", video_capture->name, reqbuf.count);
 
+  video_capture->with_swap = reqbuf.count > 1;
+
   return true;
 }
 
-static bool export_buffer(VideoCapture *video_capture) {
+static bool export_buffer(VideoCapture *video_capture, int *fd,
+                          unsigned int index) {
   struct v4l2_exportbuffer expbuf;
 
-  video_capture->exp_fd = -1;
+  *fd = -1;
 
   memset(&expbuf, 0, sizeof(expbuf));
 
   expbuf.type = buf_type;
-  expbuf.index = 0;
+  expbuf.index = index;
   expbuf.flags = O_RDONLY;
 
   if (ioctl(video_capture->fd, VIDIOC_EXPBUF, &expbuf) == -1) {
@@ -232,9 +234,22 @@ static bool export_buffer(VideoCapture *video_capture) {
     return false;
   }
 
-  video_capture->exp_fd = expbuf.fd;
+  *fd = expbuf.fd;
 
   return true;
+}
+
+static bool export_buffers(VideoCapture *video_capture) {
+  bool result;
+
+  result = export_buffer(video_capture, &video_capture->exp_fd, 0);
+
+  if (result && video_capture->with_swap) {
+    result =
+        result && export_buffer(video_capture, &video_capture->exp_fd_swap, 1);
+  }
+
+  return result;
 }
 
 static bool open_stream(VideoCapture *video_capture) {
@@ -248,30 +263,47 @@ static bool open_stream(VideoCapture *video_capture) {
   return true;
 }
 
-static void create_image_buffer(VideoCapture *video_capture) {
-  memset(&video_capture->buf, 0, sizeof(video_capture->buf));
+static void create_image_buffer(const VideoCapture *video_capture,
+                                struct v4l2_buffer *buf, unsigned int index) {
+  memset(buf, 0, sizeof(*buf));
 
-  video_capture->buf.type = buf_type;
-  video_capture->buf.memory = V4L2_MEMORY_MMAP;
-  video_capture->buf.index = 0;
+  buf->type = buf_type;
+  buf->memory = V4L2_MEMORY_MMAP;
+  buf->index = index;
 
-  ioctl(video_capture->fd, VIDIOC_PREPARE_BUF);
+  ioctl(video_capture->fd, VIDIOC_QBUF, buf);
+}
 
-  ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
+static void create_image_buffers(VideoCapture *video_capture) {
+  create_image_buffer(video_capture, &video_capture->buf, 0);
+
+  if (video_capture->with_swap) {
+    create_image_buffer(video_capture, &video_capture->buf_swap, 1);
+  }
 }
 
 static void close_stream(const VideoCapture *video_capture) {
   ioctl(video_capture->fd, VIDIOC_STREAMOFF, &buf_type);
 }
 
-static bool read_video(VideoCapture *video_capture) {
+static unsigned int read_video(const VideoCapture *video_capture) {
+  int result;
+
+  result = 0;
+
   if (ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf) != -1) {
     ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf);
 
-    return true;
+    result = 1;
+  } else if (video_capture->with_swap &&
+             ioctl(video_capture->fd, VIDIOC_DQBUF, &video_capture->buf_swap) !=
+                 -1) {
+    ioctl(video_capture->fd, VIDIOC_QBUF, &video_capture->buf_swap);
+
+    result = 2;
   }
 
-  return false;
+  return result;
 }
 
 void video_init(VideoCapture *video_capture, const char *name,
@@ -298,7 +330,7 @@ void video_init(VideoCapture *video_capture, const char *name,
     return;
   }
 
-  if (!export_buffer(video_capture)) {
+  if (!export_buffers(video_capture)) {
     return;
   }
 
@@ -306,7 +338,7 @@ void video_init(VideoCapture *video_capture, const char *name,
     return;
   }
 
-  create_image_buffer(video_capture);
+  create_image_buffers(video_capture);
 }
 
 bool video_background_read(VideoCapture *video_capture, SharedContext *context,
@@ -314,6 +346,7 @@ bool video_background_read(VideoCapture *video_capture, SharedContext *context,
   pid_t pid;
   Timer timer;
   double fps;
+  unsigned int video_result;
 
   pid = fork();
   if (pid < 0) {
@@ -328,13 +361,17 @@ bool video_background_read(VideoCapture *video_capture, SharedContext *context,
   timer_init(&timer, 30);
 
   while (!context->stop) {
-    if (read_video(video_capture) && timer_inc(&timer)) {
+    video_result = read_video(video_capture);
+    if (video_result > 0 && timer_inc(&timer)) {
       fps = timer_reset(&timer);
 
       context->input_fps[input_index] = (unsigned int)round(fps);
       if (trace_fps) {
         log_trace("(%s) %.2ffps", video_capture->name, fps);
       }
+    }
+    if (video_result > 0) {
+      context->input_swap[input_index] = video_result == 2;
     }
   }
   if (context->stop) {
@@ -353,6 +390,9 @@ void video_free(const VideoCapture *video_capture) {
     close_stream(video_capture);
   }
   if (video_capture->exp_fd != -1) {
+    close(video_capture->exp_fd);
+  }
+  if (video_capture->exp_fd_swap != -1) {
     close(video_capture->exp_fd);
   }
   if (video_capture->fd != -1) {

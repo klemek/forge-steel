@@ -88,8 +88,10 @@ static void rebind_textures(const ShaderProgram *program) {
 
 #ifdef VIDEO_IN
 static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
-                                  unsigned int texture_index) {
-  input->dma_image = EGL_NO_IMAGE_KHR;
+                                  unsigned int texture_index, bool swap) {
+  EGLImageKHR dma_image;
+
+  dma_image = EGL_NO_IMAGE_KHR;
 
   // https://registry.khronos.org/EGL/extensions/EXT/EGL_EXT_image_dma_buf_import.txt
   const EGLint attrib_list[] = {EGL_WIDTH,
@@ -99,18 +101,23 @@ static void link_input_to_texture(ShaderProgram *program, VideoCapture *input,
                                 EGL_LINUX_DRM_FOURCC_EXT,
                                 input->pixelformat,
                                 EGL_DMA_BUF_PLANE0_FD_EXT,
-                                input->exp_fd,
+                                swap ? input->exp_fd_swap : input->exp_fd,
                                 EGL_DMA_BUF_PLANE0_OFFSET_EXT,
                                 0,
                                 EGL_DMA_BUF_PLANE0_PITCH_EXT,
                                 input->bytesperline,
                                 EGL_NONE};
 
-  input->dma_image =
-      eglCreateImageKHR(program->egl_display, EGL_NO_CONTEXT,
-                        EGL_LINUX_DMA_BUF_EXT, NULL, attrib_list);
+  dma_image = eglCreateImageKHR(program->egl_display, EGL_NO_CONTEXT,
+                                EGL_LINUX_DMA_BUF_EXT, NULL, attrib_list);
 
-  if (input->dma_image == EGL_NO_IMAGE_KHR) {
+  if (swap) {
+    input->dma_image_swap = dma_image;
+  } else {
+    input->dma_image = dma_image;
+  }
+
+  if (dma_image == EGL_NO_IMAGE_KHR) {
     log_error("(%s) eglCreateImageKHR failed %04x", input->name, eglGetError());
     return;
   }
@@ -137,7 +144,12 @@ static void init_input(ShaderProgram *program, const ConfigFile *config,
     if (i < inputs->length && !inputs->values[i].error) {
       snprintf(name, STR_LEN, "IN_%d_OUT", i + 1);
       tex_i = config_file_get_int(config, name, 0);
-      link_input_to_texture(program, &inputs->values[i], tex_i);
+      link_input_to_texture(program, &inputs->values[i], tex_i, false);
+      if (inputs->values[i].with_swap) {
+        snprintf(name, STR_LEN, "IN_%d_SWAP_OUT", i + 1);
+        tex_i = config_file_get_int(config, name, 0);
+        link_input_to_texture(program, &inputs->values[i], tex_i, true);
+      }
     } else {
       log_warn("Cannot link input %d", i + 1);
     }
@@ -321,6 +333,13 @@ static void init_single_program(ShaderProgram *program, unsigned int i,
         glGetUniformLocation(program->programs[i], name);
   }
 
+  prefix = config_file_get_str(config, "UNIFORM_IN_SWAP_PREFIX", "iInputSwap");
+  for (unsigned int j = 0; j < program->in_count; j++) {
+    snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
+    program->iinswap_locations[i * program->in_count + j] =
+        glGetUniformLocation(program->programs[i], name);
+  }
+
   prefix = config_file_get_str(config, "UNIFORM_SEED_PREFIX", "iSeed");
   for (unsigned int j = 0; j < program->frag_count; j++) {
     snprintf(name, STR_LEN, "%s%d", prefix, j + 1);
@@ -491,6 +510,8 @@ static void use_program(const ShaderProgram *program, int i, bool output,
                      context->input_formats[j]);
     write_uniform_1i(program->iinfps_locations[i * program->in_count + j],
                      context->input_fps[j]);
+    write_uniform_1i(program->iinswap_locations[i * program->in_count + j],
+                     context->input_swap[j] ? 1 : 0);
   }
 
   // set seeds uniforms
@@ -672,6 +693,9 @@ void shaders_free_input(const ShaderProgram *program,
 #ifdef VIDEO_IN
   if (!input->error && input->dma_image != EGL_NO_IMAGE_KHR) {
     eglDestroyImageKHR(program->egl_display, input->dma_image);
+  }
+  if (!input->error && input->dma_image_swap != EGL_NO_IMAGE_KHR) {
+    eglDestroyImageKHR(program->egl_display, input->dma_image_swap);
   }
 #endif /* VIDEO_IN */
 }

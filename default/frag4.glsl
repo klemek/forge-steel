@@ -2,7 +2,7 @@
 
 // SRC B
 // -----------
-// OUT: 6 (FX B)
+// OUT: 8 (FX B)
 
 in vec2 vUV;
 out vec4 fragColor;

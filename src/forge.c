@@ -68,6 +68,7 @@ static void init_context(const Parameters *params) {
   memset(context->input_resolutions, 0, sizeof(context->input_resolutions));
   memset(context->input_formats, 0, sizeof(context->input_formats));
   memset(context->input_fps, 0, sizeof(context->input_fps));
+  memset(context->input_swap, 0, sizeof(context->input_swap));
 }
 
 static void free_context() { shared_close_context(context); }

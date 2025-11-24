@@ -104,6 +104,7 @@ typedef struct ShaderProgram {
   GLuint iinres_locations[ARRAY_SIZE];
   GLuint iinfmt_locations[ARRAY_SIZE];
   GLuint iinfps_locations[ARRAY_SIZE];
+  GLuint iinswap_locations[ARRAY_SIZE];
   GLuint idemo_locations[ARRAY_SIZE];
   GLuint iautorand_locations[ARRAY_SIZE];
   GLuint iautorandcycle_locations[ARRAY_SIZE];
@@ -137,15 +138,19 @@ typedef struct ShaderProgram {
 typedef struct VideoCapture {
   char name[STR_LEN];
   bool error;
+  bool with_swap;
   int fd;
   int exp_fd;
+  int exp_fd_swap;
   unsigned int width;
   unsigned int height;
   unsigned int pixelformat;
   unsigned int bytesperline;
 #ifdef VIDEO_IN
   struct v4l2_buffer buf;
+  struct v4l2_buffer buf_swap;
   EGLImageKHR dma_image;
+  EGLImageKHR dma_image_swap;
 #endif /* VIDEO_IN */
 } VideoCapture;
 
@@ -190,6 +195,7 @@ typedef struct SharedContext {
   unsigned int fps;
   unsigned int input_formats[MAX_VIDEO];
   unsigned int input_fps[MAX_VIDEO];
+  bool input_swap[MAX_VIDEO];
   bool stop;
 } SharedContext;
 
